@@ -1,0 +1,23 @@
+# Python
+backend/venv/
+*.pyc
+__pycache__/
+
+# Django
+*.sqlite3
+*.log
+*.pot
+*.py[cod]
+*.so
+.env
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# VSCode
+.vscode/
+
+# OS Files
+.DS_Store
+Thumbs.db
