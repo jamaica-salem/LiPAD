@@ -22,7 +22,7 @@ export {};
 		N1 extends keyof __VLS_GlobalComponents ? N1 extends N0 ? Pick<__VLS_GlobalComponents, N0 extends keyof __VLS_GlobalComponents ? N0 : never> : { [K in N0]: __VLS_GlobalComponents[N1] } :
 		N2 extends keyof __VLS_GlobalComponents ? N2 extends N0 ? Pick<__VLS_GlobalComponents, N0 extends keyof __VLS_GlobalComponents ? N0 : never> : { [K in N0]: __VLS_GlobalComponents[N2] } :
 		N3 extends keyof __VLS_GlobalComponents ? N3 extends N0 ? Pick<__VLS_GlobalComponents, N0 extends keyof __VLS_GlobalComponents ? N0 : never> : { [K in N0]: __VLS_GlobalComponents[N3] } :
-		{ [K in N0]: unknown };
+		{};
 	type __VLS_FunctionalComponentCtx<T, K> = __VLS_PickNotAny<'__ctx' extends keyof __VLS_PickNotAny<K, {}>
 		? K extends { __ctx?: infer Ctx } ? NonNullable<Ctx> : never : any
 		, T extends (props: any, ctx: infer Ctx) => any ? Ctx : any
@@ -33,12 +33,12 @@ export {};
 		: {};
 	type __VLS_FunctionalComponent<T> = (props: (T extends { $props: infer Props } ? Props : {}) & Record<string, unknown>, ctx?: any) => __VLS_Element & {
 		__ctx?: {
-			attrs?: any,
-			slots?: T extends { $slots: infer Slots } ? Slots : Record<string, any>,
-			emit?: T extends { $emit: infer Emit } ? Emit : {},
-			props?: (T extends { $props: infer Props } ? Props : {}) & Record<string, unknown>,
-			expose?: (exposed: T) => void,
-		}
+			attrs?: any;
+			slots?: T extends { $slots: infer Slots } ? Slots : Record<string, any>;
+			emit?: T extends { $emit: infer Emit } ? Emit : {};
+			props?: (T extends { $props: infer Props } ? Props : {}) & Record<string, unknown>;
+			expose?: (exposed: T) => void;
+		};
 	};
 	type __VLS_IsFunction<T, K> = K extends keyof T
 		? __VLS_IsAny<T[K]> extends false
@@ -47,15 +47,19 @@ export {};
 		: true
 		: false
 		: false;
-	type __VLS_NormalizeComponentEvent<Props, Emits, onEvent extends keyof Props, Event extends keyof Emits, CamelizedEvent extends keyof Emits> = (
-		__VLS_IsFunction<Props, onEvent> extends true
-			? Props
-			: __VLS_IsFunction<Emits, Event> extends true
-				? { [K in onEvent]?: Emits[Event] }
-				: __VLS_IsFunction<Emits, CamelizedEvent> extends true
-					? { [K in onEvent]?: Emits[CamelizedEvent] }
-					: Props
-	) & Record<string, unknown>;
+	type __VLS_NormalizeComponentEvent<
+		Props,
+		Emits,
+		onEvent extends keyof Props,
+		Event extends keyof Emits,
+		CamelizedEvent extends keyof Emits,
+	> = __VLS_IsFunction<Props, onEvent> extends true
+		? Props
+		: __VLS_IsFunction<Emits, Event> extends true
+			? { [K in onEvent]?: Emits[Event] }
+			: __VLS_IsFunction<Emits, CamelizedEvent> extends true
+				? { [K in onEvent]?: Emits[CamelizedEvent] }
+				: Props;
 	// fix https://github.com/vuejs/language-tools/issues/926
 	type __VLS_UnionToIntersection<U> = (U extends unknown ? (arg: U) => unknown : never) extends ((arg: infer P) => unknown) ? P : never;
 	type __VLS_OverloadUnionInner<T, U = unknown> = U & T extends (...args: infer A) => infer R
