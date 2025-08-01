@@ -1,7 +1,5 @@
-// src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
 
-// Lazy-loaded views
 const Login = () => import('@/views/Login.vue')
 const MainLayout = () => import('@/layouts/MainLayout.vue')
 const Users = () => import('@/views/Users.vue')
@@ -10,22 +8,26 @@ const OverallHistory = () => import('@/views/OverallHistory.vue')
 const routes = [
   {
     path: '/',
-    name: 'Login',
-    component: Login
+    redirect: '/login',
   },
   {
-    path: '/admin',
+    path: '/login',
+    name: 'Login',
+    component: Login,
+  },
+  {
+    path: '/app',
     component: MainLayout,
     children: [
       {
         path: 'users',
         name: 'Users',
-        component: Users
+        component: Users,
       },
       {
         path: 'history',
         name: 'OverallHistory',
-        component: OverallHistory
+        component: OverallHistory,
       }
     ]
   }
@@ -33,7 +35,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
 
 export default router

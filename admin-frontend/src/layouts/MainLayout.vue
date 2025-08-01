@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-screen overflow-hidden">
     <div class="h-screen sticky top-0">
-      <Sidebar :app-name="'Caffi'" />
+      <Sidebar :app-name="'LiPAD'" />
     </div>
 
     <div class="flex flex-col flex-1 h-screen overflow-hidden">
