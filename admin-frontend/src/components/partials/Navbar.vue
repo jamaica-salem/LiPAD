@@ -46,12 +46,12 @@
           @click="toggleProfileMenu"
         >
           <!-- JS Initials Avatar -->
-          <div class="w-12 h-12 rounded-full bg-[#0E2247] text-white flex items-center justify-center font-semibold text-sm">
+          <div class="w-12 h-12 rounded-full bg-[#cfe0f1] text-[#0E2247] flex items-center justify-center text-sm">
             JS
           </div>
 
           <!-- Name & Email -->
-          <div class="text-base leading-tight text-accent">
+          <div class="text-[#0E2247] leading-tight text-accent">
             <div class="font-semibold text-lg">{{ user.name }}</div>
             <div class="text-sm">{{ user.email }}</div>
           </div>

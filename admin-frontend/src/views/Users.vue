@@ -1,5 +1,24 @@
 <template>
   <div class="p-6">
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="bg-[#0E2247] rounded-xl p-6 shadow text-white">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-base">Total Users</h3>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M15 11a4 4 0 10-8 0 4 4 0 008 0z" />
+          </svg>
+        </div>
+        <p class="text-4xl font-extrabold mb-2">{{ users.length }}</p>
+        <div class="flex items-center text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="text-green-500 mr-1" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+          <span>+12% from last month</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Card Container -->
     <div class="bg-[#f8fafd] shadow-md rounded-2xl mt-3 px-6 py-6 max-w-full">
       <h2 class="text-2xl font-bold mb-4 text-[#1d3557]">Users</h2>

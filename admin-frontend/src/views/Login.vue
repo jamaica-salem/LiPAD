@@ -9,8 +9,8 @@
             <ScanLineIcon class="text-[#265d9c]" size="40" />
           </div>
         </div>
-        <h2 class="text-3xl font-bold text-[#1f2f44]">Welcome!</h2>
-        <p class="mt-4 text-[#1f2f44]/70">Log in to continue to your dashboard.</p>
+        <h2 class="text-3xl font-bold text-[#0E2247]">Welcome!</h2>
+        <p class="mt-4 text-[#0E2247]/70">Log in to continue to your dashboard.</p>
       </div>
     </div>
 
