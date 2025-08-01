@@ -2,7 +2,7 @@
   <div class="p-6">
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="bg-[#0E2247] rounded-xl p-6 shadow text-white">
+      <div class="bg-[#265d9c] rounded-xl p-6 shadow text-white">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-semibold text-base">Total Users</h3>
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,7 +37,7 @@
           </svg>
         </div>
         <button
-          class="ml-4 bg-[#1d3557] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#16324f] flex items-center gap-2"
+          class="ml-4 bg-[#265d9c] text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-[#16324f] flex items-center gap-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
@@ -48,9 +48,9 @@
 
       <!-- Users Table -->
       <div class="bg-white rounded-2xl shadow p-6 border border-gray-200">
-        <h2 class="text-lg font-semibold mb-4 text-[#1d3557]">Users Table</h2>
+        <h2 class="text-lg font-semibold mb-4 text-[#1d3557]"></h2>
         <table class="min-w-full text-sm">
-          <thead class="bg-[#1d3557] text-white uppercase text-xs rounded-t-xl">
+          <thead class="bg-[#265d9c] text-white uppercase text-xs rounded-t-xl">
             <tr>
               <th class="px-4 py-2 text-left rounded-tl-lg">ID</th>
               <th class="px-4 py-2 text-left">User</th>

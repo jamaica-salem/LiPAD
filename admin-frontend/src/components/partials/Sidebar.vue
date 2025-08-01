@@ -4,14 +4,14 @@
   >
     <!-- App Logo and Name -->
     <div class="flex items-center gap-4 mb-12">
-      <ScanLine class="text-[#1f2f44]" size="32" />
-      <span class="text-2xl font-extrabold text-[#0E2247]">{{ appName }}</span>
+      <ScanLine class="text-[#265d9c]" size="32" />
+      <span class="text-2xl font-extrabold text-[#265d9c]">{{ appName }}</span>
     </div>
 
     <div class="flex-1 flex flex-col justify-between">
       <div>
         <!-- MENU -->
-        <div class="mb-5 text-base font-bold text-[#0E2247] uppercase tracking-widest">Menu</div>
+        <div class="mb-5 text-base font-bold text-[#265d9c] uppercase tracking-widest">Menu</div>
         <nav class="space-y-2 mb-12">
           <router-link
             v-for="item in navItems"
@@ -24,8 +24,8 @@
               @click="navigate"
               class="group flex items-center gap-4 text-lg font-medium rounded-lg px-3 py-2 transition-colors cursor-pointer"
               :class="isActive
-                ? 'text-[#0E2247] bg-[#FAFBFA] border-l-4 border-[#0E2247]'
-                : 'text-gray-500 hover:text-[#0E2247] hover:bg-[#F9FAFB]'"
+                ? 'text-[#265d9c] bg-[#FAFBFA] border-l-4 border-[#265d9c]'
+                : 'text-gray-500 hover:text-[#265d9c] hover:bg-[#F9FAFB]'"
             >
               <component :is="item.icon" :size="22" />
               <span>{{ item.label }}</span>
