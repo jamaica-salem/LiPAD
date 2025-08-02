@@ -13,7 +13,7 @@
     </p>
 
     <!-- Follow-up question -->
-    <p class="text-2xl font-semibold mb-8">Would you still like to see the result?</p>
+    <p class="text-2xl font-semibold mb-16">Would you still like to see the result?</p>
 
     <!-- Action buttons -->
     <div class="flex gap-8">
