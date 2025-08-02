@@ -3,6 +3,7 @@ import LogIn from '@/views/LogIn.vue'
 import LicensePlateUpload from '@/views/LicensePlateUpload.vue'
 import NavbarLayout from '@/layouts/NavbarLayout.vue'
 import LoadingPage from '@/views/LoadingPage.vue'
+import FailurePage from '@/views/FailurePage.vue'
 
 const routes = [
   {
@@ -27,6 +28,11 @@ const routes = [
         path: '/loading',
         name: 'LoadingPage',
         component: LoadingPage,
+      },
+            {
+        path: '/failed',
+        name: 'FailurePage',
+        component: FailurePage,
       },
     ],
   },
