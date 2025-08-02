@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-orange-100 min-h-[calc(100vh-90px)] flex items-center justify-center">
+  <div class="bg-gradient-to-br from-orange-50 via-orange-100 to-orange-200 min-h-[calc(100vh-90px)] flex items-center justify-center">
     <div class="max-w-4xl mx-auto py-16">
       <!-- Header Title -->
       <h1 class="text-4xl sm:text-4xl font-bold text-[#265d9c] mb-8 text-center">
@@ -60,12 +60,13 @@
 // Imports
 import { ref } from 'vue'
 import { Upload } from 'lucide-vue-next'
-import NavbarLayout from '@/layouts/NavbarLayout.vue'
+import { useRouter } from 'vue-router'
 
 // Refs
 const fileInput = ref(null)
 const selectedFile = ref(null)
 const errorMessage = ref('')
+const router = useRouter()
 
 // Trigger file picker
 const triggerFileInput = () => {
@@ -112,8 +113,10 @@ const processFile = (file) => {
   errorMessage.value = ''
   selectedFile.value = file
 
-  // TODO: Upload or process the image here (e.g., send to API or preview)
+  // Navigate to loading page
+  router.push({ name: 'LoadingPage' })
 }
+
 </script>
 
 <style scoped>

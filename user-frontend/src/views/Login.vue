@@ -60,7 +60,7 @@ import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
 
 const router = useRouter()
 
-// 🚀 Direct navigation without auth for now
+// Direct navigation without auth for now
 const handleLogin = () => {
   router.push({ name: 'LicensePlateUpload' })
 }

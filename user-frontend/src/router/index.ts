@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LogIn from '@/views/LogIn.vue'
 import LicensePlateUpload from '@/views/LicensePlateUpload.vue'
 import NavbarLayout from '@/layouts/NavbarLayout.vue'
+import LoadingPage from '@/views/LoadingPage.vue'
 
 const routes = [
   {
@@ -14,13 +15,18 @@ const routes = [
     component: LogIn,
   },
   {
-    path: '/upload',
+    path: '/',
     component: NavbarLayout,
     children: [
       {
-        path: '',
+        path: '/upload',
         name: 'LicensePlateUpload',
         component: LicensePlateUpload,
+      },
+      {
+        path: '/loading',
+        name: 'LoadingPage',
+        component: LoadingPage,
       },
     ],
   },
