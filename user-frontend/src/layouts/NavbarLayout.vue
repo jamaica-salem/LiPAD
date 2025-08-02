@@ -1,15 +1,13 @@
-<template>
-  <div class="min-h-screen flex flex-col">
-    <!-- Header/Navbar Component -->
-    <Navbar />
 
-    <!-- Routed Page Content -->
-    <main class="flex-1 p-6 bg-gray-50">
+<template>
+  <div class="min-h-screen bg-orange-100 text-[#1f2937]">
+    <Navbar />
+    <main class="">
       <router-view />
     </main>
   </div>
 </template>
 
 <script setup>
-import Navbar from '@/components/Navbar.vue'
+import Navbar from '@/components/partials/Navbar.vue'
 </script>

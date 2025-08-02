@@ -1,11 +1,11 @@
 <template>
-  <nav class="bg-[#FAFBFA] rounded-2xl shadow mt-4 mr-4 px-6 py-6 flex items-center justify-between">
+  <nav class="bg-[#265d9c] rounded-2xl shadow mt-4 mx-1 px-6 py-6 flex items-center justify-between">
     <!-- Left Side: Logo -->
     <div class="flex items-center gap-3 text-[#0E2247] font-bold text-xl">
-      <div class="bg-[#cfe0f1] p-2 rounded-full shadow">
-        <ScanLineIcon :size="24" class="text-[#265d9c]" />
+      <div class="bg-[#4574aa] p-2 rounded-full shadow">
+        <ScanLineIcon :size="24" class="text-white" />
       </div>
-      <span>LiPAD</span>
+      <span class="text-white">LiPAD</span>
     </div>
 
     <!-- Right Side: Profile only -->
@@ -17,7 +17,7 @@
         </div>
 
         <!-- User Info -->
-        <div class="text-[#0E2247] leading-tight text-accent">
+        <div class="text-white leading-tight text-accent">
           <div class="font-semibold text-lg">{{ user.name }}</div>
           <div class="text-sm">{{ user.email }}</div>
         </div>
@@ -62,8 +62,8 @@ const props = defineProps({
   user: {
     type: Object,
     default: () => ({
-      name: 'John Smith',
-      email: 'john@lipad.com',
+      name: 'Jamaica Salem',
+      email: 'jamaica.salem@lipad.com',
     }),
   },
 })

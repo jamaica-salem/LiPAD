@@ -25,34 +25,28 @@
 
         <h1 class="text-2xl font-bold text-[#1f2f44] mb-6 text-center">User Login</h1>
 
-        <!-- Error message -->
-        <p v-if="error" class="text-sm text-red-600 text-center mb-4">{{ error }}</p>
-
-        <!-- Login form -->
+        <!-- Login form (non-functional fields) -->
         <form @submit.prevent="handleLogin" class="space-y-4 mb-4">
           <input
             type="email"
-            v-model="email"
             placeholder="Email"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#a3c1e9] focus:border-[#a3c1e9]"
-            :disabled="loading"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 cursor-not-allowed"
+            disabled
           />
           <input
             type="password"
-            v-model="password"
             placeholder="Password"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#a3c1e9] focus:border-[#a3c1e9]"
-            :disabled="loading"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 cursor-not-allowed"
+            disabled
           />
           <div class="flex justify-between items-center text-xs">
             <p class="text-gray">Forgot your password? Please contact the admin.</p>
           </div>
           <button
             type="submit"
-            class="w-full bg-[#265d9c] text-white rounded-lg py-2 hover:bg-[#1f2f44] transition disabled:opacity-50"
-            :disabled="loading"
+            class="w-full bg-[#265d9c] text-white rounded-lg py-2 hover:bg-[#1f2f44] transition"
           >
-            {{ loading ? 'Logging in...' : 'Log In' }}
+            Log In
           </button>
         </form>
       </div>
@@ -61,40 +55,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
 
-const email = ref('')
-const password = ref('')
-const error = ref('')
-const loading = ref(false)
-
 const router = useRouter()
 
-const handleLogin = async () => {
-  error.value = ''
-  if (!email.value || !password.value) {
-    error.value = 'Please enter both email and password.'
-    return
-  }
-
-  try {
-    loading.value = true
-
-    // Simulate API delay 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    if (email.value === 'user@example.com' && password.value === 'password') {
-      router.push({ name: 'Users' })
-    } else {
-      error.value = 'Invalid email or password.'
-    }
-  } catch (err) {
-    error.value = 'An unexpected error occurred. Please try again later.'
-  } finally {
-    loading.value = false
-  }
+// 🚀 Direct navigation without auth for now
+const handleLogin = () => {
+  router.push({ name: 'LicensePlateUpload' })
 }
-
 </script>

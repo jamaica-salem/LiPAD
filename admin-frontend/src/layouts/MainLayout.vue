@@ -9,7 +9,7 @@
         class="transition-transform duration-300"
         :class="showNavbar ? 'translate-y-0' : '-translate-y-full'"
       >
-        <Navbar :app-name="'Caffi'" :user="user" />
+        <Navbar :app-name="'LiPAD'" :user="user" />
       </div>
 
       <main ref="mainContent" class="flex-1 overflow-auto p-6 bg-white">
