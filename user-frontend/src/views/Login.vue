@@ -82,10 +82,9 @@ const handleLogin = async () => {
   try {
     loading.value = true
 
-    // Simulate API delay (remove this in real usage)
+    // Simulate API delay 
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    // Replace with real API login logic here
     if (email.value === 'user@example.com' && password.value === 'password') {
       router.push({ name: 'Users' })
     } else {
@@ -98,8 +97,4 @@ const handleLogin = async () => {
   }
 }
 
-const handleGoogleLogin = () => {
-  if (loading.value) return
-  alert('Google login not yet implemented.')
-}
 </script>
