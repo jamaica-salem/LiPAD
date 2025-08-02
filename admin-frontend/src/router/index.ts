@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-const Login = () => import('@/views/Login.vue')
+const Login = () => import('@/views/LogIn.vue')
 const MainLayout = () => import('@/layouts/MainLayout.vue')
 const Users = () => import('@/views/Users.vue')
 const OverallHistory = () => import('@/views/OverallHistory.vue')
@@ -12,7 +12,7 @@ const routes = [
   },
   {
     path: '/login',
-    name: 'Login',
+    name: 'LogIn',
     component: Login,
   },
   {
