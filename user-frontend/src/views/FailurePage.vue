@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-[calc(100vh-90px)] flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-orange-100 to-orange-200 text-[#265d9c]"
+    class="min-h-[calc(100vh-90px)] flex flex-col items-center justify-center bg-orange-50 text-[#265d9c]"
   >
     <!-- Creative Failed Icon -->
     <div class="mb-8 animate-bounce">
@@ -19,13 +19,13 @@
     <div class="flex gap-8">
       <button
         class="w-48 bg-[#265d9c] hover:bg-[#1d4a80] text-white text-xl font-semibold py-3 px-8 rounded-full transition duration-300 shadow-lg"
-        @click="handleUserChoice(true)"
+        @click="goTo('/result')"
       >
         Yes
       </button>
       <button
-        class="w-48 bg-white hover:bg-orange-200 text-[#265d9c] text-xl font-semibold py-3 px-8 rounded-full transition duration-300 shadow-lg"
-        @click="handleUserChoice(false)"
+        class="w-48 bg-white hover:bg-[#f4f4f4] text-[#265d9c] text-xl font-semibold py-3 px-8 rounded-full transition duration-300 shadow-lg"
+        @click="goTo('/upload')"
       >
         No
       </button>

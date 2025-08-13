@@ -9,16 +9,16 @@
       <Navbar :user="user" class="mr-2" />
 
       <!-- Page Content -->
-      <main class="flex-1 overflow-y-auto p-6 mt-2 bg-white rounded-2xl shadow-inner mx-2">
-        <slot />
+      <main class="flex-1 overflow-y-auto p-6 mt-2 bg-orange-50 rounded-2xl mx-2">
+        <router-view />
       </main>
     </div>
   </div>
 </template>
 
 <script setup>
-import Navbar from '@/components/Navbar.vue'
-import Sidebar from '@/components/Sidebar.vue'
+import Navbar from '@/components/partials/NavbarWithoutLogo.vue'
+import Sidebar from '@/components/partials/Sidebar.vue'
 
 const user = {
   name: 'Jamaica Salem',

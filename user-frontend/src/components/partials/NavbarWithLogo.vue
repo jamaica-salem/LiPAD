@@ -43,7 +43,7 @@
           </li>
           <li
             class="flex items-center gap-3 p-3 hover:bg-primary-lightest cursor-pointer text-red-500"
-            @click="logout"
+            @click="goTo('/login')"
           >
             <LogOut :size="18" /> Log out
           </li>

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gradient-to-br from-orange-50 via-orange-100 to-orange-200 min-h-[calc(100vh-90px)] flex items-center justify-center">
+  <div class="bg-orange-50 min-h-[calc(100vh-90px)] flex items-center justify-center">
     <div class="max-w-4xl mx-auto py-16">
       <!-- Header Title -->
       <h1 class="text-4xl sm:text-4xl font-bold text-[#265d9c] mb-8 text-center">

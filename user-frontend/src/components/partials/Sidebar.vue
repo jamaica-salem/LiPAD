@@ -46,7 +46,7 @@ const props = defineProps({
 
 // Navigation items for the sidebar
 const navItems = [
-  { to: '/app/result', label: 'Result', icon: ImageDown },
-  { to: '/app/history', label: 'History', icon: Clock4 }
+  { to: '/result', label: 'Result', icon: ImageDown },
+  { to: '/history', label: 'History', icon: Clock4 }
 ];
 </script>

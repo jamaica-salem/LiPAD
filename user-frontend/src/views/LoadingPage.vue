@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-[calc(100vh-90px)] flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-orange-100 to-orange-200 text-[#265d9c]">
+  <div class="min-h-[calc(100vh-90px)] flex flex-col items-center justify-center bg-orange-50 text-[#265d9c]">
     <!-- Animated Icon -->
     <div class="mb-10 animate-pulse">
       <ScanLineIcon class="w-50 h-50 text-orange-800" />

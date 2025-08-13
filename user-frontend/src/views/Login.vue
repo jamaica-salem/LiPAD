@@ -9,7 +9,7 @@
           </div>
         </div>
         <h2 class="text-3xl font-bold text-[#0E2247]">Welcome to LiPAD</h2>
-        <p class="mt-4 text-[#0E2247]/70">Log in to continue to your dashboard.</p>
+        <p class="mt-4 text-[#0E2247]/70">Please log in to continue with license plate deblurring.</p>
       </div>
     </div>
 
@@ -31,13 +31,11 @@
             type="email"
             placeholder="Email"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 cursor-not-allowed"
-            disabled
           />
           <input
             type="password"
             placeholder="Password"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 cursor-not-allowed"
-            disabled
           />
           <div class="flex justify-between items-center text-xs">
             <p class="text-gray">Forgot your password? Please contact the admin.</p>
