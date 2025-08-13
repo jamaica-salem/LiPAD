@@ -4,7 +4,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <div class="bg-[#265d9c] rounded-xl p-6 shadow text-white">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="font-semibold text-base">Total Users</h3>
+          <h3 class="font-semibold text_base">Total Users</h3>
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M15 11a4 4 0 10-8 0 4 4 0 008 0z" />
           </svg>
@@ -37,6 +37,7 @@
           </svg>
         </div>
         <button
+          @click="isAddUserModalOpen = true"
           class="ml-4 bg-[#265d9c] text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-[#16324f] flex items-center gap-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -48,7 +49,6 @@
 
       <!-- Users Table -->
       <div class="bg-white rounded-2xl shadow p-6 border border-gray-200">
-        <h2 class="text-lg font-semibold mb-4 text-[#1d3557]"></h2>
         <table class="min-w-full text-sm">
           <thead class="bg-[#265d9c] text-white uppercase text-xs rounded-t-xl">
             <tr>
@@ -56,21 +56,15 @@
               <th class="px-4 py-2 text-left">User</th>
               <th class="px-4 py-2 text-left">Email</th>
               <th class="px-4 py-2 text-left">Password</th>
-              <th class="px-4 py-2 text-left ">Position</th>
+              <th class="px-4 py-2 text-left">Position</th>
               <th class="px-4 py-2 text-left rounded-tr-lg">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="user in filteredUsers"
-              :key="user.id"
-              class="border-t border-gray-200 hover:bg-[#edf5ff]"
-            >
+            <tr v-for="user in filteredUsers" :key="user.id" class="border-t border-gray-200 hover:bg-[#edf5ff]">
               <td class="px-4 py-2 text-[#1d3557] font-semibold">#{{ user.id }}</td>
               <td class="px-4 py-2 flex items-center space-x-3">
-                <div
-                  class="w-8 h-8 rounded-full bg-[#cfe0f1] flex items-center justify-center text-xs text-[#1d3557] border border-white uppercase"
-                >
+                <div class="w-8 h-8 rounded-full bg-[#cfe0f1] flex items-center justify-center text-xs text-[#1d3557] border border-white uppercase">
                   {{ getInitials(user.name) }}
                 </div>
                 <div class="font-medium text-[#1d3557]">{{ user.name }}</div>
@@ -79,34 +73,103 @@
               <td class="px-4 py-2 text-gray-400 font-mono">********{{ user.id }}</td>
               <td class="px-4 py-2">{{ user.role }}</td>
               <td class="px-4 py-2 flex items-center space-x-2">
-                <button class="text-[#1d3557] hover:text-[#2a486e]" title="Edit">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4 12.5-12.5z" />
-                  </svg>
-                </button>
-                <button class="text-red-600 hover:text-red-800" title="Delete">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M8 6v12a2 2 0 002 2h4a2 2 0 002-2V6m-6 0V4a2 2 0 012-2h0a2 2 0 012 2v2" />
-                  </svg>
-                </button>
-                <button @click="selectedUser = user" class="text-[#457b9d] hover:text-[#1d3557]" title="View">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                </button>
+                <button class="text-[#1d3557] hover:text-[#2a486e]" title="Edit">✏️</button>
+                <button class="text-red-600 hover:text-red-800" title="Delete">🗑</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+
+    <!-- Add User Modal (no black background overlay) -->
+    <div
+      v-if="isAddUserModalOpen"
+      class="fixed inset-0 z-50 flex justify-center items-center p-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="bg-white w-full max-w-2xl p-6 rounded-2xl shadow-2xl relative overflow-auto max-h-screen border border-gray-200">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
+          <h2 class="text-xl font-semibold text-gray-800">Add User</h2>
+          <button @click="isAddUserModalOpen = false" class="text-gray-500 hover:text-red-600 text-2xl leading-none">&times;</button>
+        </div>
+
+        <!-- Form -->
+        <div class="space-y-6 text-sm">
+          <!-- First Row: Profile Picture -->
+          <div class="flex">
+            <div class="flex flex-col gap-2 relative group">
+              <div
+                @dblclick="fileInputRef?.click()"
+                class="w-32 h-32 border border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center cursor-pointer relative"
+              >
+                <img v-if="newUser.photoPreview" :src="newUser.photoPreview" class="object-cover h-full w-full rounded-lg" />
+                <span v-else class="text-xs text-gray-400 text-center px-2">Double click to upload</span>
+                <button
+                  v-if="newUser.photoPreview"
+                  @click="deletePhoto"
+                  class="absolute top-1 right-1 text-red-500 opacity-0 group-hover:opacity-100"
+                  title="Remove"
+                >
+                  🗑
+                </button>
+              </div>
+              <input
+                :ref="el => (fileInputRef = el)"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handlePhotoUpload"
+              />
+            </div>
+          </div>
+
+          <!-- Second Row: First, Middle, Last Name -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input v-model="newUser.firstName" type="text" placeholder="First Name"
+              class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <input v-model="newUser.middleName" type="text" placeholder="Middle Name"
+              class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <input v-model="newUser.lastName" type="text" placeholder="Last Name"
+              class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+          </div>
+
+          <!-- Third Row: Email, Password -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input v-model="newUser.email" type="email" placeholder="Email"
+              class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <input v-model="newUser.password" type="password" placeholder="Password"
+              class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+          </div>
+
+          <!-- Fourth Row: Birthdate, Position -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input v-model="newUser.birthdate" type="date"
+              class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <input v-model="newUser.position" type="text" placeholder="Position"
+              class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-8 flex justify-end gap-3">
+          <button @click="isAddUserModalOpen = false" class="bg-white border border-gray-300 px-4 py-2 rounded hover:bg-gray-100">
+            Cancel
+          </button>
+          <button @click="saveUser" class="bg-[#265d9c] text-white px-5 py-2 rounded-md hover:bg-[#16324f]">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeUnmount } from 'vue'
 
 const users = ref([
   { id: 1, name: 'John Doe', email: 'john.doe@example.com', role: 'Admin' },
@@ -118,11 +181,73 @@ const users = ref([
 ])
 
 const searchQuery = ref('')
-const selectedUser = ref(null)
+const isAddUserModalOpen = ref(false)
+let fileInputRef = null
+
+const newUser = ref({
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  email: '',
+  password: '',
+  position: '',
+  birthdate: '',
+  photoPreview: null
+})
+
+const resetNewUser = () => {
+  newUser.value = {
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    position: '',
+    birthdate: '',
+    photoPreview: null
+  }
+  if (fileInputRef) fileInputRef.value = ''
+}
+
+const handlePhotoUpload = (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  // revoke old preview if any
+  if (newUser.value.photoPreview) {
+    URL.revokeObjectURL(newUser.value.photoPreview)
+  }
+  newUser.value.photoPreview = URL.createObjectURL(file)
+}
+
+const deletePhoto = () => {
+  if (newUser.value.photoPreview) {
+    URL.revokeObjectURL(newUser.value.photoPreview)
+  }
+  newUser.value.photoPreview = null
+  if (fileInputRef) fileInputRef.value = ''
+}
+
+onBeforeUnmount(() => {
+  if (newUser.value.photoPreview) {
+    URL.revokeObjectURL(newUser.value.photoPreview)
+  }
+})
+
+const saveUser = () => {
+  const fullName = `${newUser.value.firstName} ${newUser.value.middleName} ${newUser.value.lastName}`.replace(/\s+/g, ' ').trim()
+  users.value.push({
+    id: users.value.length + 1,
+    name: fullName || 'New User',
+    email: newUser.value.email,
+    role: newUser.value.position
+  })
+  isAddUserModalOpen.value = false
+  resetNewUser()
+}
 
 const getInitials = (name) => {
   const words = name.trim().split(' ')
-  return words.length === 1 ? words[0][0] : words[0][0] + words[1][0]
+  return words.length === 1 ? words[0][0] : (words[0][0] + words[1][0])
 }
 
 const filteredUsers = computed(() => {
@@ -135,4 +260,5 @@ const filteredUsers = computed(() => {
 </script>
 
 <style scoped>
+/* no extra styles needed */
 </style>
