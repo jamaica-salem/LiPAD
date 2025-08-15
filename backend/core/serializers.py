@@ -24,7 +24,22 @@ class AdminSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','first_name','middle_name','last_name','email','date_of_birth','position','created_at']
+        fields = [
+            'id', 'first_name', 'middle_name', 'last_name',
+            'email', 'password', 'position', 'date_of_birth', 'created_at'
+        ]
+        extra_kwargs = {
+            'password': {'write_only': True}  # never send password to frontend
+        }
+
+    def create(self, validated_data):
+        # Automatically hash password
+        password = validated_data.pop('password', None)
+        user = User(**validated_data)
+        if password:
+            user.password = user.set_password(password) if hasattr(user, 'set_password') else user.password
+        user.save()
+        return user
 
 class ImageSerializer(serializers.ModelSerializer):
     """Handles image validation and URL generation for frontend"""

@@ -9,8 +9,16 @@ class AdminViewSet(viewsets.ModelViewSet):
     serializer_class = AdminSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('-created_at')
+    queryset = User.objects.all().order_by('id')
     serializer_class = UserSerializer
+    pagination_class = None  
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all().order_by('-created_at')
