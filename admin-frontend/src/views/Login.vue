@@ -3,43 +3,43 @@
 
     <!-- Left-side branding -->
     <div class="hidden lg:flex flex-1 bg-gradient-to-br from-[#d9e7f6] to-[#e2effb] items-center justify-center">
-      <div class="text-center px-12">
-        <div class="flex justify-center mb-6">
-          <div class="bg-[#ccdef0] p-4 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" size="40" />
+      <div class="text-center px-8">
+        <div class="flex justify-center mb-4">
+          <div class="bg-[#ccdef0] p-3 rounded-2xl shadow-lg">
+            <ScanLineIcon class="text-[#265d9c]" size="32" />
           </div>
         </div>
-        <h2 class="text-3xl font-bold text-[#0E2247]">LiPAD Admin</h2>
-        <p class="mt-4 text-[#0E2247]/70">Log in to continue to your dashboard.</p>
+        <h2 class="text-2xl font-bold text-[#0E2247]">LiPAD Admin</h2>
+        <p class="mt-3 text-sm text-[#0E2247]/70">Log in to continue to your dashboard.</p>
       </div>
     </div>
 
     <!-- Login Card -->
-    <div class="flex flex-1 items-center justify-center p-6">
-      <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10">
+    <div class="flex flex-1 items-center justify-center p-4">
+      <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8">
 
         <!-- Mobile logo -->
-        <div class="flex justify-center mb-6 lg:hidden">
-          <div class="bg-[#c9def3] p-4 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" size="36" />
+        <div class="flex justify-center mb-4 lg:hidden">
+          <div class="bg-[#c9def3] p-3 rounded-2xl shadow-lg">
+            <ScanLineIcon class="text-[#265d9c]" size="28" />
           </div>
         </div>
 
-        <h1 class="text-2xl font-bold text-[#1f2f44] mb-6 text-center">Admin Login</h1>
+        <h1 class="text-xl font-bold text-[#1f2f44] mb-4 text-center">Admin Login</h1>
 
         <!-- Login form -->
-        <form @submit.prevent="handleLogin" class="space-y-4 mb-4">
+        <form @submit.prevent="handleLogin" class="space-y-3 mb-3">
           <input
             type="email"
             v-model="email"
             placeholder="Email"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#a3c1e9] focus:border-[#a3c1e9]"
+            class="w-full border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#a3c1e9] focus:border-[#a3c1e9]"
           />
           <input
             type="password"
             v-model="password"
             placeholder="Password"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#a3c1e9] focus:border-[#a3c1e9]"
+            class="w-full border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#a3c1e9] focus:border-[#a3c1e9]"
           />
           <div class="flex justify-between items-center text-xs">
             <label class="flex items-center gap-1 text-[#1f2f44]">
@@ -50,7 +50,7 @@
           </div>
           <button
             type="submit"
-            class="w-full bg-[#265d9c] text-white rounded-lg py-2 hover:bg-[#1f2f44] transition"
+            class="w-full bg-[#265d9c] text-white rounded-lg py-1.5 hover:bg-[#1f2f44] transition"
           >
             Log In
           </button>
