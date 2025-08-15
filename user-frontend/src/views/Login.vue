@@ -2,40 +2,40 @@
   <div class="flex min-h-screen bg-[#e6f0fb]">
     <!-- Left-side branding -->
     <div class="hidden lg:flex flex-1 bg-gradient-to-br from-[#d9e7f6] to-[#e2effb] items-center justify-center">
-      <div class="text-center px-12">
-        <div class="flex justify-center mb-6">
-          <div class="bg-[#ccdef0] p-4 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" size="40" />
+      <div class="text-center px-10">
+        <div class="flex justify-center mb-5">
+          <div class="bg-[#ccdef0] p-3 rounded-2xl shadow-lg">
+            <ScanLineIcon class="text-[#265d9c]" size="32" />
           </div>
         </div>
-        <h2 class="text-3xl font-bold text-[#0E2247]">Welcome to LiPAD</h2>
-        <p class="mt-4 text-[#0E2247]/70">Please log in to continue with license plate deblurring.</p>
+        <h2 class="text-2xl font-bold text-[#0E2247]">Welcome to LiPAD</h2>
+        <p class="mt-3 text-sm text-[#0E2247]/70">Please log in to continue with license plate deblurring.</p>
       </div>
     </div>
 
     <!-- Login Card -->
-    <div class="flex flex-1 items-center justify-center p-6">
-      <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-10">
+    <div class="flex flex-1 items-center justify-center p-4">
+      <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8">
         <!-- Mobile logo -->
-        <div class="flex justify-center mb-6 lg:hidden">
-          <div class="bg-[#c9def3] p-4 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" size="36" />
+        <div class="flex justify-center mb-5 lg:hidden">
+          <div class="bg-[#c9def3] p-3 rounded-2xl shadow-lg">
+            <ScanLineIcon class="text-[#265d9c]" size="28" />
           </div>
         </div>
 
-        <h1 class="text-2xl font-bold text-[#1f2f44] mb-6 text-center">User Login</h1>
+        <h1 class="text-xl font-bold text-[#1f2f44] mb-5 text-center">User Login</h1>
 
         <!-- Login form (non-functional fields) -->
-        <form @submit.prevent="handleLogin" class="space-y-4 mb-4">
+        <form @submit.prevent="handleLogin" class="space-y-3 mb-3">
           <input
             type="email"
             placeholder="Email"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 cursor-not-allowed"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed"
           />
           <input
             type="password"
             placeholder="Password"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 cursor-not-allowed"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed"
           />
           <div class="flex justify-between items-center text-xs">
             <p class="text-gray">Forgot your password? Please contact the admin.</p>
@@ -51,7 +51,7 @@
     </div>
   </div>
 </template>
-
+  
 <script setup>
 import { useRouter } from 'vue-router'
 import { ScanLine as ScanLineIcon } from 'lucide-vue-next'

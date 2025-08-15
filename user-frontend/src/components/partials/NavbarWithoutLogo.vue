@@ -1,53 +1,54 @@
 <template>
-  <nav class="bg-[#265d9c] rounded-2xl shadow mt-4 mx-1 px-6 py-6 flex items-center justify-between">
+  <nav class="bg-[#265d9c] rounded-xl shadow mt-3 mx-1 px-4 py-4 flex items-center justify-between">
     <!-- Left Side: Logo -->
-    <div class="flex items-center gap-3 text-[#0E2247] font-bold text-xl">
+    <div class="flex items-center gap-2 text-[#0E2247] font-bold text-lg">
     </div>
 
     <!-- Right Side: Profile only -->
     <div class="relative" ref="profileRef">
-      <div class="flex items-center gap-4 cursor-pointer" @click="toggleProfileMenu">
+      <div class="flex items-center gap-3 cursor-pointer" @click="toggleProfileMenu">
         <!-- Avatar -->
-        <div class="w-12 h-12 rounded-full bg-[#cfe0f1] text-[#0E2247] flex items-center justify-center text-sm font-semibold">
+        <div class="w-10 h-10 rounded-full bg-[#cfe0f1] text-[#0E2247] flex items-center justify-center text-xs font-semibold">
           {{ initials }}
         </div>
 
         <!-- User Info -->
         <div class="text-white leading-tight text-accent">
-          <div class="font-semibold text-lg">{{ user.name }}</div>
-          <div class="text-sm">{{ user.email }}</div>
+          <div class="font-semibold text-base">{{ user.name }}</div>
+          <div class="text-xs">{{ user.email }}</div>
         </div>
       </div>
 
       <!-- Profile Dropdown -->
       <div
         v-if="showProfileMenu"
-        class="absolute right-0 mt-3 w-52 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden"
+        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden"
       >
         <ul class="text-sm text-primary-darkest divide-y divide-gray-100">
           <li
-            class="flex items-center gap-3 p-3 hover:bg-primary-lightest cursor-pointer"
+            class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer"
             @click="goTo('/profile')"
           >
-            <User :size="18" /> Profile
+            <User :size="16" /> Profile
           </li>
           <li
-            class="flex items-center gap-3 p-3 hover:bg-primary-lightest cursor-pointer"
+            class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer"
             @click="goTo('/settings')"
           >
-            <Settings :size="18" /> Settings
+            <Settings :size="16" /> Settings
           </li>
           <li
-            class="flex items-center gap-3 p-3 hover:bg-primary-lightest cursor-pointer text-red-500"
+            class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer text-red-500"
             @click="goTo('/login')"
           >
-            <LogOut :size="18" /> Log out
+            <LogOut :size="16" /> Log out
           </li>
         </ul>
       </div>
     </div>
   </nav>
 </template>
+
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'

@@ -1,12 +1,12 @@
 <template>
   <div class="min-h-[calc(100vh-90px)] flex flex-col items-center justify-center bg-orange-50 text-[#265d9c]">
     <!-- Animated Icon -->
-    <div class="mb-10 animate-pulse">
-      <ScanLineIcon class="w-50 h-50 text-orange-800" />
+    <div class="mb-8 animate-pulse">
+      <ScanLineIcon class="w-32 h-32 text-orange-800" />
     </div>
 
     <!-- Random Loading Text -->
-    <p class="text-3xl sm:text-3xl font-bold text-center px-10 transition-opacity duration-500" :key="currentText">
+    <p class="text-2xl sm:text-2xl font-bold text-center px-8 transition-opacity duration-500" :key="currentText">
       {{ currentText }}
     </p>
   </div>

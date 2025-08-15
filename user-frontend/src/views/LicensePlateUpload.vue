@@ -1,29 +1,29 @@
 <template>
   <div class="bg-orange-50 min-h-[calc(100vh-90px)] flex items-center justify-center">
-    <div class="max-w-4xl mx-auto py-16">
+    <div class="max-w-3xl mx-auto py-12">
       <!-- Header Title -->
-      <h1 class="text-4xl sm:text-4xl font-bold text-[#265d9c] mb-8 text-center">
+      <h1 class="text-3xl sm:text-3xl font-bold text-[#265d9c] mb-6 text-center">
         LiPAD: AI-Powered Philippine License Plate Deblurring and Recognition
       </h1>
 
       <!-- Description -->
-      <p class="text-lg sm:text-xl text-gray-700 mb-10 leading-relaxed text-center">
+      <p class="text-base sm:text-lg text-gray-700 mb-8 leading-relaxed text-center">
         Enhance license plate visibility effortlessly with LiPAD, your smart AI solution for deblurring and recognition.
         Designed to process low-quality images with precision, LiPAD restores clarity and extracts essential plate details in seconds.
       </p>
 
       <!-- Upload area -->
       <div
-        class="bg-white border-2 border-dashed border-[#265d9c] rounded-2xl p-10 text-center shadow-md hover:shadow-lg transition-all duration-200"
+        class="bg-white border-2 border-dashed border-[#265d9c] rounded-2xl p-8 text-center shadow-md hover:shadow-lg transition-all duration-200"
         @dragover.prevent="handleDragOver"
         @drop.prevent="handleDrop"
       >
         <!-- Lucide Icon -->
-        <div class="mb-5 text-[#265d9c] opacity-60">
-          <Upload class="mx-auto w-20 h-20" />
+        <div class="mb-4 text-[#265d9c] opacity-60">
+          <Upload class="mx-auto w-16 h-16" />
         </div>
 
-        <p class="text-gray-600 text-base sm:text-lg mb-5">Drag & drop a license plate image here or</p>
+        <p class="text-gray-600 text-sm sm:text-base mb-4">Drag & drop a license plate image here or</p>
 
         <!-- File Picker Button -->
         <input
@@ -35,26 +35,24 @@
         />
         <button
           @click="triggerFileInput"
-          class="bg-[#265d9c] hover:bg-[#1d4b81] text-white font-medium py-3 px-8 rounded-lg shadow text-lg"
+          class="bg-[#265d9c] hover:bg-[#1d4b81] text-white font-medium py-2.5 px-6 rounded-lg shadow text-base"
         >
           Upload Image
         </button>
 
         <!-- Selected file info -->
-        <div v-if="selectedFile" class="mt-5 text-gray-800 text-base">
+        <div v-if="selectedFile" class="mt-4 text-gray-800 text-sm">
           <p><strong>Selected:</strong> {{ selectedFile.name }}</p>
         </div>
 
         <!-- Error message -->
-        <div v-if="errorMessage" class="mt-5 text-red-600 font-semibold text-base">
+        <div v-if="errorMessage" class="mt-4 text-red-600 font-semibold text-sm">
           {{ errorMessage }}
         </div>
       </div>
     </div>
   </div>
 </template>
-
-
 
 <script setup>
 // Imports
