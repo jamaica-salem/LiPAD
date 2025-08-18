@@ -25,21 +25,23 @@
 
         <h1 class="text-xl font-bold text-[#1f2f44] mb-5 text-center">User Login</h1>
 
-        <!-- Login form (non-functional fields) -->
+        <!-- Login form -->
         <form @submit.prevent="handleLogin" class="space-y-3 mb-3">
           <input
             type="email"
+            v-model="email"
             placeholder="Email"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2"
+            required
           />
           <input
             type="password"
+            v-model="password"
             placeholder="Password"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2"
+            required
           />
-          <div class="flex justify-between items-center text-xs">
-            <p class="text-gray">Forgot your password? Please contact the admin.</p>
-          </div>
+          <p v-if="error" class="text-red-500 text-xs">{{ error }}</p>
           <button
             type="submit"
             class="w-full bg-[#265d9c] text-white rounded-lg py-2 hover:bg-[#1f2f44] transition"
@@ -54,12 +56,42 @@
   
 <script setup>
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
+import axios from 'axios'
 import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
 
 const router = useRouter()
+const email = ref('')
+const password = ref('')
+const error = ref('')
 
-// Direct navigation without auth for now
-const handleLogin = () => {
-  router.push({ name: 'LicensePlateUpload' })
+// Handle login securely
+const handleLogin = async () => {
+  try {
+    error.value = ''
+    const response = await axios.post('/api/auth/login/', {
+      email: email.value,
+      password: password.value
+    })
+
+    // Save tokens securely
+    sessionStorage.setItem('access_token', response.data.access_token)
+    sessionStorage.setItem('refresh_token', response.data.refresh_token)
+    sessionStorage.setItem('user', JSON.stringify(response.data.user))
+
+    // Print first and last name to console
+    console.log(
+      `Logged in user: ${response.data.user.first_name} ${response.data.user.last_name}`
+    )
+
+    router.push({ name: 'LicensePlateUpload' })
+  } catch (err) {
+    if (err.response && err.response.data.detail) {
+      error.value = err.response.data.detail
+    } else {
+      error.value = 'An error occurred. Please try again.'
+    }
+  }
 }
+
 </script>

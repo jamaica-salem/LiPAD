@@ -3,6 +3,7 @@ from .models import Admin, User, Image
 from django.core.files.images import get_image_dimensions
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
+from django.contrib.auth.hashers import check_password
 
 # Max image size 100MB
 MAX_IMAGE_MB = 100
@@ -100,6 +101,27 @@ class UserSerializer(serializers.ModelSerializer):
                 instance.password = make_password(password)
         instance.save()
         return instance
+
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        email = data.get('email')
+        password = data.get('password')
+
+        # Check user exists
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({"detail": "Invalid credentials."})
+
+        # Check password
+        if not user.check_password(password):
+            raise serializers.ValidationError({"detail": "Invalid credentials."})
+
+        data['user'] = user
+        return data
 
 
 class ImageSerializer(serializers.ModelSerializer):
