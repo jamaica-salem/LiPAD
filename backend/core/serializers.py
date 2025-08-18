@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from .models import Admin, User, Image
 from django.core.files.images import get_image_dimensions
+from django.contrib.auth.hashers import make_password
+from django.db import transaction
 
-# Max image size 10MB
+# Max image size 100MB
 MAX_IMAGE_MB = 100
 
 def validate_image_file(image):
@@ -16,12 +18,48 @@ def validate_image_file(image):
         raise serializers.ValidationError("Invalid image file.")
     return image
 
+
 class AdminSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Admin model.
+    Hashes password automatically when creating/updating.
+    """
+    password = serializers.CharField(write_only=True, required=True)
+
     class Meta:
         model = Admin
-        fields = ['id','first_name','middle_name','last_name','email','created_at']
+        fields = ['id', 'first_name', 'middle_name', 'last_name', 'email', 'password', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+    def create(self, validated_data):
+        """Create Admin with hashed password and proper error handling."""
+        try:
+            with transaction.atomic():  # ensures atomic DB transaction
+                password = validated_data.pop('password')
+                admin = Admin(**validated_data)
+                # Hash the password before saving
+                admin.password = make_password(password)
+                admin.save()
+                return admin
+        except Exception as e:
+            raise serializers.ValidationError({"detail": f"Failed to create admin: {str(e)}"})
+
+    def update(self, instance, validated_data):
+        """Update Admin and hash new password if provided."""
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.password = make_password(password)
+        instance.save()
+        return instance
+
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User model.
+    Automatically hashes password.
+    """
     class Meta:
         model = User
         fields = [
@@ -33,13 +71,36 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        # Automatically hash password
+        """Create user with hashed password and proper error handling."""
+        try:
+            with transaction.atomic():
+                password = validated_data.pop('password', None)
+                user = User(**validated_data)
+                if password:
+                    # If model has set_password (recommended), use it
+                    if hasattr(user, 'set_password'):
+                        user.set_password(password)
+                    else:
+                        # fallback hashing
+                        user.password = make_password(password)
+                user.save()
+                return user
+        except Exception as e:
+            raise serializers.ValidationError({"detail": f"Failed to create user: {str(e)}"})
+
+    def update(self, instance, validated_data):
+        """Update user and hash new password if provided."""
         password = validated_data.pop('password', None)
-        user = User(**validated_data)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         if password:
-            user.password = user.set_password(password) if hasattr(user, 'set_password') else user.password
-        user.save()
-        return user
+            if hasattr(instance, 'set_password'):
+                instance.set_password(password)
+            else:
+                instance.password = make_password(password)
+        instance.save()
+        return instance
+
 
 class ImageSerializer(serializers.ModelSerializer):
     """Handles image validation and URL generation for frontend"""
