@@ -159,3 +159,28 @@ class ImageSerializer(serializers.ModelSerializer):
 
     def validate_after_image(self, image):
         return validate_image_file(image)
+    
+class AdminLoginSerializer(serializers.Serializer):
+    """
+    Validate admin login credentials.
+    """
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        email = data.get("email")
+        password = data.get("password")
+
+        # Ensure admin exists
+        try:
+            admin = Admin.objects.get(email=email)
+        except Admin.DoesNotExist:
+            raise serializers.ValidationError({"detail": "Invalid credentials."})
+
+        # Verify password
+        if not check_password(password, admin.password):
+            raise serializers.ValidationError({"detail": "Invalid credentials."})
+
+        data["admin"] = admin
+        return data
+

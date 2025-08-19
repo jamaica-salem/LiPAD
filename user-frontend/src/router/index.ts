@@ -26,16 +26,19 @@
           path: '/upload',
           name: 'LicensePlateUpload',
           component: LicensePlateUpload,
+          meta: { requiresAuth: true }
         },
         {
           path: '/loading',
           name: 'LoadingPage',
           component: LoadingPage,
+          meta: { requiresAuth: true }
         },
         {
           path: '/failed',
           name: 'FailurePage',
           component: FailurePage,
+          meta: { requiresAuth: true }
         },
       ],
     },
@@ -47,11 +50,13 @@
           path: '/result',
           name: 'Result',
           component: Result,
+          meta: { requiresAuth: true }
         },
         {
           path: '/History',
           name: 'History',
           component: History,
+          meta: { requiresAuth: true }
         },
       ],
     },

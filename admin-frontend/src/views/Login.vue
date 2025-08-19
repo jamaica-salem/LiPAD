@@ -48,6 +48,10 @@
             </label>
             <a href="#" class="text-[#265d9c] hover:underline">Forgot password?</a>
           </div>
+          <!-- Error Message -->
+          <p v-if="errorMessage" class="text-red-600 text-sm text-center mt-2">
+            {{ errorMessage }}
+          </p>
           <button
             type="submit"
             class="w-full bg-[#265d9c] text-white rounded-lg py-1.5 hover:bg-[#1f2f44] transition"
@@ -68,15 +72,40 @@ import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
 const email = ref('')
 const password = ref('')
 const router = useRouter()
+const errorMessage = ref('')  // for login errors
 
-/*const handleLogin = () => {
-  if (email.value && password.value) {
-    router.push({ name: 'Users' }) 
+const handleLogin = async () => {
+  errorMessage.value = ''  // reset error
+  try {
+    const response = await fetch('http://localhost:8000/auth/admin-login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      errorMessage.value = errorData.detail || 'Login failed.'
+      return
+    }
+
+    const data = await response.json()
+
+    // Store tokens securely (session-based)
+    sessionStorage.setItem('access_token', data.access_token)
+    sessionStorage.setItem('refresh_token', data.refresh_token)
+
+    // Optionally store admin info
+    sessionStorage.setItem('admin', JSON.stringify(data.admin))
+
+    // ✅ Redirect to Users dashboard
+    router.push({ name: 'Users' })
+  } catch (err) {
+    errorMessage.value = 'Network error. Please try again.'
   }
-}*/
-
-const handleLogin = () => {
-  router.push({ name: 'Users' })
 }
-
 </script>
+

@@ -9,5 +9,6 @@ router.register(r'images', ImageViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-     path('auth/login/', UserLoginView.as_view(), name='user-login'),
+    path('auth/login/', UserLoginView.as_view(), name='user-login'),
+    path('auth/admin-login/', AdminLoginView.as_view(), name='admin-login'),
 ]

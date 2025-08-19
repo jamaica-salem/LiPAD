@@ -23,11 +23,13 @@ const routes = [
         path: 'users',
         name: 'Users',
         component: Users,
+        meta: { requiresAuth: true }
       },
       {
         path: 'history',
         name: 'OverallHistory',
         component: OverallHistory,
+        meta: { requiresAuth: true }
       }
     ]
   }
