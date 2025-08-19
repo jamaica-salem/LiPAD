@@ -8,10 +8,10 @@ const OverallHistory = () => import('@/views/OverallHistory.vue')
 const routes = [
   {
     path: '/',
-    redirect: '/login',
+    redirect: '/admin-login',
   },
   {
-    path: '/login',
+    path: '/admin-login',
     name: 'LogIn',
     component: Login,
   },

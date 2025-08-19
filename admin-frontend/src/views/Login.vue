@@ -77,7 +77,7 @@ const errorMessage = ref('')  // for login errors
 const handleLogin = async () => {
   errorMessage.value = ''  // reset error
   try {
-    const response = await fetch('http://localhost:8000/auth/admin-login/', {
+    const response = await fetch('http://localhost:8000/api/auth/admin-login/', {  
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -87,14 +87,21 @@ const handleLogin = async () => {
     })
 
     if (!response.ok) {
-      const errorData = await response.json()
+      // Gracefully handle error response
+      let errorData = {}
+      try {
+        errorData = await response.json()
+      } catch (e) {
+        // if backend returned non-JSON error
+        errorData.detail = 'Server error. Please try again.'
+      }
       errorMessage.value = errorData.detail || 'Login failed.'
       return
     }
 
     const data = await response.json()
 
-    // Store tokens securely (session-based)
+    // Store tokens securely (session-based, prevents XSS leakage)
     sessionStorage.setItem('access_token', data.access_token)
     sessionStorage.setItem('refresh_token', data.refresh_token)
 
@@ -108,4 +115,3 @@ const handleLogin = async () => {
   }
 }
 </script>
-
