@@ -72,12 +72,27 @@ import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
 const email = ref('')
 const password = ref('')
 const router = useRouter()
-const errorMessage = ref('')  // for login errors
+const errorMessage = ref('') 
 
 const handleLogin = async () => {
-  errorMessage.value = ''  // reset error
+  errorMessage.value = '' // reset error
+
+  // Basic front-end validation
+  if (!email.value && !password.value) {
+    errorMessage.value = 'Email and password are required.'
+    return
+  }
+  if (!email.value) {
+    errorMessage.value = 'Email is required.'
+    return
+  }
+  if (!password.value) {
+    errorMessage.value = 'Password is required.'
+    return
+  }
+
   try {
-    const response = await fetch('http://localhost:8000/api/auth/admin-login/', {  
+    const response = await fetch('http://localhost:8000/api/auth/admin-login/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -86,32 +101,30 @@ const handleLogin = async () => {
       }),
     })
 
+    const data = await response.json()
+
     if (!response.ok) {
-      // Gracefully handle error response
-      let errorData = {}
-      try {
-        errorData = await response.json()
-      } catch (e) {
-        // if backend returned non-JSON error
-        errorData.detail = 'Server error. Please try again.'
+      if (typeof data === 'string' && data === 'Invalid credentials.') {
+        errorMessage.value = 'Invalid credentials.'
+      } 
+      // All other errors
+      else {
+        errorMessage.value = 'Login failed. Please try again.'
       }
-      errorMessage.value = errorData.detail || 'Login failed.'
       return
     }
 
-    const data = await response.json()
-
-    // Store tokens securely (session-based, prevents XSS leakage)
+    // Successful login: store tokens and admin info
     sessionStorage.setItem('access_token', data.access_token)
     sessionStorage.setItem('refresh_token', data.refresh_token)
-
-    // Optionally store admin info
     sessionStorage.setItem('admin', JSON.stringify(data.admin))
 
-    // ✅ Redirect to Users dashboard
     router.push({ name: 'Users' })
+
   } catch (err) {
+    // Network or unexpected error
     errorMessage.value = 'Network error. Please try again.'
+    console.error('Login error:', err)
   }
 }
 </script>

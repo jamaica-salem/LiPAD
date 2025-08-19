@@ -68,7 +68,7 @@ class Image(models.Model):
         User, 
         on_delete=models.CASCADE, 
         related_name='images',
-        null=True,
+        null=False,
         blank=True,
         help_text="User who uploaded this image. Can be null for anonymous uploads."
     )

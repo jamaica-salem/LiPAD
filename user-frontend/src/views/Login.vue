@@ -9,7 +9,9 @@
           </div>
         </div>
         <h2 class="text-2xl font-bold text-[#0E2247]">Welcome to LiPAD</h2>
-        <p class="mt-3 text-sm text-[#0E2247]/70">Please log in to continue with license plate deblurring.</p>
+        <p class="mt-3 text-sm text-[#0E2247]/70">
+          Please log in to continue with license plate deblurring.
+        </p>
       </div>
     </div>
 
@@ -32,16 +34,19 @@
             v-model="email"
             placeholder="Email"
             class="w-full border border-gray-300 rounded-lg px-3 py-2"
-            required
           />
           <input
             type="password"
             v-model="password"
             placeholder="Password"
             class="w-full border border-gray-300 rounded-lg px-3 py-2"
-            required
           />
-          <p v-if="error" class="text-red-500 text-xs">{{ error }}</p>
+
+          <!-- ✅ Error message container -->
+          <p v-if="errorMessage" class="text-red-600 text-sm text-center mt-2">
+            {{ errorMessage }}
+          </p>
+
           <button
             type="submit"
             class="w-full bg-[#265d9c] text-white rounded-lg py-2 hover:bg-[#1f2f44] transition"
@@ -53,7 +58,7 @@
     </div>
   </div>
 </template>
-  
+
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
@@ -63,35 +68,62 @@ import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
 const router = useRouter()
 const email = ref('')
 const password = ref('')
-const error = ref('')
+const errorMessage = ref('')
 
 // Handle login securely
 const handleLogin = async () => {
+  errorMessage.value = '' // reset error before each attempt
+
+  // Frontend validation to avoid unnecessary API calls
+  if (!email.value && !password.value) {
+    errorMessage.value = 'Email and password are required.'
+    return
+  }
+  if (!email.value) {
+    errorMessage.value = 'Email is required.'
+    return
+  }
+  if (!password.value) {
+    errorMessage.value = 'Password is required.'
+    return
+  }
+
   try {
-    error.value = ''
-    const response = await axios.post('/api/auth/login/', {
+    const response = await axios.post('http://localhost:8000/api/auth/login/', {
       email: email.value,
-      password: password.value
+      password: password.value,
     })
 
-    // Save tokens securely
+    // Store tokens securely (sessionStorage keeps session scoped)
     sessionStorage.setItem('access_token', response.data.access_token)
     sessionStorage.setItem('refresh_token', response.data.refresh_token)
     sessionStorage.setItem('user', JSON.stringify(response.data.user))
 
-    // Print first and last name to console
+    // Debug log: Print first + last name to verify correct user
     console.log(
       `Logged in user: ${response.data.user.first_name} ${response.data.user.last_name}`
     )
 
+    // Redirect securely to main dashboard
     router.push({ name: 'LicensePlateUpload' })
   } catch (err) {
-    if (err.response && err.response.data.detail) {
-      error.value = err.response.data.detail
+    if (err.response && err.response.data) {
+      const data = err.response.data
+
+      // Check if credentials are invalid
+      if (
+        (typeof data === 'string' && data === 'Invalid credentials.') ||
+        (Array.isArray(data) && data[0] === 'Invalid credentials.')
+      ) {
+        errorMessage.value = 'Invalid credentials.'
+      } else {
+        // All other backend errors
+        errorMessage.value = 'Login failed.'
+      }
     } else {
-      error.value = 'An error occurred. Please try again.'
+      // Network or unexpected error
+      errorMessage.value = 'Network error. Please try again.'
     }
   }
 }
-
 </script>
