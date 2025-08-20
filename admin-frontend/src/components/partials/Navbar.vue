@@ -12,9 +12,9 @@
           class="flex items-center gap-3 cursor-pointer"
           @click="toggleProfileMenu"
         >
-          <!-- JS Initials Avatar -->
+          <!-- Initials Avatar -->
           <div class="w-9 h-9 rounded-full bg-[#cfe0f1] text-[#0E2247] flex items-center justify-center text-xs">
-            JS
+            {{ initials }}
           </div>
 
           <!-- Name & Email -->
@@ -29,64 +29,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
 
 const props = defineProps({
   appName: { type: String, default: 'LiPAD Admin' },
   user: {
     type: Object,
     default: () => ({
-      name: 'John Smith',
-      email: 'john@lipad.com',
+      name: '',
+      email: '',
     }),
   },
 })
 
-const router = useRouter()
-
-const showNotifications = ref(false)
-const showProfileMenu = ref(false)
-const notificationRef = ref(null)
-const profileRef = ref(null)
-
-const toggleNotifications = () => {
-  showNotifications.value = !showNotifications.value
-  showProfileMenu.value = false
-}
-
-const toggleProfileMenu = () => {
-  showProfileMenu.value = !showProfileMenu.value
-  showNotifications.value = false
-}
-
-const goTo = (path) => {
-  router.push(path)
-  showProfileMenu.value = false
-}
-
-const logout = () => {
-  alert('Logged out')
-  showProfileMenu.value = false
-}
-
-const handleClickOutside = (e) => {
-  if (
-    notificationRef.value &&
-    !notificationRef.value.contains(e.target)
-  ) {
-    showNotifications.value = false
-  }
-  if (profileRef.value && !profileRef.value.contains(e.target)) {
-    showProfileMenu.value = false
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('mousedown', handleClickOutside)
+// Compute initials from first and last name
+const initials = computed(() => {
+  const names = props.user.name.trim().split(' ')
+  const first = names[0]?.charAt(0).toUpperCase() || ''
+  const last = names.length > 1 ? names[names.length - 1].charAt(0).toUpperCase() : ''
+  return first + last
 })
 
-onBeforeUnmount(() => {
-  document.removeEventListener('mousedown', handleClickOutside)
-})
 </script>
