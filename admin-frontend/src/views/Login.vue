@@ -76,8 +76,6 @@
 /*
   Session-based login:
   - Uses useAuth.login(email, password) which calls /api/csrf/ and /api/login/
-  - Does not store JWT tokens (we use server sessions)
-  - Keeps existing UI, icons and layout unchanged
 */
 import { ref, watchEffect, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -113,11 +111,7 @@ watchEffect(() => {
  * handleLogin: client-side validation -> call composable login -> handle responses
  * - On success: user is redirected to the Users page (inside MainLayout).
  * - On failure: show an appropriate error message.
- *
- * Notes:
- * - We preserve the "Remember me" checkbox visually. If you want "remember me" to affect session expiry,
- *   we must send that flag to the server and call request.session.set_expiry(...) there.
- *   For now we leave it unchecked on the backend unless you want explicit server change.
+
  */
 const handleLogin = async () => {
   errorMessage.value = ''

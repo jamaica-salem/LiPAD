@@ -191,16 +191,16 @@ const setDeblurFilter = (filter) => {
 
 // Sample data (10 rows)
 const history = ref([
-  { id: 1, image: 'https://via.placeholder.com/100x60?text=Plate1', user: 'John Doe', date: '2025-07-29', plate: 'ABC1234', status: 'Successful', distortion: 'Low Quality' },
-  { id: 2, image: 'https://via.placeholder.com/100x60?text=Plate2', user: 'Jane Smith', date: '2025-07-30', plate: 'XYZ5678', status: 'Failed', distortion: 'Horizontal Blur' },
-  { id: 3, image: 'https://via.placeholder.com/100x60?text=Plate3', user: 'Michael Lee', date: '2025-07-31', plate: 'LMN3456', status: 'Successful', distortion: 'Low Light' },
-  { id: 4, image: 'https://via.placeholder.com/100x60?text=Plate4', user: 'Alice Kim', date: '2025-07-28', plate: 'DEF2222', status: 'Failed', distortion: 'Vertical Blur' },
-  { id: 5, image: 'https://via.placeholder.com/100x60?text=Plate5', user: 'Chris Ray', date: '2025-07-28', plate: 'GHI3333', status: 'Successful', distortion: 'Low Quality' },
-  { id: 6, image: 'https://via.placeholder.com/100x60?text=Plate6', user: 'Tina Yao', date: '2025-07-27', plate: 'JKL4444', status: 'Failed', distortion: 'Low Light' },
-  { id: 7, image: 'https://via.placeholder.com/100x60?text=Plate7', user: 'Dan Wu', date: '2025-07-27', plate: 'MNO5555', status: 'Successful', distortion: 'Horizontal Blur' },
-  { id: 8, image: 'https://via.placeholder.com/100x60?text=Plate8', user: 'Karen Chan', date: '2025-07-26', plate: 'PQR6666', status: 'Failed', distortion: 'Vertical Blur' },
-  { id: 9, image: 'https://via.placeholder.com/100x60?text=Plate9', user: 'Leo Zhang', date: '2025-07-26', plate: 'STU7777', status: 'Successful', distortion: 'Low Quality' },
-  { id: 10, image: 'https://via.placeholder.com/100x60?text=Plate10', user: 'Nina Hart', date: '2025-07-25', plate: 'VWX8888', status: 'Failed', distortion: 'Low Light' },
+  { id: 1, image: '', user: 'John Doe', date: '2025-07-29', plate: 'ABC1234', status: 'Successful', distortion: 'Low Quality' },
+  { id: 2, image: '', user: 'Jane Smith', date: '2025-07-30', plate: 'XYZ5678', status: 'Failed', distortion: 'Horizontal Blur' },
+  { id: 3, image: '', user: 'Michael Lee', date: '2025-07-31', plate: 'LMN3456', status: 'Successful', distortion: 'Low Light' },
+  { id: 4, image: '', user: 'Alice Kim', date: '2025-07-28', plate: 'DEF2222', status: 'Failed', distortion: 'Vertical Blur' },
+  { id: 5, image: '', user: 'Chris Ray', date: '2025-07-28', plate: 'GHI3333', status: 'Successful', distortion: 'Low Quality' },
+  { id: 6, image: '', user: 'Tina Yao', date: '2025-07-27', plate: 'JKL4444', status: 'Failed', distortion: 'Low Light' },
+  { id: 7, image: '', user: 'Dan Wu', date: '2025-07-27', plate: 'MNO5555', status: 'Successful', distortion: 'Horizontal Blur' },
+  { id: 8, image: '', user: 'Karen Chan', date: '2025-07-26', plate: 'PQR6666', status: 'Failed', distortion: 'Vertical Blur' },
+  { id: 9, image: '', user: 'Leo Zhang', date: '2025-07-26', plate: 'STU7777', status: 'Successful', distortion: 'Low Quality' },
+  { id: 10, image: '', user: 'Nina Hart', date: '2025-07-25', plate: 'VWX8888', status: 'Failed', distortion: 'Low Light' },
 ])
 
 // Filtered history

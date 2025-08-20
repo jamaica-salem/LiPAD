@@ -118,7 +118,6 @@ const processFile = (file) => {
 </script>
 
 <style scoped>
-/* Optional: improve drag-over experience */
 .dropzone-hover {
   border-color: #1d4b81;
   background-color: #f0f8ff;

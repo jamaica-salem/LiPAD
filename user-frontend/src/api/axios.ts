@@ -1,4 +1,3 @@
-// src/api/axios.ts
 import axios, { type InternalAxiosRequestConfig } from "axios";
 
 /**
@@ -25,9 +24,9 @@ export function getCookie(name: string): string | null {
 
 /**
  * CSRF token fallback storage:
- * If the cookie wasn't present for any reason, we will store the last token
+ * If the cookie wasn't present for any reason, the last token will be stored
  * returned by /api/csrf/ (response JSON) in this variable and use it.
- * Prefer cookie (browser-managed), but fallback to this if needed.
+ * Prefer cookie (browser-managed)
  */
 let FALLBACK_CSRF_TOKEN: string | null = null;
 

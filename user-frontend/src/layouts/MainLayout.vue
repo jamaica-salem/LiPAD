@@ -24,7 +24,6 @@ import { useAuth } from '@/composables/useAuth';
 
 const auth = useAuth();
 
-// Keep same props & UI. Provide displayUser to Navbar (name + email) — same shape as Admin layout.
 const displayUser = computed(() => {
   if (!auth.user) {
     return { name: "Unknown", email: "" };

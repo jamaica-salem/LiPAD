@@ -1,4 +1,3 @@
-
 <template>
   <div class="min-h-screen bg-orange-100 text-[#1f2937]">
     <Navbar />

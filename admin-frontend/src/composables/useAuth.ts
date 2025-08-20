@@ -1,4 +1,3 @@
-// src/composables/useAuth.ts
 import { reactive } from "vue";
 import api, { getCookie, setFallbackCsrf } from "@/api/axios";
 
@@ -20,7 +19,7 @@ const state = reactive({
  * ensureCsrfCookie:
  * - Calls GET /api/csrf/ which sets the csrftoken cookie (if possible).
  * - Some dev setups (cross-origin + non-HTTPS) may not allow the cookie to be set.
- *   In that case we store the returned token as a fallback to send in the X-CSRFToken header.
+ *   This stores the returned token as a fallback to send in the X-CSRFToken header.
  */
 async function ensureCsrfCookie(retries = 2) {
   try {

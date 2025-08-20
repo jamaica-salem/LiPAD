@@ -188,11 +188,11 @@ const setDeblurFilter = (filter) => {
 
 // Sample data (10 rows)
 const history = ref([
-  { id: 1, image: 'https://via.placeholder.com/100x60?text=Plate1', date: '2025-07-29', plate: 'ABC1234', status: 'Successful', distortion: 'Low Quality' },
-  { id: 2, image: 'https://via.placeholder.com/100x60?text=Plate2',  date: '2025-07-30', plate: 'XYZ5678', status: 'Failed', distortion: 'Horizontal Blur' },
-  { id: 3, image: 'https://via.placeholder.com/100x60?text=Plate3',  date: '2025-07-31', plate: 'LMN3456', status: 'Successful', distortion: 'Low Light' },
-  { id: 4, image: 'https://via.placeholder.com/100x60?text=Plate4',  date: '2025-07-28', plate: 'DEF2222', status: 'Failed', distortion: 'Vertical Blur' },
-  { id: 5, image: 'https://via.placeholder.com/100x60?text=Plate5',  date: '2025-07-28', plate: 'GHI3333', status: 'Successful', distortion: 'Low Quality' },
+  { id: 1, image: '', date: '2025-07-29', plate: 'ABC1234', status: 'Successful', distortion: 'Low Quality' },
+  { id: 2, image: '',  date: '2025-07-30', plate: 'XYZ5678', status: 'Failed', distortion: 'Horizontal Blur' },
+  { id: 3, image: '',  date: '2025-07-31', plate: 'LMN3456', status: 'Successful', distortion: 'Low Light' },
+  { id: 4, image: '',  date: '2025-07-28', plate: 'DEF2222', status: 'Failed', distortion: 'Vertical Blur' },
+  { id: 5, image: '',  date: '2025-07-28', plate: 'GHI3333', status: 'Successful', distortion: 'Low Quality' },
 ])
 
 // Filtered history
