@@ -38,7 +38,6 @@ const handleScroll = () => {
   clearTimeout(timeout);
   timeout = setTimeout(() => {
     const currentScrollY = mainContent.value?.scrollTop || 0;
-    showNavbar.value = currentScrollY < lastScrollY.value || currentScrollY < 50;
     lastScrollY.value = currentScrollY;
   }, 100);
 };

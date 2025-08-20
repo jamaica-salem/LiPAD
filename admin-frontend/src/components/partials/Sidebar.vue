@@ -8,6 +8,7 @@
       <span class="text-xl font-extrabold text-white">{{ appName }}</span>
     </div>
 
+    <!-- Wrapper ensures menu stays top, logout stays bottom -->
     <div class="flex-1 flex flex-col justify-between">
       <div>
         <!-- MENU -->
@@ -33,19 +34,94 @@
           </router-link>
         </nav>
       </div>
+
+      <!-- Secure Logout Button (bottom aligned) -->
+      <div>
+        <button
+          @click="handleLogout"
+          class="w-full flex items-center gap-3 text-base font-medium rounded-lg px-2.5 py-1.5 transition-colors text-[#d1d1d5] hover:text-white hover:bg-[#265d9c]"
+        >
+          <LogOut size="18" />
+          <span>Log Out</span>
+        </button>
+      </div>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { ScanLine, FolderClock, User } from 'lucide-vue-next';
+/* -------------------------------
+   Imports
+-------------------------------- */
+import { ScanLine, FolderClock, User, LogOut } from 'lucide-vue-next';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
+/* -------------------------------
+   Props
+-------------------------------- */
 const props = defineProps({
   appName: String
 });
 
+/* -------------------------------
+   Router
+-------------------------------- */
+const router = useRouter();
+
+/* -------------------------------
+   Navigation Items
+-------------------------------- */
 const navItems = [
   { to: '/app/users', label: 'Users', icon: User },
   { to: '/app/history', label: 'Overall History', icon: FolderClock },
 ];
+
+/* -------------------------------
+   Secure Logout Function
+-------------------------------- */
+const handleLogout = async () => {
+  try {
+    // Send secure request to Django logout endpoint
+    await axios.post(
+      '/api/logout/',
+      {},
+      {
+        headers: {
+          'X-CSRFToken': getCSRFToken(), // CSRF protection (best practice in Django)
+        },
+        withCredentials: true, // ensures cookies (sessionid/csrftoken) are sent
+      }
+    );
+
+    // Clear any localStorage/sessionStorage if used for auth state
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Redirect to login page
+    router.push({ path: '/admin-login' });
+  } catch (error) {
+    console.error('Logout failed:', error);
+
+    // Fallback: force redirect even if server fails
+    router.push({ path: '/admin-login' });
+  }
+};
+
+/* -------------------------------
+   Utility: Get CSRF Token
+   - Extract from cookies
+   - Prevents CSRF vulnerabilities
+-------------------------------- */
+function getCSRFToken() {
+  const name = 'csrftoken';
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    let c = cookie.trim();
+    if (c.startsWith(name + '=')) {
+      return c.substring(name.length + 1);
+    }
+  }
+  return '';
+}
 </script>
