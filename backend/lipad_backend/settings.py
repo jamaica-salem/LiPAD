@@ -103,13 +103,42 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# --- CORS (allow your Vue dev servers) ---
+# === CORS & CSRF (development) ===
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  # Vite dev server (adjust if different)
-    'http://localhost:8080',  # Vue CLI dev server (adjust if used)
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5174',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
 ]
 CORS_ALLOW_ALL_ORIGINS = True  # (lock down in prod)
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "http://localhost:5176",
+    "http://127.0.0.1:5176",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+] 
+
+# === Cookie security (development / production notes) ===
+SESSION_COOKIE_HTTPONLY = True     # prevents JavaScript access to session cookie
+SESSION_COOKIE_SECURE = False      # set to True in production (requires HTTPS)
+SESSION_COOKIE_SAMESITE = "Lax"    # "Lax" for most cases; use "None" + Secure in cross-site over HTTPS
+CSRF_COOKIE_SECURE = False         # set to True in production
+CSRF_COOKIE_HTTPONLY = False       # must be readable by JS to attach X-CSRFToken from document.
+SESSION_COOKIE_AGE = 1800  
+
+# If True, session will end when browser is closed, regardless of age
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Refresh the expiry time on every request (rolling session)
+SESSION_SAVE_EVERY_REQUEST = True  
 
 # --- Timezone/Locale ---
 LANGUAGE_CODE = 'en-us'

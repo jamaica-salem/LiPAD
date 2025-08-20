@@ -31,7 +31,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { Bell, Mail, User, Settings, LogOut } from 'lucide-vue-next'
 
 const props = defineProps({
   appName: { type: String, default: 'LiPAD Admin' },
