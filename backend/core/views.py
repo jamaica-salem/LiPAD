@@ -23,26 +23,32 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class UserLoginView(APIView):
     """
-    Handle user login.
-    Returns access and refresh tokens for authenticated sessions.
+    Session-based user login.
+    Mirrors the admin session-based login flow (no JWT).
+    Accepts JSON: { "email": "...", "password": "..." }
+    On success: sets request.session['user_id'] and returns safe user info.
     """
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
 
-        # Generate JWT tokens
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'user': {
-                'id': user.id,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-            },
-            'access_token': str(refresh.access_token),
-            'refresh_token': str(refresh),
-        }, status=status.HTTP_200_OK)
+        # Prevent session fixation
+        request.session.flush()
+        # Store minimal identifier in session
+        request.session['user_id'] = user.id
+        # Optionally store last_login time for convenience (not required)
+        from django.utils import timezone
+        request.session['last_login'] = timezone.now().isoformat()
+
+        # Return safe user info (do not return password)
+        data = {
+            'id': user.id,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+        }
+        return Response({'user': data}, status=status.HTTP_200_OK)
     
 class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all().order_by('-created_at')

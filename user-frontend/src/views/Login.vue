@@ -5,7 +5,7 @@
       <div class="text-center px-10">
         <div class="flex justify-center mb-5">
           <div class="bg-[#ccdef0] p-3 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" size="32" />
+            <ScanLineIcon class="text-[#265d9c]" :size="32" />
           </div>
         </div>
         <h2 class="text-2xl font-bold text-[#0E2247]">Welcome to LiPAD</h2>
@@ -21,7 +21,7 @@
         <!-- Mobile logo -->
         <div class="flex justify-center mb-5 lg:hidden">
           <div class="bg-[#c9def3] p-3 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" size="28" />
+            <ScanLineIcon class="text-[#265d9c]" :size="28" />
           </div>
         </div>
 
@@ -50,8 +50,10 @@
           <button
             type="submit"
             class="w-full bg-[#265d9c] text-white rounded-lg py-2 hover:bg-[#1f2f44] transition"
+            :disabled="loading"
           >
-            Log In
+            <span v-if="!loading">Log In</span>
+            <span v-else>Logging in...</span>
           </button>
         </form>
       </div>
@@ -59,27 +61,27 @@
   </div>
 </template>
 
-<script setup>
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
+import { useRouter } from 'vue-router'
 import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
+import { login, useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
+const auth = useAuth()
+
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
+const loading = ref(false)
 
-// Handle login securely
 const handleLogin = async () => {
-  errorMessage.value = '' // reset error before each attempt
-
-  // Frontend validation to avoid unnecessary API calls
-  if (!email.value && !password.value) {
+  errorMessage.value = ''
+  if (!email.value.trim() && !password.value) {
     errorMessage.value = 'Email and password are required.'
     return
   }
-  if (!email.value) {
+  if (!email.value.trim()) {
     errorMessage.value = 'Email is required.'
     return
   }
@@ -88,42 +90,20 @@ const handleLogin = async () => {
     return
   }
 
+  loading.value = true
   try {
-    const response = await axios.post('http://localhost:8000/api/auth/login/', {
-      email: email.value,
-      password: password.value,
-    })
-
-    // Store tokens securely (sessionStorage keeps session scoped)
-    sessionStorage.setItem('access_token', response.data.access_token)
-    sessionStorage.setItem('refresh_token', response.data.refresh_token)
-    sessionStorage.setItem('user', JSON.stringify(response.data.user))
-
-    // Debug log: Print first + last name to verify correct user
-    console.log(
-      `Logged in user: ${response.data.user.first_name} ${response.data.user.last_name}`
-    )
-
-    // Redirect securely to main dashboard
-    router.push({ name: 'LicensePlateUpload' })
-  } catch (err) {
-    if (err.response && err.response.data) {
-      const data = err.response.data
-
-      // Check if credentials are invalid
-      if (
-        (typeof data === 'string' && data === 'Invalid credentials.') ||
-        (Array.isArray(data) && data[0] === 'Invalid credentials.')
-      ) {
-        errorMessage.value = 'Invalid credentials.'
-      } else {
-        // All other backend errors
-        errorMessage.value = 'Login failed.'
-      }
+    const res = await login(email.value.trim(), password.value)
+    if (res.success) {
+      // Session-based login successful. Redirect to upload page.
+      router.push({ name: 'LicensePlateUpload' })
     } else {
-      // Network or unexpected error
-      errorMessage.value = 'Network error. Please try again.'
+      errorMessage.value = res.message || 'Login failed. Please try again.'
     }
+  } catch (err) {
+    console.error('Login error (unexpected):', err)
+    errorMessage.value = 'Network error. Please try again.'
+  } finally {
+    loading.value = false
   }
 }
 </script>

@@ -17,8 +17,16 @@ export default defineConfig({
     },
   },
   server: {
+    port: 5174,
+    strictPort: true,
     proxy: {
-      '/api': 'http://localhost:8000'  // redirect API calls to Django backend
-    }
-  }
+      // forward any /api requests to your Django backend
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+        // do not rewrite paths; send request as /api/...
+      },
+    },
+  },
 })
