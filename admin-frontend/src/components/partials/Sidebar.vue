@@ -37,7 +37,7 @@
         <button
           @click="handleLogout"
           :disabled="logoutLoading"
-          class="w-full flex items-center gap-3 text-base font-medium rounded-lg px-2.5 py-1.5 transition-colors text-[#d1d1d5] hover:text-white hover:bg-[#265d9c] disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full flex items-center gap-3 text-base font-medium rounded-lg px-2.5 py-1.5 transition-colors text-[#d1d1d5] hover:text-white hover:bg-[#265d9c] cursor-pointer isabled:opacity-50 disabled:cursor-not-allowed "
         >
           <LogOut :size="18" />
           <span v-if="!logoutLoading">Log Out</span>

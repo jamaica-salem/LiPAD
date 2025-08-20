@@ -1,3 +1,4 @@
+// src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router';
 import LogIn from '@/views/LogIn.vue';
 import LicensePlateUpload from '@/views/LicensePlateUpload.vue';
@@ -26,7 +27,7 @@ const routes = [
     component: MainLayout,
     children: [
       { path: '/result', name: 'Result', component: Result, meta: { requiresAuth: true } },
-      { path: '/History', name: 'History', component: History, meta: { requiresAuth: true } },
+      { path: '/history', name: 'History', component: History, meta: { requiresAuth: true } },
     ],
   },
 ];
@@ -36,9 +37,7 @@ const router = createRouter({
   routes,
 });
 
-// Global guard - follows Admin pattern:
-// - if auth.loading -> allow (initAuth hasn't completed yet; createApp mount waits for initAuth)
-// - if route requiresAuth and not authenticated -> redirect to login
+// --- Global Route Guard ---
 router.beforeEach((to, from, next) => {
   const auth = useAuth();
 
@@ -47,8 +46,15 @@ router.beforeEach((to, from, next) => {
     return next();
   }
 
+  // If route requires authentication and user is not logged in
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return next({ name: 'Login' });
+  }
+
+  // If user is already logged in, prevent going to login page
+  if (to.name === 'Login' && auth.isAuthenticated) {
+    // redirect to default dashboard page (inside MainLayout)
+    return next({ name: 'LicensePlateUpload' });
   }
 
   return next();

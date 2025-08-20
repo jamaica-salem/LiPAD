@@ -1,10 +1,9 @@
 <template>
   <nav class="bg-[#265d9c] rounded-xl shadow mt-3 mx-1 px-4 py-4 flex items-center justify-between">
-    <!-- Left Side: Logo -->
-    <div class="flex items-center gap-2 text-[#0E2247] font-bold text-lg">
-    </div>
+    <!-- Empty left side -->
+    <div></div>
 
-    <!-- Right Side: Profile only -->
+    <!-- Right Side: Profile -->
     <div class="relative" ref="profileRef">
       <div class="flex items-center gap-3 cursor-pointer" @click="toggleProfileMenu">
         <!-- Avatar -->
@@ -14,8 +13,8 @@
 
         <!-- User Info -->
         <div class="text-white leading-tight text-accent">
-          <div class="font-semibold text-base">{{ user.name }}</div>
-          <div class="text-xs">{{ user.email }}</div>
+          <div class="font-semibold text-base">{{ user?.first_name }} {{ user?.last_name }}</div>
+          <div class="text-xs">{{ user?.email }}</div>
         </div>
       </div>
 
@@ -25,22 +24,13 @@
         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden"
       >
         <ul class="text-sm text-primary-darkest divide-y divide-gray-100">
-          <li
-            class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer"
-            @click="goTo('/profile')"
-          >
+          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer" @click="goTo('/profile')">
             <User :size="16" /> Profile
           </li>
-          <li
-            class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer"
-            @click="goTo('/settings')"
-          >
+          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer" @click="goTo('/settings')">
             <Settings :size="16" /> Settings
           </li>
-          <li
-            class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer text-red-500"
-            @click="goTo('/login')"
-          >
+          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer text-red-500" @click="handleLogout">
             <LogOut :size="16" /> Log out
           </li>
         </ul>
@@ -49,56 +39,52 @@
   </nav>
 </template>
 
-
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { ScanLine as ScanLineIcon, User, Settings, LogOut } from 'lucide-vue-next'
-
-const props = defineProps({
-  user: {
-    type: Object,
-    default: () => ({
-      name: 'Jamaica Salem',
-      email: 'jamaica.salem@lipad.com',
-    }),
-  },
-})
+import { User, Settings, LogOut } from 'lucide-vue-next'
+import { logout as logoutSession, useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
+const state = useAuth()  // reactive auth state
+const user = computed(() => state.user)
+
 const showProfileMenu = ref(false)
-const profileRef = ref(null)
+const profileRef = ref<HTMLElement | null>(null)
 
 const initials = computed(() => {
-  const names = props.user.name.split(' ')
-  return names.map(n => n[0]).slice(0, 2).join('')
+  if (!user.value) return ''
+  const first = user.value.first_name?.[0] || ''
+  const last = user.value.last_name?.[0] || ''
+  return `${first}${last}`.toUpperCase()
 })
 
 const toggleProfileMenu = () => {
   showProfileMenu.value = !showProfileMenu.value
 }
 
-const goTo = (path) => {
+const goTo = (path: string) => {
   router.push(path)
   showProfileMenu.value = false
 }
 
-const logout = () => {
-  alert('Logged out')
-  showProfileMenu.value = false
-}
-
-const handleClickOutside = (e) => {
-  if (profileRef.value && !profileRef.value.contains(e.target)) {
+const handleLogout = async () => {
+  try {
+    await logoutSession()
+    router.push('/lipad/login')
+  } catch (err) {
+    console.error('Logout failed:', err)
+  } finally {
     showProfileMenu.value = false
   }
 }
 
-onMounted(() => {
-  document.addEventListener('mousedown', handleClickOutside)
-})
+const handleClickOutside = (e: MouseEvent) => {
+  if (profileRef.value && !profileRef.value.contains(e.target as Node)) {
+    showProfileMenu.value = false
+  }
+}
 
-onBeforeUnmount(() => {
-  document.removeEventListener('mousedown', handleClickOutside)
-})
+onMounted(() => document.addEventListener('mousedown', handleClickOutside))
+onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutside))
 </script>

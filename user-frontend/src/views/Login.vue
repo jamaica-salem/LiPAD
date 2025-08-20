@@ -105,5 +105,8 @@ const handleLogin = async () => {
   } finally {
     loading.value = false
   }
+
+  router.replace({ name: 'LicensePlateUpload' });
+  
 }
 </script>
