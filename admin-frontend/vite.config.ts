@@ -20,4 +20,17 @@ export default defineConfig({
       plugins: [],
     },
   },
+  server: {
+    port: 5173,
+    strictPort: true,
+    proxy: {
+      // forward any /api requests to your Django backend
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+        // do not rewrite paths; send request as /api/...
+      },
+    },
+  },
 })

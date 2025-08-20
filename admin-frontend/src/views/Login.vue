@@ -6,7 +6,7 @@
       <div class="text-center px-8">
         <div class="flex justify-center mb-4">
           <div class="bg-[#ccdef0] p-3 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" size="32" />
+            <ScanLineIcon class="text-[#265d9c]" :size="32" />
           </div>
         </div>
         <h2 class="text-2xl font-bold text-[#0E2247]">LiPAD Admin</h2>
@@ -21,42 +21,50 @@
         <!-- Mobile logo -->
         <div class="flex justify-center mb-4 lg:hidden">
           <div class="bg-[#c9def3] p-3 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" size="28" />
+            <ScanLineIcon class="text-[#265d9c]" :size="28" />
           </div>
         </div>
 
         <h1 class="text-xl font-bold text-[#1f2f44] mb-4 text-center">Admin Login</h1>
 
         <!-- Login form -->
-        <form @submit.prevent="handleLogin" class="space-y-3 mb-3">
+        <form @submit.prevent="handleLogin" class="space-y-3 mb-3" novalidate>
           <input
             type="email"
             v-model="email"
             placeholder="Email"
             class="w-full border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#a3c1e9] focus:border-[#a3c1e9]"
+            autocomplete="email"
+            required
           />
           <input
             type="password"
             v-model="password"
             placeholder="Password"
             class="w-full border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#a3c1e9] focus:border-[#a3c1e9]"
+            autocomplete="current-password"
+            required
           />
           <div class="flex justify-between items-center text-xs">
             <label class="flex items-center gap-1 text-[#1f2f44]">
-              <input type="checkbox" class="rounded text-[#265d9c] focus:ring-[#265d9c]" />
+              <input v-model="rememberMe" type="checkbox" class="rounded text-[#265d9c] focus:ring-[#265d9c]" />
               Remember me
             </label>
             <a href="#" class="text-[#265d9c] hover:underline">Forgot password?</a>
           </div>
+
           <!-- Error Message -->
           <p v-if="errorMessage" class="text-red-600 text-sm text-center mt-2">
             {{ errorMessage }}
           </p>
+
           <button
             type="submit"
-            class="w-full bg-[#265d9c] text-white rounded-lg py-1.5 hover:bg-[#1f2f44] transition"
+            :disabled="loading"
+            class="w-full bg-[#265d9c] text-white rounded-lg py-1.5 hover:bg-[#1f2f44] transition disabled:opacity-60"
           >
-            Log In
+            <span v-if="!loading">Log In</span>
+            <span v-else>Logging in...</span>
           </button>
         </form>
       </div>
@@ -64,27 +72,60 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+/*
+  Session-based login:
+  - Uses useAuth.login(email, password) which calls /api/csrf/ and /api/login/
+  - Does not store JWT tokens (we use server sessions)
+  - Keeps existing UI, icons and layout unchanged
+*/
+import { ref, watchEffect, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
+import { login, useAuth } from '@/composables/useAuth' // composable provided earlier
 
+// form fields (UI unchanged)
 const email = ref('')
 const password = ref('')
-const router = useRouter()
+const rememberMe = ref(false) // UI control preserved; implementation notes below
 const errorMessage = ref('')
+const loading = ref(false)
 
-// Handle admin login securely
+const router = useRouter()
+const auth = useAuth()
+
+// If the user is already authenticated, redirect away from login.
+// This prevents "going back" to login while session is active.
+onMounted(() => {
+  if (!auth.loading && auth.isAuthenticated) {
+    router.replace({ path: '/app' })
+  }
+})
+
+// Watch in case auth state becomes "authenticated" while on this page
+watchEffect(() => {
+  if (!auth.loading && auth.isAuthenticated) {
+    router.replace({ path: '/app' })
+  }
+})
+
+/**
+ * handleLogin: client-side validation -> call composable login -> handle responses
+ * - On success: user is redirected to the Users page (inside MainLayout).
+ * - On failure: show an appropriate error message.
+ *
+ * Notes:
+ * - We preserve the "Remember me" checkbox visually. If you want "remember me" to affect session expiry,
+ *   we must send that flag to the server and call request.session.set_expiry(...) there.
+ *   For now we leave it unchecked on the backend unless you want explicit server change.
+ */
 const handleLogin = async () => {
-  errorMessage.value = '' // reset error before each attempt
-
-  // Frontend validation to avoid unnecessary API calls
-  if (!email.value && !password.value) {
+  errorMessage.value = ''
+  if (!email.value.trim() && !password.value) {
     errorMessage.value = 'Email and password are required.'
     return
   }
-  if (!email.value) {
+  if (!email.value.trim()) {
     errorMessage.value = 'Email is required.'
     return
   }
@@ -93,45 +134,27 @@ const handleLogin = async () => {
     return
   }
 
+  loading.value = true
   try {
-    // Use axios for consistent API calls
-    const response = await axios.post('http://localhost:8000/api/auth/admin-login/', {
-      email: email.value,
-      password: password.value,
-    })
+    // call composable login() which will:
+    // 1) call /api/csrf/ to set csrftoken cookie
+    // 2) call POST /api/login/ with { email, password }
+    const res = await login(email.value.trim(), password.value)
 
-    // Store tokens securely (sessionStorage keeps session scoped)
-    sessionStorage.setItem('access_token', response.data.access_token)
-    sessionStorage.setItem('refresh_token', response.data.refresh_token)
-    sessionStorage.setItem('admin', JSON.stringify(response.data.admin))
-
-    // Debug log: Print admin name to verify correct login
-    console.log(
-      `Logged in admin: ${response.data.admin.first_name} ${response.data.admin.last_name}`
-    )
-
-    // Redirect securely to admin dashboard
-    router.push({ name: 'Users' })
-  } catch (err) {
-    if (err.response && err.response.data) {
-      const data = err.response.data
-
-      // Check if credentials are invalid
-      if (
-        (typeof data === 'string' && data === 'Invalid credentials.') ||
-        (Array.isArray(data) && data[0] === 'Invalid credentials.') ||
-        (data.detail && Array.isArray(data.detail) && data.detail[0] === 'Invalid credentials.')
-      ) {
-        errorMessage.value = 'Invalid credentials.'
-      } else {
-        // All other backend errors
-        errorMessage.value = 'Login failed. Please try again.'
-      }
+    if (res.success) {
+      // success: composable set state.admin & isAuthenticated
+      // redirect to main section (Users page) — inside MainLayout
+      router.push({ name: 'Users' })
     } else {
-      // Network or unexpected error
-      errorMessage.value = 'Network error. Please try again.'
-      console.error('Admin login error:', err)
+      // show server or network-provided message
+      errorMessage.value = res.message || 'Login failed. Please try again.'
     }
+  } catch (err) {
+    // Unexpected error (should be covered above, but catch just in case)
+    console.error('Login error (unexpected):', err)
+    errorMessage.value = 'Network error. Please try again.'
+  } finally {
+    loading.value = false
   }
 }
 </script>

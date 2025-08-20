@@ -1,43 +1,56 @@
-import { createRouter, createWebHistory } from 'vue-router'
-
-const Login = () => import('@/views/LogIn.vue')
-const MainLayout = () => import('@/layouts/MainLayout.vue')
-const Users = () => import('@/views/Users.vue')
-const OverallHistory = () => import('@/views/OverallHistory.vue')
+import { createRouter, createWebHistory } from "vue-router";
+import Login from "@/views/Login.vue";
+import MainLayout from "@/layouts/MainLayout.vue";
+import Users from "@/views/Users.vue";
+import History from "@/views/OverallHistory.vue";
+import { useAuth } from "@/composables/useAuth"; // we'll create this
 
 const routes = [
   {
-    path: '/',
-    redirect: '/admin-login',
-  },
-  {
-    path: '/admin-login',
-    name: 'LogIn',
+    path: "/admin-login",
+    name: "Login",
     component: Login,
+    meta: { guestOnly: true }, // only for non-logged-in users
   },
+
   {
-    path: '/app',
+    path: "/app",
     component: MainLayout,
+    meta: { requiresAuth: true }, // protect all child routes
     children: [
-      {
-        path: 'users',
-        name: 'Users',
-        component: Users,
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'history',
-        name: 'OverallHistory',
-        component: OverallHistory,
-        meta: { requiresAuth: true }
-      }
-    ]
-  }
-]
+      { path: "users", name: "Users", component: Users },
+      { path: "history", name: "OverallHistory", component: History },
+      { path: "", redirect: { name: "OverallHistory" } }, // default redirect
+    ],
+  },
+
+  // fallback
+  { path: "/:pathMatch(.*)*", redirect: "/app" },
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-})
+});
 
-export default router
+// 🔒 Global Navigation Guards
+router.beforeEach((to, from, next) => {
+  const auth = useAuth();
+
+  if (auth.loading) {
+    // still checking session from server
+    return next();
+  }
+
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return next({ name: "Login" });
+  }
+
+  if (to.meta.guestOnly && auth.isAuthenticated) {
+    return next({ path: "/app" });
+  }
+
+  return next();
+});
+
+export default router;

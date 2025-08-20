@@ -9,7 +9,7 @@
         class="transition-transform duration-300"
         :class="showNavbar ? 'translate-y-0' : '-translate-y-full'"
       >
-        <Navbar :app-name="'LiPAD'" :user="user" />
+        <Navbar :app-name="'LiPAD'" :user="displayUser" />
       </div>
 
       <main ref="mainContent" class="flex-1 overflow-auto p-6 bg-white">
@@ -19,21 +19,44 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import Sidebar from '../components/partials/Sidebar.vue';
 import Navbar from '../components/partials/Navbar.vue';
+import { useAuth } from '@/composables/useAuth';
+import { useRouter } from 'vue-router';
 
-const user = {
-  name: 'Jamaica Salem',
-  email: 'jamaica.esalem@gmail.com',
-};
+const auth = useAuth();
+const router = useRouter();
+
+/**
+ * If somehow a user navigates to /app while not authenticated (e.g., session expired),
+ * redirect to login page.
+ */
+watch(
+  () => auth.isAuthenticated,
+  (isAuth) => {
+    if (!isAuth && !auth.loading) {
+      // session expired or not authenticated -> redirect to login
+      router.replace({ name: 'Login' });
+    }
+  },
+  { immediate: true }
+);
+
+const displayUser = computed(() => {
+  if (!auth.admin) {
+    return { name: "Unknown", email: "" };
+  }
+  const name = `${auth.admin.first_name} ${auth.admin.last_name}`;
+  return { name, email: auth.admin.email };
+});
 
 const showNavbar = ref(true);
 const lastScrollY = ref(0);
-const mainContent = ref(null);
+const mainContent = ref<HTMLElement | null>(null);
+let timeout: any;
 
-let timeout;
 const handleScroll = () => {
   clearTimeout(timeout);
   timeout = setTimeout(() => {
