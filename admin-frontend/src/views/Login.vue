@@ -67,17 +67,19 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
 
 const email = ref('')
 const password = ref('')
 const router = useRouter()
-const errorMessage = ref('') 
+const errorMessage = ref('')
 
+// Handle admin login securely
 const handleLogin = async () => {
-  errorMessage.value = '' // reset error
+  errorMessage.value = '' // reset error before each attempt
 
-  // Basic front-end validation
+  // Frontend validation to avoid unnecessary API calls
   if (!email.value && !password.value) {
     errorMessage.value = 'Email and password are required.'
     return
@@ -92,39 +94,44 @@ const handleLogin = async () => {
   }
 
   try {
-    const response = await fetch('http://localhost:8000/api/auth/admin-login/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: email.value,
-        password: password.value
-      }),
+    // Use axios for consistent API calls
+    const response = await axios.post('http://localhost:8000/api/auth/admin-login/', {
+      email: email.value,
+      password: password.value,
     })
 
-    const data = await response.json()
+    // Store tokens securely (sessionStorage keeps session scoped)
+    sessionStorage.setItem('access_token', response.data.access_token)
+    sessionStorage.setItem('refresh_token', response.data.refresh_token)
+    sessionStorage.setItem('admin', JSON.stringify(response.data.admin))
 
-    if (!response.ok) {
-      if (typeof data === 'string' && data === 'Invalid credentials.') {
+    // Debug log: Print admin name to verify correct login
+    console.log(
+      `Logged in admin: ${response.data.admin.first_name} ${response.data.admin.last_name}`
+    )
+
+    // Redirect securely to admin dashboard
+    router.push({ name: 'Users' })
+  } catch (err) {
+    if (err.response && err.response.data) {
+      const data = err.response.data
+
+      // Check if credentials are invalid
+      if (
+        (typeof data === 'string' && data === 'Invalid credentials.') ||
+        (Array.isArray(data) && data[0] === 'Invalid credentials.') ||
+        (data.detail && Array.isArray(data.detail) && data.detail[0] === 'Invalid credentials.')
+      ) {
         errorMessage.value = 'Invalid credentials.'
-      } 
-      // All other errors
-      else {
+      } else {
+        // All other backend errors
         errorMessage.value = 'Login failed. Please try again.'
       }
-      return
+    } else {
+      // Network or unexpected error
+      errorMessage.value = 'Network error. Please try again.'
+      console.error('Admin login error:', err)
     }
-
-    // Successful login: store tokens and admin info
-    sessionStorage.setItem('access_token', data.access_token)
-    sessionStorage.setItem('refresh_token', data.refresh_token)
-    sessionStorage.setItem('admin', JSON.stringify(data.admin))
-
-    router.push({ name: 'Users' })
-
-  } catch (err) {
-    // Network or unexpected error
-    errorMessage.value = 'Network error. Please try again.'
-    console.error('Login error:', err)
   }
 }
 </script>

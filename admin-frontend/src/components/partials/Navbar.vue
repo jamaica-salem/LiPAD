@@ -77,7 +77,7 @@
             </li>
             <li
               class="flex items-center gap-2 p-2 hover:bg-primary-lightest cursor-pointer text-red-500"
-              @click="goTo('/login')"
+              @click="goTo('/admin-login')"
             >
               <LogOut :size="16" /> Log out
             </li>
