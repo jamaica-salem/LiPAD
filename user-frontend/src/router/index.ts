@@ -5,6 +5,8 @@ import NavbarLayout from '@/layouts/NavbarLayout.vue';
 import MainLayout from '@/layouts/MainLayout.vue';
 import LoadingPage from '@/views/LoadingPage.vue';
 import FailurePage from '@/views/FailurePage.vue';
+import ClassifierOptions from '@/views/ClassifierOptions.vue';
+import ManualClassifier from '@/views/ManualClassifier.vue';  
 import Result from '@/views/Result.vue';
 import History from '@/views/History.vue';
 import { useAuth } from '@/composables/useAuth';
@@ -19,6 +21,8 @@ const routes = [
       { path: '/upload', name: 'LicensePlateUpload', component: LicensePlateUpload, meta: { requiresAuth: true } },
       { path: '/loading', name: 'LoadingPage', component: LoadingPage, meta: { requiresAuth: true } },
       { path: '/failed', name: 'FailurePage', component: FailurePage, meta: { requiresAuth: true } },
+      { path: '/classifier-options', name: 'ClassifierOptions', component: ClassifierOptions, meta: { requiresAuth: true } },
+      { path: '/manual-classifier', name: 'ManualClassifier', component: ManualClassifier, meta: { requiresAuth: true } },
     ],
   },
   {
