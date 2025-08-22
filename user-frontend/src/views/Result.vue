@@ -11,7 +11,7 @@
         ref="sliderContainer"
         class="relative w-full max-w-2xl aspect-[4/2] overflow-hidden rounded-lg border border-gray-300"
       >
-        <!-- Output Image as background -->
+        <!-- Output Image -->
         <img
           :src="outputImage"
           alt="Output Image"
@@ -19,7 +19,7 @@
           draggable="false"
         />
 
-        <!-- Input Image clipped -->
+        <!-- Input Image -->
         <img
           :src="inputImage"
           alt="Input Image"
@@ -30,16 +30,13 @@
           draggable="false"
         />
 
-        <!-- Slider Handle with Lucide Icon -->
+        <!-- Slider Handle -->
         <div
           class="absolute top-0 bottom-0 z-10 flex items-center justify-center w-5 h-full -ml-2.5 cursor-col-resize"
           :style="{ left: sliderPosition + '%' }"
           @mousedown="startDragging"
         >
-          <!-- Line -->
           <div class="w-0.5 h-full bg-[#265d9c]"></div>
-
-          <!-- Icon -->
           <MoveHorizontal
             class="absolute text-[#265d9c] w-5 h-5 pointer-events-none"
             style="top: 50%; transform: translateY(-50%)"
@@ -52,9 +49,9 @@
 
     <!-- Right: Image Details (25%) -->
     <div
-      class="w-1/4 bg-white rounded-xl shadow-md p-4 text-xs text-[#0e2247] flex flex-col justify-between"
+      class="w-1/4 bg-white rounded-xl shadow-md p-4 text-xs text-[#0e2247] flex flex-col"
     >
-      <div>
+      <div class="flex-1">
         <!-- Results -->
         <div class="mb-4">
           <h3 class="text-lg font-bold text-[#265d9c] mb-1">Results</h3>
@@ -97,35 +94,72 @@
         </div>
       </div>
 
-      <!-- Download Button -->
-      <button
-        class="bg-[#265d9c] text-white font-semibold py-1.5 px-3 rounded-lg mt-4 hover:bg-[#1d3e73] transition"
-        @click="downloadResult"
-      >
-        Download Result
-      </button>
+      <!-- Buttons Grouped Together -->
+      <div class="flex flex-col mt-4">
+        <button
+          class="bg-[#265d9c] text-white font-semibold py-1.5 px-3 rounded-lg mb-2 hover:bg-[#1d3e73] transition cursor-pointer"
+          @click="showFullScreen = true"
+        >
+          Show Result
+        </button>
+
+        <button
+          class="bg-[#265d9c] text-white font-semibold py-1.5 px-3 rounded-lg hover:bg-[#1d3e73] transition cursor-pointer"
+          @click="downloadResult"
+        >
+          Download Result
+        </button>
+      </div>
     </div>
+
+    <!-- Full-Screen Modal for Output Image -->
+<div
+  v-if="showFullScreen"
+  class="fixed inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm"
+>
+  <!-- Card Container -->
+  <div
+    class="relative bg-white rounded-3xl shadow-2xl max-w-6xl w-[60%] max-h-[100vh] flex flex-col items-center p-4"
+  >
+    <!-- Close Button -->
+    <button
+      @click="showFullScreen = false"
+      class="absolute top-3 right-3 text-white cursor-pointer bg-red-600 hover:bg-red-800 rounded-2xl w-8 h-8 flex items-center justify-center shadow-sm transition"
+      aria-label="Close"
+    >
+      ✕
+    </button>
+
+    <!-- Enlarged Output Image -->
+    <img
+      :src="outputImage"
+      alt="Full Output"
+      class="rounded-4xl max-h-[70vh] object-contain w-full border border-gray-200 shadow"
+    />
+  </div>
+</div>
+
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import beforeImage from '@/assets/before.png'
 import afterImage from '@/assets/after.png'
 import { MoveHorizontal } from 'lucide-vue-next'
 
-
-// -- MOCKED DATA --
+// Mocked Data
 const inputImage = beforeImage
 const outputImage = afterImage
-const status = 'SUCCESSFUL' // or 'FAILED'
+const status = 'SUCCESSFUL'
 const timeElapsed = '1.52s'
 const confidenceLevel = 92
 const inputDistortion = 'Low Light'
 const outputDistortion = 'Normal'
 const plateNumber = 'ABC1234'
 
-// -- SLIDER LOGIC --
+// Slider logic
 const sliderPosition = ref(50)
 let isDragging = false
 
@@ -134,24 +168,23 @@ const startDragging = () => {
   window.addEventListener('mousemove', dragSlider)
   window.addEventListener('mouseup', stopDragging)
 }
-
 const stopDragging = () => {
   isDragging = false
   window.removeEventListener('mousemove', dragSlider)
   window.removeEventListener('mouseup', stopDragging)
 }
-
 const dragSlider = (e) => {
   const container = document.querySelector('.aspect-\\[4\\/2\\]')
   if (!container) return
-
   const rect = container.getBoundingClientRect()
   const offsetX = e.clientX - rect.left
-  const percent = Math.max(0, Math.min(100, (offsetX / rect.width) * 100))
-  sliderPosition.value = percent
+  sliderPosition.value = Math.max(0, Math.min(100, (offsetX / rect.width) * 100))
 }
 
-// -- DOWNLOAD HANDLER --
+// Full-screen modal logic
+const showFullScreen = ref(false)
+
+// Download handler
 const downloadResult = () => {
   try {
     const link = document.createElement('a')

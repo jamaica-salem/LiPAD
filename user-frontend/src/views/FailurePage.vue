@@ -37,17 +37,17 @@
 import { ref, onMounted } from 'vue'
 import { ImageOff as ImageOffIcon } from 'lucide-vue-next'
 
-// --- List of humorous or gentle error messages ---
+// --- List of error messages ---
 const messages = [
   'Failed to deblur the image.',
-  'We couldn’t enhance your license plate.',
+  'Sorry, we couldn’t enhance your license plate.',
   'Image processing was unsuccessful.',
   'The AI couldn’t recover enough detail.',
   'Deblurring attempt failed.',
   'Oops! We couldn’t clarify that plate.',
   'Sorry, the image could not be processed.',
   'Your upload couldn’t be improved.',
-  'AI enhancement didn’t work this time.',
+  'Sorry, AI enhancement didn’t work this time.',
   'We hit a roadblock deblurring the image.'
 ]
 
