@@ -8,7 +8,7 @@
       <div class="grid grid-cols-2 gap-6 w-full max-w-4xl">
         <!-- Low Quality -->
         <button
-          class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white"
+          class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white cursor-pointer"
         >
           <img :src="lowQuality" alt="Low Quality" class="w-50 h-28 rounded-xl mb-4 object-cover" />
           <h2 class="text-lg font-semibold mb-2">Low Quality</h2>
@@ -19,7 +19,7 @@
 
         <!-- Low Light -->
         <button
-          class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white"
+          class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white cursor-pointer"
         >
           <img :src="lowLight" alt="Low Light" class="w-50 h-28 rounded-xl mb-4 object-cover" />
           <h2 class="text-lg font-semibold mb-2">Low Light</h2>
@@ -30,7 +30,7 @@
 
         <!-- Horizontal Blur -->
         <button
-          class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white"
+          class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white cursor-pointer"
         >
           <img :src="horizontalBlur" alt="Horizontal Blur" class="w-50 h-28 rounded-xl mb-4 object-cover" />
           <h2 class="text-lg font-semibold mb-2">Horizontal Blur</h2>
@@ -41,7 +41,7 @@
 
         <!-- Vertical Blur -->
         <button
-          class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white"
+          class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white cursor-pointer"
         >
           <img :src="verticalBlur" alt="Vertical Blur" class="w-50 h-28 rounded-xl mb-4 object-cover" />
           <h2 class="text-lg font-semibold mb-2">Vertical Blur</h2>

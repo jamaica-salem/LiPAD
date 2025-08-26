@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-orange-50 text-[#1f2937]">
+  <div class="min-h-screen bg-orange-50 text-[#1f2937] overflow-hidden">
     <Navbar />
     <main class="">
       <router-view />

@@ -1,4 +1,4 @@
-<template>
+<template> 
   <div class="bg-orange-50 min-h-[calc(100vh-90px)] flex items-center justify-center">
     <div class="max-w-3xl mx-auto py-12">
       <!-- Header Title -->
@@ -35,7 +35,7 @@
         />
         <button
           @click="triggerFileInput"
-          class="bg-[#265d9c] hover:bg-[#1d4b81] text-white font-medium py-2.5 px-6 rounded-lg shadow text-base"
+          class="bg-[#265d9c] hover:bg-[#1d4b81] text-white font-medium py-2.5 px-6 rounded-lg shadow text-base cursor-pointer"
         >
           Upload Image
         </button>
@@ -54,67 +54,121 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// ------------------------------
 // Imports
-import { ref } from 'vue'
-import { Upload } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
+// ------------------------------
+import { ref } from 'vue';
+import { Upload } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
-// Refs
-const fileInput = ref(null)
-const selectedFile = ref(null)
-const errorMessage = ref('')
-const router = useRouter()
+// ------------------------------
+// Refs and Router
+// ------------------------------
+const fileInput = ref<HTMLInputElement | null>(null);
+const selectedFile = ref<File | null>(null);
+const errorMessage = ref<string>('');
+const isUploading = ref<boolean>(false);
+const router = useRouter();
 
+// ------------------------------
 // Trigger file picker
-const triggerFileInput = () => {
-  fileInput.value?.click()
-}
+// ------------------------------
+const triggerFileInput = (): void => {
+  fileInput.value?.click();
+};
 
-// Validate image
-const isValidImage = (file) => {
-  return file && file.type.startsWith('image/')
-}
+// ------------------------------
+// Validate image (security + format checks)
+// ------------------------------
+const isValidImage = (file: File): boolean => {
+  const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+  const maxSizeMB = 5; // Limit file size to 5MB
+  return validTypes.includes(file.type) && file.size <= maxSizeMB * 1024 * 1024;
+};
 
+// ------------------------------
 // Handle file selection
-const handleFileChange = (event) => {
-  const file = event.target.files[0]
-  processFile(file)
-}
+// ------------------------------
+const handleFileChange = (event: Event): void => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0] || null;
+  processFile(file);
+};
 
-// Handle drag events
-const handleDragOver = (event) => {
-  event.dataTransfer.dropEffect = 'copy'
-}
+// ------------------------------
+// Handle drag events (visual feedback)
+// ------------------------------
+const handleDragOver = (event: DragEvent): void => {
+  event.dataTransfer!.dropEffect = 'copy';
+};
 
+// ------------------------------
 // Handle drop events
-const handleDrop = (event) => {
-  const file = event.dataTransfer.files[0]
-  processFile(file)
-}
+// ------------------------------
+const handleDrop = (event: DragEvent): void => {
+  const file = event.dataTransfer?.files?.[0] || null;
+  processFile(file);
+};
 
-// Process file
-const processFile = (file) => {
+// ------------------------------
+// Core logic: Validate and upload file
+// ------------------------------
+const processFile = async (file: File | null): Promise<void> => {
   if (!file) {
-    errorMessage.value = 'No file was selected.'
-    selectedFile.value = null
-    return
+    errorMessage.value = 'No file was selected.';
+    selectedFile.value = null;
+    return;
   }
 
   if (!isValidImage(file)) {
-    errorMessage.value = 'Please upload a valid image file (JPG, PNG, etc).'
-    selectedFile.value = null
-    return
+    errorMessage.value = 'Invalid file. Please upload a JPG, PNG, or WEBP under 5MB.';
+    selectedFile.value = null;
+    return;
   }
 
-  // Reset error and save file
-  errorMessage.value = ''
-  selectedFile.value = file
+  // Reset states and mark as uploading
+  errorMessage.value = '';
+  selectedFile.value = file;
+  isUploading.value = true;
 
-  // Navigate to loading page
-  router.push({ name: 'LoadingPage' })
-}
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
 
+    // Secure axios POST request to Django API
+    const response = await axios.post('/api/upload-license-plate', formData, {
+      withCredentials: true, // sends session cookie for Django auth
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 15000, // safety timeout for slow networks 
+    });
+
+    console.log('Upload success:', response.data);
+
+    // Navigate back to LicensePlateUpload page with status
+    router.push({ name: 'LicensePlateUpload', query: { status: 'success' } });
+  } catch (error: any) {
+    console.error('Upload error:', error);
+
+    // Distinguish between server and network errors
+    if (error.response) {
+      errorMessage.value = `Upload failed: ${error.response.data?.message || 'Server error.'}`;
+    } else if (error.request) {
+      errorMessage.value = 'No response from server. Please check your network.';
+    } else {
+      errorMessage.value = 'Unexpected error occurred during upload.';
+    }
+  } finally {
+    isUploading.value = false;
+
+    // Clear the file input to allow re-upload of the same file
+    if (fileInput.value) fileInput.value.value = '';
+  }
+};
 </script>
 
 <style scoped>

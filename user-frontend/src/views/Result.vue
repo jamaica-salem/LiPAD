@@ -113,33 +113,31 @@
     </div>
 
     <!-- Full-Screen Modal for Output Image -->
-<div
-  v-if="showFullScreen"
-  class="fixed inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm"
->
-  <!-- Card Container -->
-  <div
-    class="relative bg-white rounded-3xl shadow-2xl max-w-6xl w-[60%] max-h-[100vh] flex flex-col items-center p-4"
-  >
-    <!-- Close Button -->
-    <button
-      @click="showFullScreen = false"
-      class="absolute top-3 right-3 text-white cursor-pointer bg-red-600 hover:bg-red-800 rounded-2xl w-8 h-8 flex items-center justify-center shadow-sm transition"
-      aria-label="Close"
+    <div
+      v-if="showFullScreen"
+      class="fixed inset-0 z-50 flex justify-center items-center p-3.5 bg-black/20"
     >
-      ✕
-    </button>
+      <!-- Card Container -->
+      <div
+        class="relative bg-white rounded-3xl shadow-2xl max-w-6xl w-[60%] max-h-[100vh] flex flex-col items-center p-4"
+      >
+        <!-- Close Button -->
+        <button
+          @click="showFullScreen = false"
+          class="absolute top-3 right-3 text-white cursor-pointer bg-red-600 hover:bg-red-800 rounded-2xl w-8 h-8 flex items-center justify-center shadow-sm transition"
+          aria-label="Close"
+        >
+          ✕
+        </button>
 
-    <!-- Enlarged Output Image -->
-    <img
-      :src="outputImage"
-      alt="Full Output"
-      class="rounded-4xl max-h-[70vh] object-contain w-full border border-gray-200 shadow"
-    />
-  </div>
-</div>
-
-
+        <!-- Enlarged Output Image -->
+        <img
+          :src="outputImage"
+          alt="Full Output"
+          class="rounded-4xl max-h-[70vh] object-contain w-full border border-gray-200 shadow"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
