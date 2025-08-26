@@ -128,7 +128,7 @@ const processFile = async (file: File | null): Promise<void> => {
     })
 
     // data.id is the new Image row; pass to next page
-    router.push({ name: 'DistortionOptions', query: { imageId: String(data.id) } })
+    router.push({ name: 'ClassifierOptions', query: { imageId: String(data.id) } })
   } catch (err: any) {
     // Avoid leaking backend internals; show safe message
     const msg =
