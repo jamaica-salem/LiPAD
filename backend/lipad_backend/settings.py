@@ -77,8 +77,8 @@ DATABASES = {
 }
 
 # --- Media (for ImageField) ---
-MEDIA_URL = os.getenv('MEDIA_URL')
-MEDIA_ROOT = os.path.join(BASE_DIR, os.getenv('MEDIA_ROOT'))
+MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, os.getenv('MEDIA_ROOT', 'media'))
 
 # --- DRF defaults (pagination + sane JSON errors) ---
 REST_FRAMEWORK = {

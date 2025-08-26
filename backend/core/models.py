@@ -63,17 +63,17 @@ class Image(models.Model):
         ('Low Light', 'Low Light'),
     ]
     
-    # User reference - nullable for flexibility (e.g., anonymous uploads, deleted users)
+    # User reference 
     user = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
         related_name='images',
         null=False,
-        blank=True,
+        blank=False,
         help_text="User who uploaded this image. Can be null for anonymous uploads."
     )
     
-    # Before image - REQUIRED field (only non-nullable field as requested)
+    # Before image - REQUIRED field 
     before_image = models.ImageField(
         upload_to='before_images/',
         help_text="Original image before processing. This field is required."

@@ -5,20 +5,48 @@ from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.contrib.auth.hashers import check_password
 
-# Max image size 100MB
 MAX_IMAGE_MB = 100
 
 def validate_image_file(image):
-    """Validate uploaded image size and format."""
     if image.size > MAX_IMAGE_MB * 1024 * 1024:
         raise serializers.ValidationError(f"Image too large (max {MAX_IMAGE_MB} MB).")
     try:
-        # Ensure the file is a valid image
         get_image_dimensions(image)
     except Exception:
         raise serializers.ValidationError("Invalid image file.")
     return image
 
+class ImageSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField(read_only=True)
+    before_image_url = serializers.SerializerMethodField(read_only=True)
+    after_image_url = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Image
+        fields = ['id','user','before_image','after_image','before_image_url','after_image_url','date_deblurred','plate_no','status','distortion_type','created_at']
+        read_only_fields = ['id','created_at','before_image_url','after_image_url','user']
+
+    def get_user(self, obj):
+        if obj.user:
+            return {'id': obj.user.id, 'email': getattr(obj.user, 'email', None)}
+        return None
+
+    def get_before_image_url(self, obj):
+        req = self.context.get('request')
+        return req.build_absolute_uri(obj.before_image.url) if obj.before_image and req else None
+
+    def get_after_image_url(self, obj):
+        req = self.context.get('request')
+        return req.build_absolute_uri(obj.after_image.url) if obj.after_image and req else None
+
+    def validate_before_image(self, image):
+        return validate_image_file(image)
+
+    def validate(self, data):
+        # Ensure before_image is present on create
+        if self.instance is None and 'before_image' not in data:
+            raise serializers.ValidationError({'before_image': 'This field is required.'})
+        return data
 
 class AdminSerializer(serializers.ModelSerializer):
     """
@@ -122,43 +150,6 @@ class UserLoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
-
-
-class ImageSerializer(serializers.ModelSerializer):
-    """Handles image validation and URL generation for frontend"""
-    user = UserSerializer(read_only=True)  # nested user info
-    before_image_url = serializers.SerializerMethodField(read_only=True)
-    after_image_url = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = Image
-        fields = [
-            'id', 'user', 'before_image', 'after_image',
-            'before_image_url', 'after_image_url',
-            'date_deblurred', 'plate_no', 'status', 'distortion_type', 'created_at'
-        ]
-        read_only_fields = ['id','created_at','before_image_url','after_image_url']
-
-    def get_before_image_url(self, obj):
-        """Return absolute URL for Vue frontend"""
-        request = self.context.get('request')
-        if obj.before_image and request:
-            return request.build_absolute_uri(obj.before_image.url)
-        return None
-
-    def get_after_image_url(self, obj):
-        """Return absolute URL for Vue frontend"""
-        request = self.context.get('request')
-        if obj.after_image and request:
-            return request.build_absolute_uri(obj.after_image.url)
-        return None
-
-    # Validate images before saving
-    def validate_before_image(self, image):
-        return validate_image_file(image)
-
-    def validate_after_image(self, image):
-        return validate_image_file(image)
     
 class AdminLoginSerializer(serializers.Serializer):
     """

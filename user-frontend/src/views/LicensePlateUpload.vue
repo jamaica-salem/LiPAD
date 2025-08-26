@@ -55,121 +55,95 @@
 </template>
 
 <script setup lang="ts">
-// ------------------------------
-// Imports
-// ------------------------------
-import { ref } from 'vue';
-import { Upload } from 'lucide-vue-next';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { ref, onMounted } from 'vue'
+import { Upload } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import http from '@/services/http'
+import { ensureCsrfCookie } from '@/services/csrf'
 
-// ------------------------------
-// Refs and Router
-// ------------------------------
-const fileInput = ref<HTMLInputElement | null>(null);
-const selectedFile = ref<File | null>(null);
-const errorMessage = ref<string>('');
-const isUploading = ref<boolean>(false);
-const router = useRouter();
+const fileInput = ref<HTMLInputElement | null>(null)
+const selectedFile = ref<File | null>(null)
+const errorMessage = ref<string>('')
+const isUploading = ref<boolean>(false)
+const router = useRouter()
 
-// ------------------------------
+// Ensure Django sets the csrftoken cookie before first POST
+onMounted(() => {
+  ensureCsrfCookie()
+})
+
 // Trigger file picker
-// ------------------------------
 const triggerFileInput = (): void => {
-  fileInput.value?.click();
-};
+  fileInput.value?.click()
+}
 
-// ------------------------------
-// Validate image (security + format checks)
-// ------------------------------
+// Strict validation against allowed types + size
 const isValidImage = (file: File): boolean => {
-  const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-  const maxSizeMB = 5; // Limit file size to 5MB
-  return validTypes.includes(file.type) && file.size <= maxSizeMB * 1024 * 1024;
-};
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+  const maxSizeMB = 5
+  return validTypes.includes(file.type) && file.size <= maxSizeMB * 1024 * 1024
+}
 
-// ------------------------------
 // Handle file selection
-// ------------------------------
 const handleFileChange = (event: Event): void => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0] || null;
-  processFile(file);
-};
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0] || null
+  processFile(file)
+}
 
-// ------------------------------
-// Handle drag events (visual feedback)
-// ------------------------------
+// Drag/drop helpers
 const handleDragOver = (event: DragEvent): void => {
-  event.dataTransfer!.dropEffect = 'copy';
-};
-
-// ------------------------------
-// Handle drop events
-// ------------------------------
+  event.dataTransfer!.dropEffect = 'copy'
+}
 const handleDrop = (event: DragEvent): void => {
-  const file = event.dataTransfer?.files?.[0] || null;
-  processFile(file);
-};
+  const file = event.dataTransfer?.files?.[0] || null
+  processFile(file)
+}
 
-// ------------------------------
-// Core logic: Validate and upload file
-// ------------------------------
+// Validate + upload to Django
 const processFile = async (file: File | null): Promise<void> => {
+  errorMessage.value = ''
   if (!file) {
-    errorMessage.value = 'No file was selected.';
-    selectedFile.value = null;
-    return;
+    errorMessage.value = 'No file was selected.'
+    selectedFile.value = null
+    return
   }
-
   if (!isValidImage(file)) {
-    errorMessage.value = 'Invalid file. Please upload a JPG, PNG, or WEBP under 5MB.';
-    selectedFile.value = null;
-    return;
+    errorMessage.value = 'Invalid file. Please upload a JPG, PNG, or WEBP under 5MB.'
+    selectedFile.value = null
+    return
   }
 
-  // Reset states and mark as uploading
-  errorMessage.value = '';
-  selectedFile.value = file;
-  isUploading.value = true;
+  selectedFile.value = file
+  isUploading.value = true
 
   try {
-    const formData = new FormData();
-    formData.append('image', file);
+    // IMPORTANT: the field name must be "before_image" to match the DRF serializer
+    const formData = new FormData()
+    formData.append('before_image', file)
 
-    // Secure axios POST request to Django API
-    const response = await axios.post('/api/upload-license-plate', formData, {
-      withCredentials: true, // sends session cookie for Django auth
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'multipart/form-data',
-      },
-      timeout: 15000, // safety timeout for slow networks 
-    });
+    // POST to /api/images/ (ModelViewSet create)
+    const { data } = await http.post('/images/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
 
-    console.log('Upload success:', response.data);
-
-    // Navigate back to LicensePlateUpload page with status
-    router.push({ name: 'LicensePlateUpload', query: { status: 'success' } });
-  } catch (error: any) {
-    console.error('Upload error:', error);
-
-    // Distinguish between server and network errors
-    if (error.response) {
-      errorMessage.value = `Upload failed: ${error.response.data?.message || 'Server error.'}`;
-    } else if (error.request) {
-      errorMessage.value = 'No response from server. Please check your network.';
-    } else {
-      errorMessage.value = 'Unexpected error occurred during upload.';
-    }
+    // data.id is the new Image row; pass to next page
+    router.push({ name: 'DistortionOptions', query: { imageId: String(data.id) } })
+  } catch (err: any) {
+    // Avoid leaking backend internals; show safe message
+    const msg =
+      err?.response?.data?.errors ||
+      err?.response?.data?.detail ||
+      err?.message ||
+      'Upload failed.'
+    errorMessage.value = Array.isArray(msg) ? msg.join(', ') : String(msg)
   } finally {
-    isUploading.value = false;
-
-    // Clear the file input to allow re-upload of the same file
-    if (fileInput.value) fileInput.value.value = '';
+    isUploading.value = false
+    if (fileInput.value) fileInput.value.value = ''
   }
-};
+}
 </script>
+
 
 <style scoped>
 .dropzone-hover {

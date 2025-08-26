@@ -11,7 +11,7 @@ router.register(r'images', ImageViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path("/lipad/login/", UserLoginView.as_view(), name='user-login'),
+    path("lipad/login/", UserLoginView.as_view(), name='user-login'),
     path("csrf/", csrf_view, name="csrf"),
     path("login/", login_view, name="login"),
     path("logout/", logout_view, name="logout"),
@@ -19,5 +19,5 @@ urlpatterns = [
     path("user/csrf/", csrf_view_user, name="user-csrf"),
     path("user/login/", login_user_view, name="user-login"),
     path("user/logout/", logout_user_view, name="user-logout"),
-    path("user/session/", session_user_view_user, name="user-session"),
+    path("user/session/", session_user_view_user, name="use r-session"),
 ]
