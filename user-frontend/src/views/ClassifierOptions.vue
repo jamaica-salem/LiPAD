@@ -33,7 +33,7 @@
         <button
           type="button"
           class="w-full bg-[#265d9c] hover:bg-[#1d4b81] text-white text-lg font-semibold py-4 px-6 rounded-xl shadow transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-          @click="proceedAuto"
+          @click="proceedAuto(imageId ? parseInt(imageId) : null)"
           :disabled="busy"
           aria-label="Let LiPAD detect the distortion automatically"
         >
@@ -67,8 +67,10 @@
 </template>
 
 <script setup lang="ts">
+import http from '@/services/http'
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { errorMessages } from 'vue/compiler-sfc'
 
 
 const router = useRouter()
@@ -99,8 +101,24 @@ const safeNavigate = async (name: string, query: Record<string, string | undefin
 }
 
 // Proceed with auto-classification route.
-const proceedAuto = async () => {
-  await safeNavigate('', imageId ? { imageId } : {})
+const proceedAuto = async (imageId: number | null): Promise<void> => {
+  error.value = ''
+  if (!imageId) {
+    error.value = 'No imageId provided.'
+    return
+  }
+
+  try {
+    const { data } = await http.post('/process/', { image_id: imageId })
+    await safeNavigate('LoadingPage', { imageId: String(imageId) })
+  } catch (err: any) {
+    const msg =
+      err?.response?.data?.errors ||
+      err?.response?.data?.detail ||
+      err?.message ||
+      'Processing failed.'
+    error.value = Array.isArray(msg) ? msg.join(', ') : String(msg)
+  }
 }
 
 // Proceed with manual classification route.

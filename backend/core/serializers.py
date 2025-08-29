@@ -23,7 +23,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = ['id','user','before_image','after_image','before_image_url','after_image_url','date_deblurred','plate_no','status','distortion_type','created_at']
+        fields = ['id','user','before_image','after_image','before_image_url','after_image_url','date_deblurred','plate_no','status','distortion_type','after_distortion_type', 'conf_score', 'created_at']
         read_only_fields = ['id','created_at','before_image_url','after_image_url','user']
 
     def get_user(self, obj):

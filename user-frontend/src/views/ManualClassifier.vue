@@ -9,7 +9,8 @@
         <!-- Low Quality -->
         <button
           class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white cursor-pointer"
-        >
+          @click="submitDistortion('low_qual')"
+          >
           <img :src="lowQuality" alt="Low Quality" class="w-50 h-28 rounded-xl mb-4 object-cover" />
           <h2 class="text-lg font-semibold mb-2">Low Quality</h2>
           <p class="text-sm text-center">
@@ -20,7 +21,8 @@
         <!-- Low Light -->
         <button
           class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white cursor-pointer"
-        >
+          @click="submitDistortion('low_light')"
+          >
           <img :src="lowLight" alt="Low Light" class="w-50 h-28 rounded-xl mb-4 object-cover" />
           <h2 class="text-lg font-semibold mb-2">Low Light</h2>
           <p class="text-sm text-center">
@@ -31,7 +33,8 @@
         <!-- Horizontal Blur -->
         <button
           class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white cursor-pointer"
-        >
+          @click="submitDistortion('h_blur')"
+          >
           <img :src="horizontalBlur" alt="Horizontal Blur" class="w-50 h-28 rounded-xl mb-4 object-cover" />
           <h2 class="text-lg font-semibold mb-2">Horizontal Blur</h2>
           <p class="text-sm text-center">
@@ -42,7 +45,8 @@
         <!-- Vertical Blur -->
         <button
           class="flex flex-col items-center p-4 rounded-2xl shadow-md transition duration-200 bg-[#265d9c] hover:bg-[#1d4b81] text-white cursor-pointer"
-        >
+          @click="submitDistortion('v_blur')"
+          >
           <img :src="verticalBlur" alt="Vertical Blur" class="w-50 h-28 rounded-xl mb-4 object-cover" />
           <h2 class="text-lg font-semibold mb-2">Vertical Blur</h2>
           <p class="text-sm text-center">
@@ -60,4 +64,29 @@ import lowQuality from '@/assets/low-quality.jpg'
 import lowLight from '@/assets/low-light.jpg'
 import horizontalBlur from '@/assets/horizontal-blur.jpg'
 import verticalBlur from '@/assets/vertical-blur.jpg'
+
+import { useRoute, useRouter } from 'vue-router'
+import http from '@/services/http'
+
+const route = useRoute()
+const router = useRouter()
+const imageId = route.query.imageId
+
+const submitDistortion = async (distortionType) => {
+  try {
+    const { data } = await http.post('/process-gan/', {
+      image_id: imageId,
+      distortion_type: distortionType,
+    })
+
+    router.push({ name: 'LoadingPage', query: { imageId } })
+  } catch (err) {
+    const msg =
+      err?.response?.data?.errors ||
+      err?.response?.data?.detail ||
+      err?.message ||
+      'Processing failed.'
+    error.value = Array.isArray(msg) ? msg.join(', ') : String(msg)
+  }
+}
 </script>

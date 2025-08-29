@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LogIn from '@/views/LogIn.vue';
+import LogIn from '@/views/Login.vue';
 import LicensePlateUpload from '@/views/LicensePlateUpload.vue';
 import NavbarLayout from '@/layouts/NavbarLayout.vue';
 import MainLayout from '@/layouts/MainLayout.vue';

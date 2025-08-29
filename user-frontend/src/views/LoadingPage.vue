@@ -6,7 +6,10 @@
     </div>
 
     <!-- Random Loading Text -->
-    <p class="text-2xl sm:text-2xl font-bold text-center px-8 transition-opacity duration-500" :key="currentText">
+    <p
+      class="text-2xl sm:text-2xl font-bold text-center px-8 transition-opacity duration-500"
+      :key="currentText"
+    >
       {{ currentText }}
     </p>
   </div>
@@ -14,8 +17,14 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
+import http from '@/services/http'
 
+const route = useRoute()
+const router = useRouter()
+
+const imageId = route.query.imageId
 const messages = [
   'Enhancing image clarity...',
   'Sharpening license plate details...',
@@ -31,15 +40,40 @@ const messages = [
 
 const currentText = ref(messages[0])
 let intervalId
+let pollerId
 
 onMounted(() => {
-  intervalId = setInterval(() => {
+    intervalId = setInterval(() => {
     const randomIndex = Math.floor(Math.random() * messages.length)
     currentText.value = messages[randomIndex]
   }, 3500)
+  startPolling()
 })
+
+const startPolling = () => {
+  pollerId = setInterval(async () => {
+    try {
+      const { data } = await http.get(`/images/${imageId}/`)
+      if (data.after_image) {
+        clearInterval(pollerId)
+        clearInterval(intervalId)
+
+        if (data.after_distortion_type === 'Normal' && data.status == 'Successful' && data.plate_no != "") {
+          // success → go to Result
+          router.push({ name: 'Result', query: { imageId } })
+        } else {
+          // failed → go to FailurePage
+          router.push({ name: 'FailurePage', query: { imageId } })
+        }
+      }
+    } catch (err) {
+      console.error('Polling failed:', err)
+    }
+  }, 3000) // poll every 3s
+}
 
 onBeforeUnmount(() => {
   clearInterval(intervalId)
+  clearInterval(pollerId)
 })
 </script>

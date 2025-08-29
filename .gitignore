@@ -3,6 +3,9 @@ backend/venv/
 *.pyc
 __pycache__/
 
+# ML
+*.pt
+
 # Django
 *.sqlite3
 *.log

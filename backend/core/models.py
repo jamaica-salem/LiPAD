@@ -61,6 +61,7 @@ class Image(models.Model):
         ('Horizontal Blur', 'Horizontal Blur'),
         ('Vertical Blur', 'Vertical Blur'),
         ('Low Light', 'Low Light'),
+        ('Normal', 'Normal'),
     ]
     
     # User reference 
@@ -101,6 +102,14 @@ class Image(models.Model):
         blank=True,
         help_text="License plate number extracted from the image. Can be null if not detected."
     )
+
+    # Confidence score - nullable (might not be detected or extracted yet)
+    conf_score = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        help_text="Confidence score for the detected license plate number. Can be null if not detected."
+    )
     
     # Status - nullable with default handling in business logic
     status = models.CharField(
@@ -113,6 +122,15 @@ class Image(models.Model):
     
     # Distortion type - nullable (might be determined during processing)
     distortion_type = models.CharField(
+        max_length=20,
+        choices=DISTORTION_CHOICES,
+        null=True,
+        blank=True,
+        help_text="Type of distortion detected in the image. Can be null if not analyzed yet."
+    )
+
+    # After Distortion type - nullable (might be determined during processing)
+    after_distortion_type = models.CharField(
         max_length=20,
         choices=DISTORTION_CHOICES,
         null=True,

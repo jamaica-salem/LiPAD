@@ -19,13 +19,13 @@
     <div class="flex gap-6">
       <button
         class="w-40 bg-[#265d9c] hover:bg-[#1d4a80] text-white text-lg font-semibold py-2.5 px-6 rounded-full transition duration-300 shadow-lg"
-        @click="goTo('/result')"
+        @click="handleUserChoice(true)"
       >
         Yes
       </button>
       <button
         class="w-40 bg-white hover:bg-[#f4f4f4] text-[#265d9c] text-lg font-semibold py-2.5 px-6 rounded-full transition duration-300 shadow-lg"
-        @click="goTo('/upload')"
+        @click="handleUserChoice(false)"
       >
         No
       </button>
@@ -36,6 +36,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ImageOff as ImageOffIcon } from 'lucide-vue-next'
+import { useRoute, useRouter } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+const imageId = route.query.imageId
 
 // --- List of error messages ---
 const messages = [
@@ -62,10 +67,10 @@ onMounted(() => {
 const handleUserChoice = (choice) => {
   if (choice) {
     // placeholder if yes
-    console.log('User chose to view the result')
+    router.push({ name: 'Result', query: { imageId } })
   } else {
     // placeholder if no
-    console.log('User declined to view the result')
+    router.push({ name: 'LicensePlateUpload' })
   }
 }
 </script>
