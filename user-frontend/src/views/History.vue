@@ -8,10 +8,16 @@
           <h3 class="font-semibold text-sm">Total Plates</h3>
           <ScanLine class="w-5 h-5" />
         </div>
-        <p class="text-3xl font-extrabold mb-1.5">{{ filteredHistory.length }}</p>
+        <p class="text-3xl font-extrabold mb-1.5">{{ totalCount }}</p>
         <div class="flex items-center text-xs">
-          <ArrowUp class="text-green-500 mr-1 w-3.5 h-3.5" />
-          <span>+8% from last week</span>
+          <component
+            :is="percentageIcon"
+            :class="[
+              'mr-1 w-3.5 h-3.5',
+              percentageColor
+            ]"
+          />
+          <span>{{ percentageChange }}</span>
         </div>
       </div>
 
@@ -158,16 +164,36 @@
             </tr>
           </tbody>
         </table>
+        <!-- Pagination Controls -->
+        <div class="flex justify-between items-center mt-4 text-sm">
+          <button
+            :disabled="!prevPage"
+            @click="fetchHistory(currentPage - 1)"
+            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <span>Page {{ currentPage }}</span>
+
+          <button
+            :disabled="!nextPage"
+            @click="fetchHistory(currentPage + 1)"
+            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ArrowUp, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
+import { ref, computed, onMounted } from 'vue'
+import { ArrowUp,ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
+import http from '@/services/http'
 
-// Filters
 const searchQuery = ref('')
 const startDate = ref('')
 const endDate = ref('')
@@ -175,6 +201,37 @@ const distortionFilter = ref('All')
 const deblurFilter = ref('All')
 const showDistortionDropdown = ref(false)
 const showDeblurDropdown = ref(false)
+
+const history = ref([])
+const currentPage = ref(1)
+const nextPage = ref(null)
+const prevPage = ref(null)
+const totalCount = ref(0)
+
+// Load data with pagination
+const fetchHistory = async (page = 1) => {
+  try {
+    const { data } = await http.get(`/images/?page=${page}`)
+    history.value = data.results.map(entry => ({
+      id: entry.id,
+      image: entry.after_image_url || entry.before_image_url,
+      date: entry.date_deblurred ? entry.date_deblurred.split('T')[0] : 'N/A',
+      plate: entry.plate_no || '—',
+      status: entry.status || 'Unknown',
+      distortion: entry.distortion_type || 'Unknown',
+      conf: entry.conf_score || '—',
+      afterDistortion: entry.after_distortion_type || 'Unknown'
+    }))
+    totalCount.value = data.count
+    nextPage.value = data.next
+    prevPage.value = data.previous
+    currentPage.value = page
+  } catch (err) {
+    console.error('Failed to fetch history:', err)
+  }
+}
+
+onMounted(() => fetchHistory(1))
 
 const setDistortionFilter = (filter) => {
   distortionFilter.value = filter
@@ -186,40 +243,72 @@ const setDeblurFilter = (filter) => {
   showDeblurDropdown.value = false
 }
 
-// Sample data (10 rows)
-const history = ref([
-  { id: 1, image: '', date: '2025-07-29', plate: 'ABC1234', status: 'Successful', distortion: 'Low Quality' },
-  { id: 2, image: '',  date: '2025-07-30', plate: 'XYZ5678', status: 'Failed', distortion: 'Horizontal Blur' },
-  { id: 3, image: '',  date: '2025-07-31', plate: 'LMN3456', status: 'Successful', distortion: 'Low Light' },
-  { id: 4, image: '',  date: '2025-07-28', plate: 'DEF2222', status: 'Failed', distortion: 'Vertical Blur' },
-  { id: 5, image: '',  date: '2025-07-28', plate: 'GHI3333', status: 'Successful', distortion: 'Low Quality' },
-])
-
-// Filtered history
+// Filtered history for current page
 const filteredHistory = computed(() => {
   return history.value.filter((entry) => {
-    const matchesSearch =
+    const matchesSearch = entry.plate.toLowerCase().includes(searchQuery.value.toLowerCase())
 
-      entry.plate.toLowerCase().includes(searchQuery.value.toLowerCase())
-
-    const entryDate = new Date(entry.date)
+    const entryDate = entry.date !== 'N/A' ? new Date(entry.date) : null
     const start = startDate.value ? new Date(startDate.value) : null
     const end = endDate.value ? new Date(endDate.value) : null
-    const withinDateRange = (!start || entryDate >= start) && (!end || entryDate <= end)
+    const withinDateRange =
+      (!start || (entryDate && entryDate >= start)) &&
+      (!end || (entryDate && entryDate <= end))
 
-    return matchesSearch && withinDateRange
+    const matchesDistortion =
+      distortionFilter.value === 'All' || entry.distortion === distortionFilter.value
+
+    const matchesDeblur =
+      deblurFilter.value === 'All' || entry.status === deblurFilter.value
+
+    return matchesSearch && withinDateRange && matchesDistortion && matchesDeblur
   })
 })
 
-const filteredDistortions = computed(() => {
-  return distortionFilter.value === 'All'
-    ? history.value
-    : history.value.filter((entry) => entry.distortion === distortionFilter.value)
+const percentageIcon = computed(() => {
+  if (percentageChange.value.startsWith('+')) return ArrowUp
+  if (percentageChange.value.startsWith('-')) return ArrowDown
+  return Minus
 })
 
-const filteredDeblurs = computed(() => {
-  return deblurFilter.value === 'All'
-    ? history.value
-    : history.value.filter((entry) => entry.status === deblurFilter.value)
+const percentageColor = computed(() => {
+  if (percentageChange.value.startsWith('+')) return 'text-green-500'
+  if (percentageChange.value.startsWith('-')) return 'text-red-500'
+  return 'text-gray-500'
 })
+
+// Count current week and last week
+const thisWeekCount = computed(() => {
+  const now = new Date()
+  const startOfWeek = new Date(now)
+  startOfWeek.setDate(now.getDate() - now.getDay()) // Sunday
+  return history.value.filter(entry => {
+    const d = new Date(entry.date)
+    return d >= startOfWeek && d <= now
+  }).length
+})
+
+const lastWeekCount = computed(() => {
+  const now = new Date()
+  const startOfThisWeek = new Date(now)
+  startOfThisWeek.setDate(now.getDate() - now.getDay())
+  const startOfLastWeek = new Date(startOfThisWeek)
+  startOfLastWeek.setDate(startOfThisWeek.getDate() - 7)
+  return history.value.filter(entry => {
+    const d = new Date(entry.date)
+    return d >= startOfLastWeek && d < startOfThisWeek
+  }).length
+})
+
+const percentageChange = computed(() => {
+  if (lastWeekCount.value === 0) return '+0%' // avoid division by 0
+  const diff = ((thisWeekCount.value - lastWeekCount.value) / lastWeekCount.value) * 100
+  const rounded = diff.toFixed(1)
+  return (diff >= 0 ? '+' : '') + rounded + '% from last week'
+})
+
+const filteredDistortions = computed(() => filteredHistory.value)
+const filteredDeblurs = computed(() => filteredHistory.value)
 </script>
+
+
