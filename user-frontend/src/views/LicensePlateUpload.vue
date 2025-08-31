@@ -122,7 +122,7 @@ const processFile = async (file: File | null): Promise<void> => {
     const formData = new FormData()
     formData.append('before_image', file)
 
-    // POST to /api/images/ (ModelViewSet create)
+    // POST to /api/images/ 
     const { data } = await http.post('/images/', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
