@@ -193,6 +193,8 @@ onMounted(async () => {
   }
 })
 
+const showFullScreen = ref(false)
+
 // Slider logic
 const startDragging = () => {
   window.addEventListener('mousemove', dragSlider)
