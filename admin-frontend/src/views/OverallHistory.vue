@@ -157,7 +157,7 @@
               </td>
               <td class="px-3 py-1 text-gray-600">{{ entry.distortion }}</td>
               <td class="px-3 py-1 flex justify-end items-center space-x-1.5">
-                <button class="text-[#1d3557] hover:text-[#2a486e]" title="View">
+                <button class="text-[#1d3557] hover:text-[#2a486e]" title="View" @click="viewImage(entry)">
                   <Eye class="w-3.5 h-3.5" />
                 </button>
                 <button class="text-red-600 hover:text-red-800" title="Delete">
@@ -190,6 +190,33 @@
       </div>
     </div>
   </div>
+
+  <!-- Full-Screen Modal for Output Image -->
+    <div
+      v-if="showFullScreen"
+      class="fixed inset-0 z-50 flex justify-center items-center p-3.5 bg-black/20"
+    >
+      <!-- Card Container -->
+      <div
+        class="relative bg-white rounded-3xl shadow-2xl max-w-6xl w-[60%] max-h-[100vh] flex flex-col items-center p-4"
+      >
+        <!-- Close Button -->
+        <button
+          @click="showFullScreen = false"
+          class="absolute top-3 right-3 text-white cursor-pointer bg-red-600 hover:bg-red-800 rounded-2xl w-8 h-8 flex items-center justify-center shadow-sm transition"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+
+        <!-- Enlarged Output Image -->
+        <img
+          :src="outputImage"
+          alt="Full Output"
+          class="rounded-4xl max-h-[70vh] object-contain w-full border border-gray-200 shadow"
+        />
+      </div>
+    </div>
 </template>
 
 <script setup>
@@ -213,6 +240,13 @@ const currentPage = ref(1)
 const nextPage = ref(null)
 const prevPage = ref(null)
 const totalCount = ref(0)
+const outputImage = ref(null)
+
+const viewImage = (entry) => {
+  // Prefer after_image_url if available, otherwise fallback
+  outputImage.value = entry.after_image_url || entry.image
+  showFullScreen.value = true
+}
 
 // Load data with pagination
 const fetchHistory = async (page = 1) => {
@@ -248,6 +282,8 @@ const setDeblurFilter = (filter) => {
   deblurFilter.value = filter
   showDeblurDropdown.value = false
 }
+
+const showFullScreen = ref(false)
 
 // Filtered history for current page
 const filteredHistory = computed(() => {
