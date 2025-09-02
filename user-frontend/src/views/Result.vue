@@ -44,7 +44,17 @@
         </div>
       </div>
 
-      <p class="text-xs text-gray-500 mt-1">Drag the slider to compare input and output.</p>
+      <p class="text-xs text-gray-500 mt-4">Drag the slider to compare input and output.</p>
+      <div class="flex flex-col mt-4">
+        <button
+          class="bg-[#265d9c] text-white text-sm font-semibold py-1 px-3 rounded-lg mb-2 hover:bg-[#1d3e73] transition cursor-pointer mt-2 h-8"
+          @click="deblurAnotherImage"
+        >
+          Deblur Another Image
+        </button>
+
+      </div>
+      
     </div>
 
     <!-- Right: Image Details (25%) -->
@@ -143,11 +153,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import http from '@/services/http'
 import { MoveHorizontal } from 'lucide-vue-next'
 
 const route = useRoute()
+const router = useRouter() 
 
 // Mocked Data
 const inputImage = ref('')
@@ -217,6 +228,29 @@ const downloadResult = () => {
   link.href = outputImage.value
   link.download = 'deblurred_result.jpg'
   link.click()
+}
+
+// Deblur another image
+const deblurAnotherImage = () => {
+  try {
+    // Clear last image data from localStorage
+    localStorage.removeItem('lastImageId')
+
+    // Clear reactive refs
+    inputImage.value = ''
+    outputImage.value = ''
+    inputDistortion.value = ''
+    outputDistortion.value = ''
+    plateNumber.value = ''
+    status.value = 'PENDING'
+    confidenceLevel.value = null
+    timeElapsed.value = ''
+
+    // Navigate back to the upload page
+    router.push({ name: 'LicensePlateUpload' }) // ← use router, not route
+  } catch (err) {
+    console.error('Failed to reset for new upload:', err)
+  }
 }
 
 </script>
