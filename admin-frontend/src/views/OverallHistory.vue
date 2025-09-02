@@ -8,10 +8,16 @@
           <h3 class="font-semibold text-sm">Total Plates</h3>
           <ScanLine class="w-5 h-5" />
         </div>
-        <p class="text-3xl font-extrabold mb-1.5">{{ filteredHistory.length }}</p>
+        <p class="text-3xl font-extrabold mb-1.5">{{ totalCount }}</p>
         <div class="flex items-center text-xs">
-          <ArrowUp class="text-green-500 mr-1 w-3.5 h-3.5" />
-          <span>+8% from last week</span>
+          <component
+            :is="percentageIcon"
+            :class="[
+              'mr-1 w-3.5 h-3.5',
+              percentageColor
+            ]"
+          />
+          <span>{{ percentageChange }}</span>
         </div>
       </div>
 
@@ -151,7 +157,7 @@
               </td>
               <td class="px-3 py-1 text-gray-600">{{ entry.distortion }}</td>
               <td class="px-3 py-1 flex justify-end items-center space-x-1.5">
-                <button class="text-[#1d3557] hover:text-[#2a486e]" title="View">
+                <button class="text-[#1d3557] hover:text-[#2a486e]" title="View" @click="viewImage(entry)">
                   <Eye class="w-3.5 h-3.5" />
                 </button>
                 <button class="text-red-600 hover:text-red-800" title="Delete">
@@ -161,16 +167,66 @@
             </tr>
           </tbody>
         </table>
+        <!-- Pagination Controls -->
+        <div class="flex justify-between items-center mt-4 text-sm">
+          <button
+            :disabled="!prevPage"
+            @click="fetchHistory(currentPage - 1)"
+            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <span>Page {{ currentPage }}</span>
+
+          <button
+            :disabled="!nextPage"
+            @click="fetchHistory(currentPage + 1)"
+            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Full-Screen Modal for Output Image -->
+    <div
+      v-if="showFullScreen"
+      class="fixed inset-0 z-50 flex justify-center items-center p-3.5 bg-black/20"
+    >
+      <!-- Card Container -->
+      <div
+        class="relative bg-white rounded-3xl shadow-2xl max-w-6xl w-[60%] max-h-[100vh] flex flex-col items-center p-4"
+      >
+        <!-- Close Button -->
+        <button
+          @click="showFullScreen = false"
+          class="absolute top-3 right-3 text-white cursor-pointer bg-red-600 hover:bg-red-800 rounded-2xl w-8 h-8 flex items-center justify-center shadow-sm transition"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+
+        <!-- Enlarged Output Image -->
+        <img
+          :src="outputImage"
+          alt="Full Output"
+          class="rounded-4xl max-h-[70vh] object-contain w-full border border-gray-200 shadow"
+        />
+      </div>
+    </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ArrowUp, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
+import { ref, computed, onMounted } from 'vue'
+import { ArrowUp,ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
+import http from '@/utils/http'
+import { useRouter } from 'vue-router'
 
-// Filters
+const router = useRouter()
+
 const searchQuery = ref('')
 const startDate = ref('')
 const endDate = ref('')
@@ -178,6 +234,44 @@ const distortionFilter = ref('All')
 const deblurFilter = ref('All')
 const showDistortionDropdown = ref(false)
 const showDeblurDropdown = ref(false)
+
+const history = ref([])
+const currentPage = ref(1)
+const nextPage = ref(null)
+const prevPage = ref(null)
+const totalCount = ref(0)
+const outputImage = ref(null)
+
+const viewImage = (entry) => {
+  // Prefer after_image_url if available, otherwise fallback
+  outputImage.value = entry.after_image_url || entry.image
+  showFullScreen.value = true
+}
+
+// Load data with pagination
+const fetchHistory = async (page = 1) => {
+  try {
+    const { data } = await http.get(`/images/?page=${page}`)
+    history.value = data.results.map(entry => ({
+      id: entry.id,
+      image: entry.after_image_url || entry.before_image_url,
+      date: entry.date_deblurred ? entry.date_deblurred.split('T')[0] : 'N/A',
+      plate: entry.plate_no || '—',
+      status: entry.status || 'Unknown',
+      distortion: entry.distortion_type || 'Unknown',
+      conf: entry.conf_score || '—',
+      afterDistortion: entry.after_distortion_type || 'Unknown'
+    }))
+    totalCount.value = data.count
+    nextPage.value = data.next
+    prevPage.value = data.previous
+    currentPage.value = page
+  } catch (err) {
+    console.error('Failed to fetch history:', err)
+  }
+}
+
+onMounted(() => fetchHistory(1))
 
 const setDistortionFilter = (filter) => {
   distortionFilter.value = filter
@@ -189,45 +283,76 @@ const setDeblurFilter = (filter) => {
   showDeblurDropdown.value = false
 }
 
-// Sample data (10 rows)
-const history = ref([
-  { id: 1, image: '', user: 'John Doe', date: '2025-07-29', plate: 'ABC1234', status: 'Successful', distortion: 'Low Quality' },
-  { id: 2, image: '', user: 'Jane Smith', date: '2025-07-30', plate: 'XYZ5678', status: 'Failed', distortion: 'Horizontal Blur' },
-  { id: 3, image: '', user: 'Michael Lee', date: '2025-07-31', plate: 'LMN3456', status: 'Successful', distortion: 'Low Light' },
-  { id: 4, image: '', user: 'Alice Kim', date: '2025-07-28', plate: 'DEF2222', status: 'Failed', distortion: 'Vertical Blur' },
-  { id: 5, image: '', user: 'Chris Ray', date: '2025-07-28', plate: 'GHI3333', status: 'Successful', distortion: 'Low Quality' },
-  { id: 6, image: '', user: 'Tina Yao', date: '2025-07-27', plate: 'JKL4444', status: 'Failed', distortion: 'Low Light' },
-  { id: 7, image: '', user: 'Dan Wu', date: '2025-07-27', plate: 'MNO5555', status: 'Successful', distortion: 'Horizontal Blur' },
-  { id: 8, image: '', user: 'Karen Chan', date: '2025-07-26', plate: 'PQR6666', status: 'Failed', distortion: 'Vertical Blur' },
-  { id: 9, image: '', user: 'Leo Zhang', date: '2025-07-26', plate: 'STU7777', status: 'Successful', distortion: 'Low Quality' },
-  { id: 10, image: '', user: 'Nina Hart', date: '2025-07-25', plate: 'VWX8888', status: 'Failed', distortion: 'Low Light' },
-])
+const showFullScreen = ref(false)
 
-// Filtered history
+// Filtered history for current page
 const filteredHistory = computed(() => {
   return history.value.filter((entry) => {
-    const matchesSearch =
-      entry.user.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      entry.plate.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchesSearch = entry.plate.toLowerCase().includes(searchQuery.value.toLowerCase())
 
-    const entryDate = new Date(entry.date)
+    const entryDate = entry.date !== 'N/A' ? new Date(entry.date) : null
     const start = startDate.value ? new Date(startDate.value) : null
     const end = endDate.value ? new Date(endDate.value) : null
-    const withinDateRange = (!start || entryDate >= start) && (!end || entryDate <= end)
+    const withinDateRange =
+      (!start || (entryDate && entryDate >= start)) &&
+      (!end || (entryDate && entryDate <= end))
 
-    return matchesSearch && withinDateRange
+    const matchesDistortion =
+      distortionFilter.value === 'All' || entry.distortion === distortionFilter.value
+
+    const matchesDeblur =
+      deblurFilter.value === 'All' || entry.status === deblurFilter.value
+
+    return matchesSearch && withinDateRange && matchesDistortion && matchesDeblur
   })
 })
 
-const filteredDistortions = computed(() => {
-  return distortionFilter.value === 'All'
-    ? history.value
-    : history.value.filter((entry) => entry.distortion === distortionFilter.value)
+const percentageIcon = computed(() => {
+  if (percentageChange.value.startsWith('+')) return ArrowUp
+  if (percentageChange.value.startsWith('-')) return ArrowDown
+  return Minus
 })
 
-const filteredDeblurs = computed(() => {
-  return deblurFilter.value === 'All'
-    ? history.value
-    : history.value.filter((entry) => entry.status === deblurFilter.value)
+const percentageColor = computed(() => {
+  if (percentageChange.value.startsWith('+')) return 'text-green-500'
+  if (percentageChange.value.startsWith('-')) return 'text-red-500'
+  return 'text-gray-500'
 })
+
+// Count current week and last week
+const thisWeekCount = computed(() => {
+  const now = new Date()
+  const startOfWeek = new Date(now)
+  startOfWeek.setDate(now.getDate() - now.getDay()) // Sunday
+  return history.value.filter(entry => {
+    const d = new Date(entry.date)
+    return d >= startOfWeek && d <= now
+  }).length
+})
+
+const lastWeekCount = computed(() => {
+  const now = new Date()
+  const startOfThisWeek = new Date(now)
+  startOfThisWeek.setDate(now.getDate() - now.getDay())
+  const startOfLastWeek = new Date(startOfThisWeek)
+  startOfLastWeek.setDate(startOfThisWeek.getDate() - 7)
+  return history.value.filter(entry => {
+    const d = new Date(entry.date)
+    return d >= startOfLastWeek && d < startOfThisWeek
+  }).length
+})
+
+const percentageChange = computed(() => {
+  if (lastWeekCount.value === 0) return '+0%' // avoid division by 0
+  const diff = ((thisWeekCount.value - lastWeekCount.value) / lastWeekCount.value) * 100
+  const rounded = diff.toFixed(1)
+  return (diff >= 0 ? '+' : '') + rounded + '% from last week'
+})
+
+const filteredDistortions = computed(() => filteredHistory.value)
+const filteredDeblurs = computed(() => filteredHistory.value)
+
+const goToResult = (imageId) => {
+  router.push({ path: '/result', query: { imageId } })
+}
 </script>
