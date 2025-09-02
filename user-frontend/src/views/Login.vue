@@ -49,7 +49,7 @@
 
           <button
             type="submit"
-            class="w-full bg-[#265d9c] text-white rounded-lg py-2 hover:bg-[#1f2f44] transition cursor-pointer"
+            class="w-full bg-[#265d9c] text-white rounded-lg py-1.5 hover:bg-[#1f2f44] transition disabled:opacity-60 cursor-pointer"
             :disabled="loading"
           >
             <span v-if="!loading">Log In</span>

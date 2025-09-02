@@ -140,7 +140,12 @@
               <td class="px-3 py-1">
                 <img :src="entry.image" alt="plate" class="w-8 h-8 object-cover rounded-full border" />
               </td>
-              <td class="px-3 py-1 text-[#1d3557] font-medium">{{ entry.user }}</td>
+              <td class="px-3 py-1 flex items-center space-x-2.5">
+                <div class="w-7 h-7 rounded-full bg-[#cfe0f1] flex items-center justify-center text-[10px] text-[#1d3557] border border-white uppercase">
+                  {{ getInitials(entry.user) }}
+                </div>
+                <div class="font-medium text-[#1d3557]">{{ entry.user }}</div>
+              </td>
               <td class="px-3 py-1 text-gray-600">{{ entry.date }}</td>
               <td class="px-3 py-1 font-mono text-blue-600">{{ entry.plate }}</td>
               <td class="px-3 py-1">
@@ -157,11 +162,11 @@
               </td>
               <td class="px-3 py-1 text-gray-600">{{ entry.distortion }}</td>
               <td class="px-3 py-1 flex justify-end items-center space-x-1.5">
-                <button class="text-[#1d3557] hover:text-[#2a486e]" title="View" @click="viewImage(entry)">
-                  <Eye class="w-3.5 h-3.5" />
+                <button class="text-[#1d3557] hover:text-[#2a486e] cursor-pointer" title="View" @click="viewImage(entry)">
+                  <Eye class="w-4 h-4" />
                 </button>
-                <button class="text-red-600 hover:text-red-800" title="Delete">
-                  <Trash2 class="w-3.5 h-3.5" />
+                <button class="text-red-600 hover:text-red-800 cursor-pointer" title="Delete">
+                  <Trash2 class="w-4 h-4" />
                 </button>
               </td>
             </tr>
@@ -221,7 +226,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { ArrowUp,ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
+import { ArrowUp, ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
 import http from '@/utils/http'
 import { useRouter } from 'vue-router'
 
@@ -254,6 +259,7 @@ const fetchHistory = async (page = 1) => {
     const { data } = await http.get(`/images/?page=${page}`)
     history.value = data.results.map(entry => ({
       id: entry.id,
+      user: entry.user ? `${entry.user.first_name} ${entry.user.last_name}` : '—',
       image: entry.after_image_url || entry.before_image_url,
       date: entry.date_deblurred ? entry.date_deblurred.split('T')[0] : 'N/A',
       plate: entry.plate_no || '—',
@@ -351,6 +357,18 @@ const percentageChange = computed(() => {
 
 const filteredDistortions = computed(() => filteredHistory.value)
 const filteredDeblurs = computed(() => filteredHistory.value)
+
+// Helper to get user initials
+const getInitials = (name) => {
+  if (!name) return '—'
+  const words = name.trim().split(' ')
+  if (words.length === 0) return ''
+  if (words.length === 1) return words[0][0].toUpperCase()
+  const firstInitial = words[0][0]
+  const lastInitial = words[words.length - 1][0]
+  return (firstInitial + lastInitial).toUpperCase()
+}
+
 
 const goToResult = (imageId) => {
   router.push({ path: '/result', query: { imageId } })

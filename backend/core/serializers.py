@@ -27,9 +27,15 @@ class ImageSerializer(serializers.ModelSerializer):
         read_only_fields = ['id','created_at','before_image_url','after_image_url','user']
 
     def get_user(self, obj):
-        if obj.user:
-            return {'id': obj.user.id, 'email': getattr(obj.user, 'email', None)}
-        return None
+        user = obj.user
+        if user:
+            return {
+                'id': user.id,
+                'email': getattr(user, 'email', None),
+                'first_name': getattr(user, 'first_name', ''),
+                'last_name': getattr(user, 'last_name', ''),
+            }
+
 
     def get_before_image_url(self, obj):
         req = self.context.get('request')

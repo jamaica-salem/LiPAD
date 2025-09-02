@@ -155,10 +155,10 @@
               <td class="px-3 py-1.5 text-gray-600">{{ entry.distortion }}</td>
               <td class="px-3 py-1.5 flex justify-end items-center space-x-1.5">
                 <button class="text-[#1d3557] hover:text-[#2a486e] cursor-pointer" title="View" @click="goToResult(entry.id)">
-                  <Eye class="w-3.5 h-3.5" />
+                  <Eye class="w-4 h-4" />
                 </button>
                 <button class="text-red-600 hover:text-red-800 cursor-pointer" title="Delete" @click="deleteImage(entry.id)">
-                  <Trash2 class="w-3.5 h-3.5" />
+                  <Trash2 class="w-4 h-4" />
                 </button>
               </td> 
             </tr>
