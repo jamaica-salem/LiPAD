@@ -18,15 +18,6 @@
         distortion it has. Or, if you already know, you can pick it yourself.
       </p>
 
-      <!-- Gentle notice if no imageId was provided -->
-      <!-- <div
-        v-if="!imageId"
-        class="bg-white/80 border border-[#265d9c]/30 rounded-xl p-4 text-sm text-gray-700 mb-6"
-      >
-        <strong class="text-[#265d9c]">Note:</strong> We don’t see a recent upload.
-        You can still continue, but some steps may ask for an image first.
-      </div> -->
-
       <!-- Actions -->
       <div class="space-y-4">
         <!-- Auto-classify button -->

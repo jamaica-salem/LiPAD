@@ -145,8 +145,6 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import http from '@/services/http'
-import beforeImage from '@/assets/before.png'
-import afterImage from '@/assets/after.png'
 import { MoveHorizontal } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -167,23 +165,23 @@ let startTime
 let isDragging = false
 
 onMounted(async () => {
-  const imageId = route.query.imageId
+  const imageId = route.query.imageId || localStorage.getItem('lastImageId')
   if (!imageId) return
 
   try {
     startTime = performance.now()
 
-    // GET the processed image row from Django
     const { data } = await http.get(`/images/${imageId}/`)
 
-    // Populate state
-    inputImage.value = data.before_image // backend should return URL
-    outputImage.value = data.after_image // URL (nullable at first)
+    inputImage.value = data.before_image
+    outputImage.value = data.after_image
     inputDistortion.value = data.distortion_type || 'Unknown'
     outputDistortion.value = data.after_distortion_type || 'Unknown'
     plateNumber.value = data.plate_no || 'N/A'
-    status.value = data.status.toUpperCase()
-    confidenceLevel.value = data.conf_score || null // if you added confidence
+    status.value = data.status?.toUpperCase() || 'PENDING'
+    confidenceLevel.value = data.conf_score || null
+
+    localStorage.setItem('lastImageId', imageId)
 
     const endTime = performance.now()
     timeElapsed.value = ((endTime - startTime) / 1000).toFixed(2) + 's'
@@ -221,40 +219,6 @@ const downloadResult = () => {
   link.click()
 }
 
-/*
-const startDragging = () => {
-  isDragging = true
-  window.addEventListener('mousemove', dragSlider)
-  window.addEventListener('mouseup', stopDragging)
-}
-const stopDragging = () => {
-  isDragging = false
-  window.removeEventListener('mousemove', dragSlider)
-  window.removeEventListener('mouseup', stopDragging)
-}
-const dragSlider = (e) => {
-  const container = document.querySelector('.aspect-\\[4\\/2\\]')
-  if (!container) return
-  const rect = container.getBoundingClientRect()
-  const offsetX = e.clientX - rect.left
-  sliderPosition.value = Math.max(0, Math.min(100, (offsetX / rect.width) * 100))
-}
-
-// Full-screen modal logic
-const showFullScreen = ref(false)
-
-// Download handler
-const downloadResult = () => {
-  try {
-    const link = document.createElement('a')
-    link.href = outputImage
-    link.download = 'deblurred_result.jpg'
-    link.click()
-  } catch (error) {
-    alert('Failed to download the result. Please try again.')
-    console.error(error)
-  }
-}*/
 </script>
 
 <style scoped>

@@ -63,9 +63,9 @@ stringzilla==3.12.6
 sympy==1.13.3
 termcolor==3.1.0
 tifffile==2024.8.30
-torch==2.0.1+cu117
-torchaudio==2.0.2+cu117
-torchvision==0.15.2+cu117
+#torch==2.0.1+cu117
+#torchaudio==2.0.2+cu117
+#torchvision==0.15.2+cu117
 tqdm==4.67.1
 typing-inspection==0.4.1
 typing_extensions==4.15.0
