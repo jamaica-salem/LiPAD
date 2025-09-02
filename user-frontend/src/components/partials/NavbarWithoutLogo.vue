@@ -5,7 +5,7 @@
 
     <!-- Right Side: Profile -->
     <div class="relative" ref="profileRef">
-      <div class="flex items-center gap-3 cursor-pointer" @click="toggleProfileMenu">
+      <div class="flex items-center gap-3" @click="toggleProfileMenu">
         <!-- Avatar -->
         <div class="w-10 h-10 rounded-full bg-[#cfe0f1] text-[#0E2247] flex items-center justify-center text-xs font-semibold">
           {{ initials }}
@@ -17,24 +17,6 @@
           <div class="text-xs">{{ user?.email }}</div>
         </div>
       </div>
-
-      <!-- Profile Dropdown -->
-      <div
-        v-if="showProfileMenu"
-        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden"
-      >
-        <ul class="text-sm text-primary-darkest divide-y divide-gray-100">
-          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer" @click="goTo('/profile')">
-            <User :size="16" /> Profile
-          </li>
-          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer" @click="goTo('/settings')">
-            <Settings :size="16" /> Settings
-          </li>
-          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer text-red-500" @click="handleLogout">
-            <LogOut :size="16" /> Log out
-          </li>
-        </ul>
-      </div>
     </div>
   </nav>
 </template>
@@ -42,7 +24,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { User, Settings, LogOut } from 'lucide-vue-next'
 import { logout as logoutSession, useAuth } from '@/composables/useAuth'
 
 const router = useRouter()

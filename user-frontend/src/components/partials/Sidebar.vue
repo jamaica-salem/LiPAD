@@ -4,7 +4,7 @@
   >
     <!-- App Logo and Name -->
     <div class="flex items-center gap-3 mb-10">
-      <ScanLine class="text-white" size="28" />
+      <ScanLine class="text-white" :size="28" />
       <span class="text-xl font-extrabold text-white">{{ appName }}</span>
     </div>
 
@@ -33,20 +33,51 @@
           </router-link>
         </nav>
       </div>
+
+      <!-- Secure Logout Button -->
+      <div>
+        <button
+          @click="handleLogout"
+          :disabled="logoutLoading"
+          class="w-full flex items-center gap-3 text-base font-medium rounded-lg px-2.5 py-1.5 transition-colors text-[#d1d1d5] hover:text-white hover:bg-[#265d9c] cursor-pointer isabled:opacity-50 disabled:cursor-not-allowed "
+        >
+          <LogOut :size="18" />
+          <span v-if="!logoutLoading">Log Out</span>
+          <span v-else>Logging out...</span>
+        </button>
+      </div>
     </div>
   </aside>
 </template>
 
-<script setup>
-import { ScanLine, ImageDown, Clock4 } from 'lucide-vue-next'; 
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { ScanLine, ImageDown, Clock4, LogOut } from 'lucide-vue-next'
+import { logout as logoutSession } from '@/composables/useAuth'
 
 const props = defineProps({
   appName: String
-});
+})
 
-// Navigation items for the sidebar
+// Sidebar navigation items
 const navItems = [
   { to: '/result', label: 'Result', icon: ImageDown },
   { to: '/history', label: 'History', icon: Clock4 }
-];
+]
+
+const router = useRouter()
+const logoutLoading = ref(false)
+
+const handleLogout = async () => {
+  logoutLoading.value = true
+  try {
+    await logoutSession()                // call your logout API/session function
+    router.push('/lipad/login')          // redirect to login page
+  } catch (err) {
+    console.error('Logout failed:', err)
+  } finally {
+    logoutLoading.value = false
+  }
+}
 </script>

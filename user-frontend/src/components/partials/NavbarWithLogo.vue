@@ -23,23 +23,30 @@
         </div>
       </div>
 
-      <!-- Profile Dropdown -->
-      <div
-        v-if="showProfileMenu"
-        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden"
+      <!-- Menu Dropdown -->
+      <Transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="opacity-0 transform -translate-y-2"
+        enter-to-class="opacity-100 transform translate-y-0"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="opacity-100 transform translate-y-0"
+        leave-to-class="opacity-0 transform -translate-y-2"
       >
-        <ul class="text-sm text-primary-darkest divide-y divide-gray-100">
-          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer" @click="goTo('/profile')">
-            <User :size="16" /> Profile
-          </li>
-          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer" @click="goTo('/settings')">
-            <Settings :size="16" /> Settings
-          </li>
-          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer text-red-500" @click="handleLogout">
-            <LogOut :size="16" /> Log out
-          </li>
-        </ul>
-      </div>
+        <div
+          v-if="showProfileMenu"
+          class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden"
+        >
+          <ul class="text-sm text-primary-darkest divide-y divide-gray-100">
+            <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer" @click="goTo('/history')">
+              <History :size="16" /> History
+            </li>
+            <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer text-red-500" @click="handleLogout">
+              <LogOut :size="16" /> Log out
+            </li>
+          </ul>
+        </div>
+      </Transition>
+
     </div>
   </nav>
 </template>
@@ -47,7 +54,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { ScanLine as ScanLineIcon, User, Settings, LogOut } from 'lucide-vue-next'
+import { ScanLine as ScanLineIcon, LogOut, History } from 'lucide-vue-next'
 import { logout as logoutSession, useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
