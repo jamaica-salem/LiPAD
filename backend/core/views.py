@@ -17,6 +17,7 @@ from core.ml.ocr.ocr_wrapper import load_ocr, run_ocr
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from PIL import Image as PilImage
+import os
 
 
 class AdminViewSet(viewsets.ModelViewSet):
@@ -122,6 +123,31 @@ class ImageViewSet(viewsets.ModelViewSet):
         except Exception:
             # log exception server-side; return safe message client-side
             return Response({'errors': 'Server error while saving image.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def destroy(self, request, *args, **kwargs):
+        """
+        Securely delete an image record along with its files.
+        Only allow deletion if the user owns the image or admin.
+        """
+        instance = self.get_object()
+        user_id = request.session.get('user_id')
+        admin_id = request.session.get('admin_id')
+
+        if not admin_id and (not user_id or instance.user.id != user_id):
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Delete media files safely
+        try:
+            if instance.before_image and os.path.isfile(instance.before_image.path):
+                os.remove(instance.before_image.path)
+            if instance.after_image and os.path.isfile(instance.after_image.path):
+                os.remove(instance.after_image.path)
+        except Exception as e:
+            return Response({'detail': f'Error deleting files: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Delete DB record
+        instance.delete()
+        return Response({'detail': 'Image deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
         
 
 load_cnn_model()

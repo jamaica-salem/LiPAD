@@ -157,7 +157,7 @@
                 <button class="text-[#1d3557] hover:text-[#2a486e] cursor-pointer" title="View" @click="goToResult(entry.id)">
                   <Eye class="w-3.5 h-3.5" />
                 </button>
-                <button class="text-red-600 hover:text-red-800 cursor-pointer" title="Delete">
+                <button class="text-red-600 hover:text-red-800 cursor-pointer" title="Delete" @click="deleteImage(entry.id)">
                   <Trash2 class="w-3.5 h-3.5" />
                 </button>
               </td> 
@@ -194,6 +194,7 @@ import { ref, computed, onMounted } from 'vue'
 import { ArrowUp,ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
 import http from '@/services/http'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 
@@ -315,5 +316,21 @@ const filteredDeblurs = computed(() => filteredHistory.value)
 
 const goToResult = (imageId) => {
   router.push({ path: '/result', query: { imageId } })
+}
+
+// Delete image
+const deleteImage = async (id) => {
+  if (!confirm('Are you sure you want to delete this record?')) return;
+
+  try {
+    await http.delete(`/images/${id}/`);
+    // Remove locally from UI
+    history.value = history.value.filter(entry => entry.id !== id);
+    totalCount.value -= 1;
+    alert('Image deleted successfully.');
+  } catch (err) {
+    console.error('Failed to delete image:', err);
+    alert('Failed to delete image. Please try again.');
+  }
 }
 </script>
