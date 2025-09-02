@@ -26,7 +26,7 @@
         <div class="flex justify-between items-center mb-3">
           <h3 class="font-semibold text-sm">Total License Plate Distortions</h3>
           <div class="relative">
-            <button @click="showDistortionDropdown = !showDistortionDropdown">
+            <button class="cursor-pointer" @click="showDistortionDropdown = !showDistortionDropdown">
               <Filter class="w-5 h-5" />
             </button>
             <div
@@ -62,7 +62,7 @@
         <div class="flex justify-between items-center mb-3">
           <h3 class="font-semibold text-sm">Deblur Status Results</h3>
           <div class="relative">
-            <button @click="showDeblurDropdown = !showDeblurDropdown">
+            <button class="cursor-pointer" @click="showDeblurDropdown = !showDeblurDropdown">
               <Filter class="w-5 h-5" />
             </button>
             <div
@@ -172,7 +172,7 @@
           <button
             :disabled="!prevPage"
             @click="fetchHistory(currentPage - 1)"
-            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer"
           >
             Previous
           </button>
@@ -182,7 +182,7 @@
           <button
             :disabled="!nextPage"
             @click="fetchHistory(currentPage + 1)"
-            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer"
           >
             Next
           </button>

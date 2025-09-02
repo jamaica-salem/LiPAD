@@ -9,7 +9,7 @@
       <!-- Profile Section -->
       <div class="relative" ref="profileRef">
         <div
-          class="flex items-center gap-3 cursor-pointer"
+          class="flex items-center gap-3"
           @click="toggleProfileMenu"
         >
           <!-- Initials Avatar -->

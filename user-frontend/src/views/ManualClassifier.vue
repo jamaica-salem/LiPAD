@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col items-center py-10 px-6 bg-orange-50 min-h-[calc(100vh-90px)]">
       <!-- Page Title -->
-      <h1 class="text-3xl font-bold text-[#265d9c] mb-8">Manual Classifier</h1>
+      <h1 class="text-3xl font-bold text-[#265d9c] mb-2">Manual Classifier</h1>
       <p class="text-center text-gray-600 mb-10"> Choose the type of distortion you see in the license plate image for manual classification. </p>
 
       <!-- Button Grid -->

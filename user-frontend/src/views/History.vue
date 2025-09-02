@@ -169,7 +169,7 @@
           <button
             :disabled="!prevPage"
             @click="fetchHistory(currentPage - 1)"
-            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer"
           >
             Previous
           </button>
@@ -179,7 +179,7 @@
           <button
             :disabled="!nextPage"
             @click="fetchHistory(currentPage + 1)"
-            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+            class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer"
           >
             Next
           </button>
@@ -194,7 +194,6 @@ import { ref, computed, onMounted } from 'vue'
 import { ArrowUp,ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
 import http from '@/services/http'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 
 const router = useRouter()
 

@@ -66,7 +66,7 @@
         <div class="mb-4">
           <h3 class="text-lg font-bold text-[#265d9c] mb-1">Results</h3>
           <p>
-            <span class="font-semibold">Status: </span>
+            <span class="font-semibold text-sm">Status: </span>
             <span
               :class="{
                 'text-green-600 bg-green-100 font-semibold px-1.5 py-0.5 rounded-md':
@@ -79,10 +79,10 @@
             </span>
           </p>
           <p class="mt-0.5">
-            <span class="font-semibold">Time Elapsed: </span> {{ timeElapsed }}
+            <span class="font-semibold text-sm">Time Elapsed: </span> {{ timeElapsed }}
           </p>
           <p class="mt-0.5">
-            <span class="font-semibold">Confidence Level: </span> {{ confidenceLevel }}%
+            <span class="font-semibold text-sm">Confidence Level: </span> {{ confidenceLevel }}%
           </p>
         </div>
 
@@ -90,7 +90,7 @@
         <div class="mb-4">
           <h3 class="text-lg font-bold text-[#265d9c] mb-1">Input Image</h3>
           <p>
-            <span class="font-semibold">Distortion Type: </span> {{ inputDistortion }}
+            <span class="font-semibold text-sm">Distortion Type: </span> {{ inputDistortion }}
           </p>
         </div>
 
@@ -98,9 +98,9 @@
         <div>
           <h3 class="text-lg font-bold text-[#265d9c] mb-1">Output Image</h3>
           <p>
-            <span class="font-semibold">Distortion Type: </span> {{ outputDistortion }}
+            <span class="font-semibold text-sm">Distortion Type: </span> {{ outputDistortion }}
           </p>
-          <p><span class="font-semibold">Plate No.: </span> {{ plateNumber }}</p>
+          <p><span class="font-semibold text-sm">Plate No.: </span> {{ plateNumber }}</p>
         </div>
       </div>
 
