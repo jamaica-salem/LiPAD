@@ -194,8 +194,15 @@ onMounted(async () => {
 
     localStorage.setItem('lastImageId', imageId)
 
-    const endTime = performance.now()
-    timeElapsed.value = ((endTime - startTime) / 1000).toFixed(2) + 's'
+    const start = new Date(data.created_at)
+    const end = new Date(data.date_deblurred)
+
+    if (!isNaN(start) && !isNaN(end)) {
+      const diffSeconds = (end - start) / 1000
+      timeElapsed.value = diffSeconds.toFixed(2) + 's'
+    } else {
+      timeElapsed.value = 'N/A'
+    }
   } catch (err) {
     console.error('Failed to fetch results:', err)
     status.value = 'FAILED'
