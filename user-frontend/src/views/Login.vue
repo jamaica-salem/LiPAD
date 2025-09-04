@@ -46,6 +46,12 @@
             class="w-full border border-gray-300 rounded-lg px-3 py-2"
           />
 
+          <div class="flex justify-between items-center text-xs">
+            <label class="flex items-center gap-1 text-[#1f2f44]">
+              Forgot password? Please contact the admin.
+            </label>
+          </div>
+
           <!-- ✅ Error message container -->
           <p v-if="errorMessage" class="text-red-600 text-sm text-center mt-2">
             {{ errorMessage }}

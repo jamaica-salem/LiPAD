@@ -12,10 +12,7 @@
         <div class="flex items-center text-xs">
           <component
             :is="percentageIcon"
-            :class="[
-              'mr-1 w-3.5 h-3.5',
-              percentageColor
-            ]"
+            :class="['mr-1 w-3.5 h-3.5', percentageColor]"
           />
           <span>{{ percentageChange }}</span>
         </div>
@@ -34,27 +31,17 @@
               class="absolute right-0 mt-1.5 w-40 bg-white border border-gray-200 rounded shadow z-10"
             >
               <ul class="text-xs">
-                <li>
-                  <button @click="setDistortionFilter('All')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">All</button>
-                </li>
-                <li>
-                  <button @click="setDistortionFilter('Low Quality')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Low Quality</button>
-                </li>
-                <li>
-                  <button @click="setDistortionFilter('Low Light')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Low Light</button>
-                </li>
-                <li>
-                  <button @click="setDistortionFilter('Horizontal Blur')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Horizontal Blur</button>
-                </li>
-                <li>
-                  <button @click="setDistortionFilter('Vertical Blur')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Vertical Blur</button>
-                </li>
+                <li><button @click="setKpiDistortionFilter('All')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">All</button></li>
+                <li><button @click="setKpiDistortionFilter('Low Quality')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Low Quality</button></li>
+                <li><button @click="setKpiDistortionFilter('Low Light')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Low Light</button></li>
+                <li><button @click="setKpiDistortionFilter('Horizontal Blur')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Horizontal Blur</button></li>
+                <li><button @click="setKpiDistortionFilter('Vertical Blur')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Vertical Blur</button></li>
               </ul>
             </div>
           </div>
         </div>
         <p class="text-2xl font-bold">{{ filteredDistortions.length }}</p>
-        <p class="text-xs mt-0.5">Filtered by: {{ distortionFilter }}</p>
+        <p class="text-xs mt-0.5">Filtered by: {{ kpiDistortionFilter }}</p>
       </div>
 
       <!-- Deblur Status -->
@@ -70,21 +57,15 @@
               class="absolute right-0 mt-1.5 w-36 bg-white border border-gray-200 rounded shadow z-10"
             >
               <ul class="text-xs">
-                <li>
-                  <button @click="setDeblurFilter('All')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">All</button>
-                </li>
-                <li>
-                  <button @click="setDeblurFilter('Successful')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Successful</button>
-                </li>
-                <li>
-                  <button @click="setDeblurFilter('Failed')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Failed</button>
-                </li>
+                <li><button @click="setKpiDeblurFilter('All')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">All</button></li>
+                <li><button @click="setKpiDeblurFilter('Successful')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Successful</button></li>
+                <li><button @click="setKpiDeblurFilter('Failed')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Failed</button></li>
               </ul>
             </div>
           </div>
         </div>
         <p class="text-2xl font-bold">{{ filteredDeblurs.length }}</p>
-        <p class="text-xs mt-0.5">Filtered by: {{ deblurFilter }}</p>
+        <p class="text-xs mt-0.5">Filtered by: {{ kpiDeblurFilter }}</p>
       </div>
     </div>
 
@@ -92,9 +73,8 @@
     <div class="bg-[#ffffff] shadow-md rounded-2xl mt-2 px-4 py-4 max-w-full">
       <h2 class="text-xl font-bold mb-3 text-[#1d3557]">History</h2>
 
-      <!-- Filters -->
+      <!-- Table Filters -->
       <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4">
-        <!-- Search -->
         <div class="relative w-full max-w-xs">
           <input
             v-model="searchQuery"
@@ -105,12 +85,27 @@
           <Search class="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-3.5 h-3.5" />
         </div>
 
-        <!-- Date Range -->
         <div class="flex items-center gap-1.5 text-xs">
           <label class="text-gray-600">From:</label>
           <input v-model="startDate" type="date" class="border border-gray-300 rounded-lg px-2 py-1.5" />
           <label class="text-gray-600">To:</label>
           <input v-model="endDate" type="date" class="border border-gray-300 rounded-lg px-2 py-1.5" />
+        </div>
+
+        <!-- Table-specific distortion filter -->
+        <div class="relative">
+          <button class="cursor-pointer border px-2 py-1 rounded text-xs" @click="showTableDistortionDropdown = !showTableDistortionDropdown">
+            Filter by Distortion: {{ tableDistortionFilter }}
+          </button>
+          <div v-if="showTableDistortionDropdown" class="absolute right-0 mt-1.5 w-40 bg-white border border-gray-200 rounded shadow z-10">
+            <ul class="text-xs">
+              <li><button @click="setTableDistortionFilter('All')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">All</button></li>
+              <li><button @click="setTableDistortionFilter('Low Quality')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Low Quality</button></li>
+              <li><button @click="setTableDistortionFilter('Low Light')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Low Light</button></li>
+              <li><button @click="setTableDistortionFilter('Horizontal Blur')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Horizontal Blur</button></li>
+              <li><button @click="setTableDistortionFilter('Vertical Blur')" class="block w-full text-left px-3 py-1.5 hover:bg-gray-100">Vertical Blur</button></li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -130,11 +125,10 @@
           </thead>
           <tbody>
             <tr
-              v-for="(entry, index) in filteredHistory"
+              v-for="(entry, index) in filteredTableHistory"
               :key="entry.id"
               class="border-t border-gray-200 hover:bg-[#edf5ff]"
             >
-              <!-- Use index + 1 instead of entry.id -->
               <td class="px-3 py-1.5 font-semibold text-[#383f49]">#{{ totalCount - ((currentPage - 1) * pageSize + index) }}</td>
               <td class="px-3 py-1.5">
                 <img :src="entry.image" alt="plate" class="w-8 h-8 object-cover rounded-full border" />
@@ -145,9 +139,7 @@
                 <span
                   :class="[
                     'text-[0.65rem] font-semibold px-2 py-0.5 rounded-full',
-                    entry.status === 'Successful'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700' 
+                    entry.status === 'Successful' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                   ]"
                 >
                   {{ entry.status.toUpperCase() }}
@@ -164,8 +156,8 @@
               </td> 
             </tr>
           </tbody>
-
         </table>
+
         <!-- Pagination Controls -->
         <div class="flex justify-between items-center mt-4 text-sm">
           <button
@@ -176,9 +168,7 @@
             Previous
           </button>
 
-          <span>
-            Page {{ currentPage }} of {{ Math.ceil(totalCount / pageSize) }}
-          </span>
+          <span>Page {{ currentPage }} of {{ Math.ceil(totalCount / pageSize) }}</span>
 
           <button
             :disabled="!nextPage"
@@ -195,28 +185,59 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { ArrowUp,ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
+import { ArrowUp, ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
 import http from '@/services/http'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+// Table search and filter
 const searchQuery = ref('')
 const startDate = ref('')
 const endDate = ref('')
-const distortionFilter = ref('All')
-const deblurFilter = ref('All')
+const tableDistortionFilter = ref('All')
+const showTableDistortionDropdown = ref(false)
+
+// KPI filters
+const kpiDistortionFilter = ref('All')
+const kpiDeblurFilter = ref('All')
 const showDistortionDropdown = ref(false)
 const showDeblurDropdown = ref(false)
 
+// --- KPI Data (All records) ---
+const allHistory = ref([]) // store all records for KPI calculation
+
+const fetchAllHistoryForKPI = async () => {
+  try {
+    let page = 1
+    let results = []
+    while (true) {
+      const { data } = await http.get(`/images/?page=${page}`)
+      results = results.concat(data.results.map(entry => ({
+        id: entry.id,
+        image: entry.after_image_url || entry.before_image_url,
+        date: entry.date_deblurred ? entry.date_deblurred.split('T')[0] : 'N/A',
+        plate: entry.plate_no || '—',
+        status: entry.status || 'Unknown',
+        distortion: entry.distortion_type || 'Unknown',
+      })))
+      if (!data.next) break
+      page++
+    }
+    allHistory.value = results
+  } catch (err) {
+    console.error('Failed to fetch KPI history:', err)
+  }
+}
+
+// --- Table Data (Paginated) ---
 const history = ref([])
+const totalCount = ref(0)
 const currentPage = ref(1)
+const pageSize = ref(10)
 const nextPage = ref(null)
 const prevPage = ref(null)
-const totalCount = ref(0)
-const pageSize = ref(10)
 
-// Load data with pagination
 const fetchHistory = async (page = 1) => {
   try {
     const { data } = await http.get(`/images/?page=${page}`)
@@ -227,53 +248,94 @@ const fetchHistory = async (page = 1) => {
       plate: entry.plate_no || '—',
       status: entry.status || 'Unknown',
       distortion: entry.distortion_type || 'Unknown',
-      conf: entry.conf_score || '—',
-      afterDistortion: entry.after_distortion_type || 'Unknown'
     }))
     totalCount.value = data.count
     nextPage.value = data.next
     prevPage.value = data.previous
     currentPage.value = page
   } catch (err) {
-    console.error('Failed to fetch history:', err)
+    console.error('Failed to fetch table history:', err)
   }
 }
 
-onMounted(() => fetchHistory(1))
+// --- Mounted ---
+onMounted(() => {
+  fetchAllHistoryForKPI() // fetch all records for KPI
+  fetchHistory(1)          // fetch first page for table
+})
 
-const setDistortionFilter = (filter) => {
-  distortionFilter.value = filter
+// --- KPI Filters ---
+const setKpiDistortionFilter = (filter) => {
+  kpiDistortionFilter.value = filter
   showDistortionDropdown.value = false
 }
 
-const setDeblurFilter = (filter) => {
-  deblurFilter.value = filter
+const setKpiDeblurFilter = (filter) => {
+  kpiDeblurFilter.value = filter
   showDeblurDropdown.value = false
 }
 
-// Filtered history for current page
-const filteredHistory = computed(() => {
-  // Apply filters only to the *current page results*
-  return history.value.filter((entry) => {
-    const matchesSearch = entry.plate.toLowerCase().includes(searchQuery.value.toLowerCase())
+// --- Table filter ---
+const setTableDistortionFilter = (filter) => {
+  tableDistortionFilter.value = filter
+  showTableDistortionDropdown.value = false
+}
 
+// --- Computed KPI values ---
+const filteredDistortions = computed(() => {
+  return allHistory.value.filter(
+    e => kpiDistortionFilter.value === 'All' || e.distortion === kpiDistortionFilter.value
+  )
+})
+
+const filteredDeblurs = computed(() => {
+  return allHistory.value.filter(
+    e => kpiDeblurFilter.value === 'All' || e.status === kpiDeblurFilter.value
+  )
+})
+
+// --- Table filtered ---
+const filteredTableHistory = computed(() => {
+  return history.value.filter(entry => {
+    const matchesSearch = entry.plate.toLowerCase().includes(searchQuery.value.toLowerCase())
     const entryDate = entry.date !== 'N/A' ? new Date(entry.date) : null
     const start = startDate.value ? new Date(startDate.value) : null
     const end = endDate.value ? new Date(endDate.value) : null
-    const withinDateRange =
-      (!start || (entryDate && entryDate >= start)) &&
-      (!end || (entryDate && entryDate <= end))
-
-    const matchesDistortion =
-      distortionFilter.value === 'All' || entry.distortion === distortionFilter.value
-
-    const matchesDeblur =
-      deblurFilter.value === 'All' || entry.status === deblurFilter.value
-
-    return matchesSearch && withinDateRange && matchesDistortion && matchesDeblur
+    const withinDateRange = (!start || (entryDate && entryDate >= start)) && (!end || (entryDate && entryDate <= end))
+    const matchesDistortion = tableDistortionFilter.value === 'All' || entry.distortion === tableDistortionFilter.value
+    return matchesSearch && withinDateRange && matchesDistortion
   })
 })
 
+// --- Percentage change calculation ---
+const thisWeekCount = computed(() => {
+  const now = new Date()
+  const startOfWeek = new Date(now)
+  startOfWeek.setDate(now.getDate() - now.getDay())
+  return allHistory.value.filter(entry => {
+    const d = new Date(entry.date)
+    return d >= startOfWeek && d <= now
+  }).length
+})
+
+const lastWeekCount = computed(() => {
+  const now = new Date()
+  const startOfThisWeek = new Date(now)
+  startOfThisWeek.setDate(now.getDate() - now.getDay())
+  const startOfLastWeek = new Date(startOfThisWeek)
+  startOfLastWeek.setDate(startOfThisWeek.getDate() - 7)
+  return allHistory.value.filter(entry => {
+    const d = new Date(entry.date)
+    return d >= startOfLastWeek && d < startOfThisWeek
+  }).length
+})
+
+const percentageChange = computed(() => {
+  if (lastWeekCount.value === 0) return '+0%'
+  const diff = ((thisWeekCount.value - lastWeekCount.value) / lastWeekCount.value) * 100
+  const rounded = diff.toFixed(1)
+  return (diff >= 0 ? '+' : '') + rounded + '% from last week'
+})
 
 const percentageIcon = computed(() => {
   if (percentageChange.value.startsWith('+')) return ArrowUp
@@ -287,56 +349,21 @@ const percentageColor = computed(() => {
   return 'text-gray-500'
 })
 
-// Count current week and last week
-const thisWeekCount = computed(() => {
-  const now = new Date()
-  const startOfWeek = new Date(now)
-  startOfWeek.setDate(now.getDate() - now.getDay()) // Sunday
-  return history.value.filter(entry => {
-    const d = new Date(entry.date)
-    return d >= startOfWeek && d <= now
-  }).length
-})
+// --- Navigation ---
+const goToResult = (imageId) => router.push({ path: '/result', query: { imageId } })
 
-const lastWeekCount = computed(() => {
-  const now = new Date()
-  const startOfThisWeek = new Date(now)
-  startOfThisWeek.setDate(now.getDate() - now.getDay())
-  const startOfLastWeek = new Date(startOfThisWeek)
-  startOfLastWeek.setDate(startOfThisWeek.getDate() - 7)
-  return history.value.filter(entry => {
-    const d = new Date(entry.date)
-    return d >= startOfLastWeek && d < startOfThisWeek
-  }).length
-})
-
-const percentageChange = computed(() => {
-  if (lastWeekCount.value === 0) return '+0%' // avoid division by 0
-  const diff = ((thisWeekCount.value - lastWeekCount.value) / lastWeekCount.value) * 100
-  const rounded = diff.toFixed(1)
-  return (diff >= 0 ? '+' : '') + rounded + '% from last week'
-})
-
-const filteredDistortions = computed(() => filteredHistory.value)
-const filteredDeblurs = computed(() => filteredHistory.value)
-
-const goToResult = (imageId) => {
-  router.push({ path: '/result', query: { imageId } })
-}
-
-// Delete image
+// --- Delete ---
 const deleteImage = async (id) => {
   if (!confirm('Are you sure you want to delete this record?')) return;
-
   try {
-    await http.delete(`/images/${id}/`);
-    // Remove locally from UI
-    history.value = history.value.filter(entry => entry.id !== id);
-    totalCount.value -= 1;
-    alert('Image deleted successfully.');
+    await http.delete(`/images/${id}/`)
+    history.value = history.value.filter(entry => entry.id !== id)
+    allHistory.value = allHistory.value.filter(entry => entry.id !== id)
+    totalCount.value -= 1
+    alert('Image deleted successfully.')
   } catch (err) {
-    console.error('Failed to delete image:', err);
-    alert('Failed to delete image. Please try again.');
+    console.error('Failed to delete image:', err)
+    alert('Failed to delete image. Please try again.')
   }
 }
 </script>

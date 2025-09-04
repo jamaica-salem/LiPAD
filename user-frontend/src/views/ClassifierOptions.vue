@@ -23,26 +23,31 @@
         <!-- Auto-classify button -->
         <button
           type="button"
-          class="w-full bg-[#265d9c] hover:bg-[#1d4b81] text-white text-lg font-semibold py-4 px-6 rounded-xl shadow transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          class="w-full bg-[#265d9c] hover:bg-[#1d4b81] text-white text-lg font-semibold py-4 px-6 rounded-xl shadow transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           @click="proceedAuto(imageId ? parseInt(imageId) : null)"
           :disabled="busy"
           aria-label="Let LiPAD detect the distortion automatically"
         >
-          <span class="sr-only">Primary Action:</span>
-          Let LiPAD classify the distortion automatically
+          <span v-if="!busy">Let LiPAD classify the distortion automatically</span>
+          <span v-else class="flex items-center gap-2">
+            Processing...
+          </span>
         </button>
 
         <!-- Manual classification button -->
         <button
           type="button"
-          class="w-full bg-white border border-[#265d9c] hover:bg-gray-100 text-[#265d9c] text-lg font-semibold py-4 px-6 rounded-xl shadow transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          class="w-full bg-white border border-[#265d9c] hover:bg-gray-100 text-[#265d9c] text-lg font-semibold py-4 px-6 rounded-xl shadow transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           @click="proceedManual"
           :disabled="busy"
           aria-label="I will choose the distortion myself"
         >
-          <span class="sr-only">Secondary Action:</span>
-          I’ll choose the distortion myself
+          <span v-if="!busy">I’ll choose the distortion myself</span>
+          <span v-else class="flex items-center gap-2">
+            Loading...
+          </span>
         </button>
+
       </div>
 
       <!-- Non-blocking status/error -->

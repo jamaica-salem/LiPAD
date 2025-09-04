@@ -7,7 +7,7 @@
         alt="LiPAD Logo" 
         class="h-10 w-auto object-contain"
       />
-      <span class="text-3xl font-extrabold text-[#eef3f8]">LiPAD</span>
+      <span class="text-2xl font-extrabold text-[#eef3f8]">LiPAD</span>
   </div>
 
   <!-- Right Side: Profile -->
@@ -39,15 +39,22 @@
         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden"
       >
         <ul class="text-sm text-primary-darkest divide-y divide-gray-100">
-          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer" @click="goTo('/history')">
+          <li
+            class="flex items-center gap-2.5 p-2.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+            @click="goTo('/history')"
+          >
             <History :size="16" /> History
           </li>
-          <li class="flex items-center gap-2.5 p-2.5 hover:bg-primary-lightest cursor-pointer text-red-500" @click="handleLogout">
+          <li
+            class="flex items-center gap-2.5 p-2.5 rounded-md hover:bg-gray-100 transition-colors cursor-pointer text-red-500"
+            @click="handleLogout"
+          >
             <LogOut :size="16" /> Log out
           </li>
         </ul>
       </div>
     </Transition>
+
   </div>
 </nav>
 

@@ -7,7 +7,7 @@
         alt="LiPAD Logo" 
         class="h-10 w-auto object-contain"
       />
-      <span class="text-3xl font-extrabold text-[#eef3f8]">LiPAD</span>
+      <span class="text-2xl font-extrabold text-[#eef3f8]">LiPAD</span>
     </div>
 
     <div class="flex-1 flex flex-col justify-between">
