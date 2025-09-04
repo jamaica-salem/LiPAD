@@ -4,8 +4,12 @@
     <div class="hidden lg:flex flex-1 bg-gradient-to-br from-[#d9e7f6] to-[#e2effb] items-center justify-center">
       <div class="text-center px-10">
         <div class="flex justify-center mb-5">
-          <div class="bg-[#ccdef0] p-3 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" :size="32" />
+          <div class="bg-[#265d9c] p-3 rounded-2xl shadow-lg">
+            <img
+              src="@/assets/logo.png"
+              alt="LiPAD Logo"
+              class="w-8 h-8 object-contain"
+            />
           </div>
         </div>
         <h2 class="text-2xl font-bold text-[#0E2247]">Welcome to LiPAD</h2>

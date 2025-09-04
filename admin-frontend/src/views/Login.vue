@@ -5,8 +5,12 @@
     <div class="hidden lg:flex flex-1 bg-gradient-to-br from-[#d9e7f6] to-[#e2effb] items-center justify-center">
       <div class="text-center px-8">
         <div class="flex justify-center mb-4">
-          <div class="bg-[#ccdef0] p-3 rounded-2xl shadow-lg">
-            <ScanLineIcon class="text-[#265d9c]" :size="32" />
+          <div class="bg-[#265d9c] p-3 rounded-2xl shadow-lg">
+            <img
+              src="@/assets/logo.png"
+              alt="LiPAD Logo"
+              class="w-8 h-8 object-contain"
+            />
           </div>
         </div>
         <h2 class="text-2xl font-bold text-[#0E2247]">LiPAD Admin</h2>
@@ -61,7 +65,7 @@
           <button
             type="submit"
             :disabled="loading"
-            class="w-full bg-[#265d9c] text-white rounded-lg py-1.5 hover:bg-[#1f2f44] transition disabled:opacity-60"
+            class="w-full bg-[#265d9c] text-white rounded-lg py-1.5 hover:bg-[#1f2f44] transition disabled:opacity-60 cursor-pointer"
           >
             <span v-if="!loading">Log In</span>
             <span v-else>Logging in...</span>
