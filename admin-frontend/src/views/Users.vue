@@ -34,7 +34,7 @@
         </div>
         <button
           @click="isAddUserModalOpen = true"
-          class="ml-3 bg-[#265d9c] text-white font-semibold px-3 py-1.5 rounded-lg text-xs hover:bg-[#16324f] flex items-center gap-1.5 cursor-pointer"
+          class="ml-3 bg-[#265d9c] text-white font-semibold px-3 py-1.5 rounded-lg text-sm hover:bg-[#16324f] flex items-center gap-1.5 cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
@@ -131,10 +131,10 @@
         </div>
 
         <div class="mt-6 flex justify-end gap-2.5">
-          <button @click="isAddUserModalOpen = false" class="bg-white border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-100 cursor-pointer">
+          <button @click="isAddUserModalOpen = false" class="bg-white text-[#265d9c] font-semibold border border-[#265d9c] px-3 py-1.5 rounded-lg hover:bg-gray-100 cursor-pointer">
             Cancel
           </button>
-          <button @click="saveUser" class="bg-[#265d9c] text-white px-4 py-1.5 rounded-md hover:bg-[#16324f] cursor-pointer">
+          <button @click="saveUser" class="bg-[#265d9c] text-white font-semibold px-4 py-1.5 rounded-lg hover:bg-[#16324f] cursor-pointer">
             Save
           </button>
         </div>

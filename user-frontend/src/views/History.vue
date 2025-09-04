@@ -119,7 +119,7 @@
         <table class="min-w-full text-xs">
           <thead class="bg-[#265d9c] text-white uppercase text-[0.65rem] rounded-t-xl">
             <tr>
-              <th class="px-3 py-1.5 text-left rounded-tl-lg">ID</th>
+              <th class="px-3 py-1.5 text-left rounded-tl-lg">NO.</th>
               <th class="px-3 py-1.5 text-left">Image</th>
               <th class="px-3 py-1.5 text-left">Date</th>
               <th class="px-3 py-1.5 text-left">Plate No.</th>
@@ -130,11 +130,12 @@
           </thead>
           <tbody>
             <tr
-              v-for="entry in filteredHistory"
+              v-for="(entry, index) in filteredHistory"
               :key="entry.id"
               class="border-t border-gray-200 hover:bg-[#edf5ff]"
             >
-              <td class="px-3 py-1.5 font-semibold text-[#1d3557]">#{{ entry.id }}</td>
+              <!-- Use index + 1 instead of entry.id -->
+              <td class="px-3 py-1.5 font-semibold text-[#383f49]">#{{ totalCount - ((currentPage - 1) * pageSize + index) }}</td>
               <td class="px-3 py-1.5">
                 <img :src="entry.image" alt="plate" class="w-8 h-8 object-cover rounded-full border" />
               </td>
@@ -146,7 +147,7 @@
                     'text-[0.65rem] font-semibold px-2 py-0.5 rounded-full',
                     entry.status === 'Successful'
                       ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
+                      : 'bg-red-100 text-red-700' 
                   ]"
                 >
                   {{ entry.status.toUpperCase() }}
@@ -163,6 +164,7 @@
               </td> 
             </tr>
           </tbody>
+
         </table>
         <!-- Pagination Controls -->
         <div class="flex justify-between items-center mt-4 text-sm">
@@ -174,7 +176,9 @@
             Previous
           </button>
 
-          <span>Page {{ currentPage }}</span>
+          <span>
+            Page {{ currentPage }} of {{ Math.ceil(totalCount / pageSize) }}
+          </span>
 
           <button
             :disabled="!nextPage"
@@ -210,6 +214,7 @@ const currentPage = ref(1)
 const nextPage = ref(null)
 const prevPage = ref(null)
 const totalCount = ref(0)
+const pageSize = ref(10)
 
 // Load data with pagination
 const fetchHistory = async (page = 1) => {
@@ -248,6 +253,7 @@ const setDeblurFilter = (filter) => {
 
 // Filtered history for current page
 const filteredHistory = computed(() => {
+  // Apply filters only to the *current page results*
   return history.value.filter((entry) => {
     const matchesSearch = entry.plate.toLowerCase().includes(searchQuery.value.toLowerCase())
 
@@ -267,6 +273,7 @@ const filteredHistory = computed(() => {
     return matchesSearch && withinDateRange && matchesDistortion && matchesDeblur
   })
 })
+
 
 const percentageIcon = computed(() => {
   if (percentageChange.value.startsWith('+')) return ArrowUp

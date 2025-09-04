@@ -84,20 +84,26 @@ class ImageViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]  # session auth enforced in create
     throttle_classes = [UploadThrottle]
 
-    #def get_queryset(self):
-    #    admin_id = self.request.session.get('admin_id')
-    #    user_id = self.request.session.get('user_id')
+    def get_queryset(self):
+        """
+        Restrict queryset based on session:
+        - Admins see all images
+        - Users see only their own images
+        - Unauthenticated users see none
+        """
+        admin_id = self.request.session.get('admin_id')
+        user_id = self.request.session.get('user_id')
 
-        # If admin is logged in, return all images
-     #   if admin_id and Admin.objects.filter(id=admin_id).exists():
-     #       return Image.objects.all().order_by('-created_at')
+        # If admin logged in, return everything
+        if admin_id and Admin.objects.filter(id=admin_id).exists():
+            return Image.objects.all().order_by('-created_at')
 
-        # If normal user is logged in, return only their images
-      #  if user_id and User.objects.filter(id=user_id).exists():
-        #    return Image.objects.filter(user_id=user_id).order_by('-created_at')
+        # If user logged in, return only their images
+        if user_id and User.objects.filter(id=user_id).exists():
+            return Image.objects.filter(user_id=user_id).order_by('-created_at')
 
-        # If no valid session, return nothing
-      #  return Image.objects.none()
+        # Default: no access
+        return Image.objects.none()
 
     def create(self, request, *args, **kwargs):
         # require session-based user_id (set by your login view)
