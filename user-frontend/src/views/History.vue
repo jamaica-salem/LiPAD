@@ -235,32 +235,6 @@
   </div>
 </template>
 
-<style scoped>
-@reference "tailwindcss";
-
-/* Dropdown fade + slide transition */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.2s ease;
-}
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-4px);
-}
-
-/* Reusable styles */
-.dropdown-item {
-  @apply block w-full text-left px-3 py-1.5 hover:bg-gray-100 cursor-pointer transition-colors duration-150;
-}
-.date-input {
-  @apply border border-gray-300 rounded-lg px-2 py-1.5 transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-[#265d9c];
-}
-.icon-btn {
-  @apply transition-transform duration-150 hover:scale-110;
-}
-</style>
-
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { ArrowUp, ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
@@ -559,3 +533,29 @@ const deleteImage = async (id) => {
   }
 }
 </script>
+
+<style scoped>
+@reference "tailwindcss";
+
+/* Dropdown fade + slide transition */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.2s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* Reusable styles */
+.dropdown-item {
+  @apply block w-full text-left px-3 py-1.5 hover:bg-gray-100 cursor-pointer transition-colors duration-150;
+}
+.date-input {
+  @apply border border-gray-300 rounded-lg px-2 py-1.5 transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-[#265d9c];
+}
+.icon-btn {
+  @apply transition-transform duration-150 hover:scale-110;
+}
+</style>
