@@ -52,7 +52,7 @@
             </label>
           </div>
 
-          <!-- ✅ Error message container -->
+          <!-- Error message container -->
           <p v-if="errorMessage" class="text-red-600 text-sm text-center mt-2">
             {{ errorMessage }}
           </p>

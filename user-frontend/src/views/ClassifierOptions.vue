@@ -25,10 +25,10 @@
           type="button"
           class="w-full bg-[#265d9c] hover:bg-[#1d4b81] text-white text-lg font-semibold py-4 px-6 rounded-xl shadow transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           @click="proceedAuto(imageId ? parseInt(imageId) : null)"
-          :disabled="busy"
+          :disabled="busyAuto"
           aria-label="Let LiPAD detect the distortion automatically"
         >
-          <span v-if="!busy">Let LiPAD classify the distortion automatically</span>
+          <span v-if="!busyAuto">Let LiPAD classify the distortion automatically</span>
           <span v-else class="flex items-center gap-2">
             Processing...
           </span>
@@ -39,10 +39,10 @@
           type="button"
           class="w-full bg-white border border-[#265d9c] hover:bg-gray-100 text-[#265d9c] text-lg font-semibold py-4 px-6 rounded-xl shadow transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           @click="proceedManual"
-          :disabled="busy"
+          :disabled="busyManual"
           aria-label="I will choose the distortion myself"
         >
-          <span v-if="!busy">I’ll choose the distortion myself</span>
+          <span v-if="!busyManual">I’ll choose the distortion myself</span>
           <span v-else class="flex items-center gap-2">
             Loading...
           </span>
@@ -76,50 +76,47 @@ const route = useRoute()
 const imageId = (route.query?.imageId as string | undefined) || undefined
 
 // Busy flag to prevent double clicks / race conditions
-const busy = ref(false)
-const error = ref<string>('')
+const busyAuto = ref(false)
+const busyManual = ref(false)
+const error = ref('')
 
-// Centralized guarded navigation
-const safeNavigate = async (name: string, query: Record<string, string | undefined> = {}) => {
-  if (busy.value) return
-  busy.value = true
+// Proceed with auto-classification route
+const proceedAuto = async (imageId: number | null) => {
+  if (busyAuto.value) return
   error.value = ''
-  try {
-    // Always prefer named routes for clarity and refactor-safety
-    await router.push({ name, query })
-  } catch (e) {
-    // Do not leak internal errors
-    error.value = 'Navigation failed. Please try again.'
-    // Optionally log to your telemetry here
-  } finally {
-    busy.value = false
-  }
-}
+  busyAuto.value = true
 
-// Proceed with auto-classification route.
-const proceedAuto = async (imageId: number | null): Promise<void> => {
-  error.value = ''
   if (!imageId) {
     error.value = 'No imageId provided.'
+    busyAuto.value = false
     return
   }
 
   try {
-    const { data } = await http.post('/process/', { image_id: imageId })
-    await safeNavigate('LoadingPage', { imageId: String(imageId) })
+    await http.post('/process/', { image_id: imageId })
+    await router.push({ name: 'LoadingPage', query: { imageId: String(imageId) } })
   } catch (err: any) {
-    const msg =
-      err?.response?.data?.errors ||
-      err?.response?.data?.detail ||
-      err?.message ||
-      'Processing failed.'
+    const msg = err?.response?.data?.errors ||
+                err?.response?.data?.detail ||
+                err?.message ||
+                'Processing failed.'
     error.value = Array.isArray(msg) ? msg.join(', ') : String(msg)
+    busyAuto.value = false
   }
 }
 
-// Proceed with manual classification route.
-
 const proceedManual = async () => {
-  await safeNavigate('ManualClassifier', imageId ? { imageId } : {})
+  if (busyManual.value) return
+  error.value = ''
+  busyManual.value = true
+
+  try {
+    await router.push({ name: 'ManualClassifier', query: imageId ? { imageId } : {} })
+  } catch (err) {
+    console.error(err)
+    error.value = 'Navigation failed. Please try again.'
+    busyManual.value = false
+  }
 }
+
 </script>
