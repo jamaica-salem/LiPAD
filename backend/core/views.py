@@ -1,5 +1,6 @@
 import base64
 import io
+import os
 from django.utils import timezone
 from django.http import JsonResponse
 from rest_framework import viewsets, status, permissions, throttling, serializers
@@ -17,7 +18,6 @@ from core.ml.ocr.ocr_wrapper import load_ocr, run_ocr
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from PIL import Image as PilImage
-import os
 
 
 class AdminViewSet(viewsets.ModelViewSet):
