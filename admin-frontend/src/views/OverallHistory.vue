@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 bg-orange-50">
+  <div class="p-4 bg-white">
     <!-- Toast Notifications -->
     <Toast v-if="toast.visible" :type="toast.type" :message="toast.message" @close="toast.visible = false" />
 

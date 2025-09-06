@@ -359,5 +359,4 @@ const updateUser = async () => {
   }
 }
 
-
 </script>

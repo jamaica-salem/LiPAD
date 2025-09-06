@@ -50,10 +50,6 @@
             required
           />
           <div class="flex justify-between items-center text-xs">
-            <label class="flex items-center gap-1 text-[#1f2f44]">
-              <input v-model="rememberMe" type="checkbox" class="rounded text-[#265d9c] focus:ring-[#265d9c]" />
-              Remember me
-            </label>
             <a href="#" class="text-[#265d9c] hover:underline">Forgot password?</a>
           </div>
 

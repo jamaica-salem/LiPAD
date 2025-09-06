@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center bg-orange-50 text-[#265d9c]"
+    class="min-h-[calc(100vh-90px)] flex flex-col items-center justify-center bg-orange-50 text-[#265d9c]"
   >
     <!-- Creative Failed Icon -->
     <div class="mb-6 animate-bounce">

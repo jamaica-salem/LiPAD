@@ -229,13 +229,39 @@ const dragSlider = (e) => {
 }
 
 // Download handler
-const downloadResult = () => {
+const downloadResult = async () => {
   if (!outputImage.value) return
-  const link = document.createElement('a')
-  link.href = outputImage.value
-  link.download = 'deblurred_result.jpg'
-  link.click()
+
+  try {
+    // Fetch the image as a blob
+    const response = await fetch(outputImage.value, {
+      method: 'GET',
+      headers: {
+        // Include auth token if your API is protected
+        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+      }
+    })
+
+    if (!response.ok) throw new Error('Failed to download image')
+
+    const blob = await response.blob()
+
+    // Create a temporary link element
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = 'deblurred_result.jpg' // File name for the download
+    document.body.appendChild(link)
+    link.click()
+
+    // Clean up
+    URL.revokeObjectURL(link.href)
+    link.remove()
+  } catch (err) {
+    console.error('Download failed:', err)
+    alert('Failed to download the result. Please try again.')
+  }
 }
+
 
 // Deblur another image
 const deblurAnotherImage = () => {
