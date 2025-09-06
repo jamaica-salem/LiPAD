@@ -225,12 +225,16 @@ const fetchUsers = async () => {
     const response = await axios.get('http://localhost:8000/api/users/')
     // Map response to desired frontend format
     users.value = response.data
-      .sort((a, b) => a.id - b.id) // Ensure ascending order by user ID
+      .sort((a, b) => a.id - b.id)
       .map(user => ({
         id: user.id,
-        name: `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.replace(/\s+/g, ' ').trim(),
+        firstName: user.first_name,
+        middleName: user.middle_name || '',
+        lastName: user.last_name,
         email: user.email,
-        role: user.position
+        role: user.position,
+        birthdate: user.date_of_birth || '',
+        name: `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.replace(/\s+/g, ' ').trim()
       }))
   } catch (err) {
     console.error('Failed to fetch users:', err.response?.data || err.message)
@@ -254,8 +258,17 @@ const saveUser = async () => {
     const user = response.data
 
     // Add to local state
-    const fullName = `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.replace(/\s+/g, ' ').trim()
-    users.value.push({ id: user.id, name: fullName, email: user.email, role: user.position })
+    users.value.push({
+      id: user.id,
+      firstName: user.first_name,
+      middleName: user.middle_name || '',
+      lastName: user.last_name,
+      email: user.email,
+      role: user.position,
+      birthdate: user.date_of_birth || '',
+      name: `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.replace(/\s+/g, ' ').trim()
+    })
+
 
     // Close modal and reset form
     isAddUserModalOpen.value = false
@@ -303,9 +316,9 @@ const getInitials = (name) => {
 const openEditUserModal = (user) => {
   editUser.value = {
     id: user.id,
-    firstName: user.name.split(' ')[0] || '',
-    middleName: user.name.split(' ')[1] || '',
-    lastName: user.name.split(' ')[2] || '',
+    firstName: user.firstName,
+    middleName: user.middleName,
+    lastName: user.lastName,
     email: user.email,
     password: '', // Password should not be pre-filled
     position: user.role,
