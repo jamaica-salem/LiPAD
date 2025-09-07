@@ -23,8 +23,8 @@ import http from '@/services/http'
 
 const route = useRoute()
 const router = useRouter()
-
 const imageId = route.query.imageId
+
 const messages = [
   'Enhancing image clarity...',
   'Sharpening license plate details...',
@@ -38,15 +38,18 @@ const messages = [
   'LiPAD is processing your request...'
 ]
 
-const currentText = ref(messages[0])
+// Initialize with a random message
+const currentText = ref(messages[Math.floor(Math.random() * messages.length)])
+
 let intervalId
 let pollerId
 
 onMounted(() => {
-    intervalId = setInterval(() => {
+  intervalId = setInterval(() => {
     const randomIndex = Math.floor(Math.random() * messages.length)
     currentText.value = messages[randomIndex]
   }, 3500)
+
   startPolling()
 })
 
@@ -59,17 +62,15 @@ const startPolling = () => {
         clearInterval(intervalId)
 
         if (data.after_distortion_type === 'Normal' && data.status == 'Successful' && data.plate_no != "") {
-          // success → go to Result
           router.push({ name: 'Result', query: { imageId } })
         } else {
-          // failed → go to FailurePage
           router.push({ name: 'FailurePage', query: { imageId } })
         }
       }
     } catch (err) {
       console.error('Polling failed:', err)
     }
-  }, 3000) // poll every 3s
+  }, 3000)
 }
 
 onBeforeUnmount(() => {

@@ -34,7 +34,7 @@
         </div>
         <button
           @click="isAddUserModalOpen = true"
-          class="ml-3 bg-[#265d9c] text-white font-semibold px-3 py-1.5 rounded-lg text-xs hover:bg-[#16324f] flex items-center gap-1.5 cursor-pointer"
+          class="ml-3 bg-[#265d9c] text-white font-semibold px-3 py-1.5 rounded-lg text-sm hover:bg-[#16324f] flex items-center gap-1.5 cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14" />
@@ -113,28 +113,73 @@
 
         <!-- Form -->
         <div class="space-y-5 text-xs">
+
+          <!-- Names -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input v-model="newUser.firstName" type="text" placeholder="First Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
-            <input v-model="newUser.middleName" type="text" placeholder="Middle Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
-            <input v-model="newUser.lastName" type="text" placeholder="Last Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <div>
+              <input v-model="newUser.firstName" type="text" placeholder="First Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="addUserErrors.first_name" class="text-red-600 text-[10px] ml-0.5 mt-2">
+                {{ addUserErrors.first_name[0] }}
+              </div>
+            </div>
+
+            <div>
+              <input v-model="newUser.middleName" type="text" placeholder="Middle Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="addUserErrors.middle_name" class="text-red-600 text-[10px] ml-0.5 mt-2">
+                {{ addUserErrors.middle_name[0] }}
+              </div>
+            </div>
+
+            <div>
+              <input v-model="newUser.lastName" type="text" placeholder="Last Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="addUserErrors.last_name" class="text-red-600 text-[10px] ml-0.5 mt-2">
+                {{ addUserErrors.last_name[0] }}
+              </div>
+            </div>
           </div>
 
+          <!-- Email & Password -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input v-model="newUser.email" type="email" placeholder="Email" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
-            <input v-model="newUser.password" type="password" placeholder="Password" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <div>
+              <input v-model="newUser.email" type="email" placeholder="Email" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="addUserErrors.email" class="text-red-600 text-[10px] ml-0.5 mt-2">
+                {{ addUserErrors.email[0] }}
+              </div>
+            </div>
+
+            <div>
+              <input v-model="newUser.password" type="password" placeholder="Password" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="addUserErrors.password" class="text-red-600 text-[10px] ml-0.5 mt-2">
+                {{ addUserErrors.password[0] }}
+              </div>
+            </div>
           </div>
 
+          <!-- Birthdate & Position -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input v-model="newUser.birthdate" type="date" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
-            <input v-model="newUser.position" type="text" placeholder="Position" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <div>
+              <input v-model="newUser.birthdate" type="date" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="addUserErrors.date_of_birth" class="text-red-600 text-[10px] ml-0.5 mt-2">
+                {{ addUserErrors.date_of_birth[0] }}
+              </div>
+            </div>
+
+            <div>
+              <input v-model="newUser.position" type="text" placeholder="Position" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="addUserErrors.position" class="text-red-600 text-[10px] ml-0.5 mt-2">
+                {{ addUserErrors.position[0] }}
+              </div>
+            </div>
           </div>
+
         </div>
 
+        <!-- Buttons -->
         <div class="mt-6 flex justify-end gap-2.5">
-          <button @click="isAddUserModalOpen = false" class="bg-white border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-100 cursor-pointer">
+          <button @click="isAddUserModalOpen = false" class="bg-white text-[#265d9c] font-semibold border border-[#265d9c] px-3 py-1.5 rounded-lg hover:bg-gray-100 cursor-pointer">
             Cancel
           </button>
-          <button @click="saveUser" class="bg-[#265d9c] text-white px-4 py-1.5 rounded-md hover:bg-[#16324f] cursor-pointer">
+          <button @click="saveUser" class="bg-[#265d9c] text-white font-semibold px-4 py-1.5 rounded-lg hover:bg-[#16324f] cursor-pointer">
             Save
           </button>
         </div>
@@ -156,23 +201,68 @@
 
         <!-- Form -->
         <div class="space-y-5 text-xs">
+
+          <!-- Names -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input v-model="editUser.firstName" type="text" placeholder="First Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
-            <input v-model="editUser.middleName" type="text" placeholder="Middle Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
-            <input v-model="editUser.lastName" type="text" placeholder="Last Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <div>
+              <input v-model="editUser.firstName" type="text" placeholder="First Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="editUserErrors.first_name" class="text-red-600 text-[10px] mt-0.5">
+                {{ editUserErrors.first_name[0] }}
+              </div>
+            </div>
+
+            <div>
+              <input v-model="editUser.middleName" type="text" placeholder="Middle Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="editUserErrors.middle_name" class="text-red-600 text-[10px] mt-0.5">
+                {{ editUserErrors.middle_name[0] }}
+              </div>
+            </div>
+
+            <div>
+              <input v-model="editUser.lastName" type="text" placeholder="Last Name" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="editUserErrors.last_name" class="text-red-600 text-[10px] mt-0.5">
+                {{ editUserErrors.last_name[0] }}
+              </div>
+            </div>
           </div>
 
+          <!-- Email & Password -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input v-model="editUser.email" type="email" placeholder="Email" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
-            <input v-model="editUser.password" type="password" placeholder="Password" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <div>
+              <input v-model="editUser.email" type="email" placeholder="Email" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="editUserErrors.email" class="text-red-600 text-[10px] mt-0.5">
+                {{ editUserErrors.email[0] }}
+              </div>
+            </div>
+
+            <div>
+              <input v-model="editUser.password" type="password" placeholder="Password" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="editUserErrors.password" class="text-red-600 text-[10px] mt-0.5">
+                {{ editUserErrors.password[0] }}
+              </div>
+            </div>
           </div>
 
+          <!-- Birthdate & Position -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input v-model="editUser.birthdate" type="date" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
-            <input v-model="editUser.position" type="text" placeholder="Position" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+            <div>
+              <input v-model="editUser.birthdate" type="date" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="editUserErrors.date_of_birth" class="text-red-600 text-[10px] mt-0.5">
+                {{ editUserErrors.date_of_birth[0] }}
+              </div>
+            </div>
+
+            <div>
+              <input v-model="editUser.position" type="text" placeholder="Position" class="border border-gray-300 rounded-md px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-[#1d3557]" />
+              <div v-if="editUserErrors.position" class="text-red-600 text-[10px] mt-0.5">
+                {{ editUserErrors.position[0] }}
+              </div>
+            </div>
           </div>
+
         </div>
 
+        <!-- Buttons -->
         <div class="mt-6 flex justify-end gap-2.5">
           <button @click="isEditUserModalOpen = false" class="bg-white border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-100 cursor-pointer">
             Cancel
@@ -198,6 +288,8 @@ const searchQuery = ref('')
 const isAddUserModalOpen = ref(false)
 const isEditUserModalOpen = ref(false) 
 const editUser = ref({}) 
+const addUserErrors = ref({})
+const editUserErrors = ref({})
 
 
 const newUser = ref({
@@ -225,12 +317,16 @@ const fetchUsers = async () => {
     const response = await axios.get('http://localhost:8000/api/users/')
     // Map response to desired frontend format
     users.value = response.data
-      .sort((a, b) => a.id - b.id) // Ensure ascending order by user ID
+      .sort((a, b) => a.id - b.id)
       .map(user => ({
         id: user.id,
-        name: `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.replace(/\s+/g, ' ').trim(),
+        firstName: user.first_name,
+        middleName: user.middle_name || '',
+        lastName: user.last_name,
         email: user.email,
-        role: user.position
+        role: user.position,
+        birthdate: user.date_of_birth || '',
+        name: `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.replace(/\s+/g, ' ').trim()
       }))
   } catch (err) {
     console.error('Failed to fetch users:', err.response?.data || err.message)
@@ -239,6 +335,7 @@ const fetchUsers = async () => {
 
 // Save user to backend
 const saveUser = async () => {
+  addUserErrors.value = {} // reset errors
   try {
     const payload = {
       first_name: newUser.value.firstName,
@@ -254,17 +351,30 @@ const saveUser = async () => {
     const user = response.data
 
     // Add to local state
-    const fullName = `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.replace(/\s+/g, ' ').trim()
-    users.value.push({ id: user.id, name: fullName, email: user.email, role: user.position })
+    users.value.push({
+      id: user.id,
+      firstName: user.first_name,
+      middleName: user.middle_name || '',
+      lastName: user.last_name,
+      email: user.email,
+      role: user.position,
+      birthdate: user.date_of_birth || '',
+      name: `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.replace(/\s+/g, ' ').trim()
+    })
 
     // Close modal and reset form
     isAddUserModalOpen.value = false
     resetNewUser()
   } catch (err) {
     console.error('Failed to save user:', err.response?.data || err.message)
-    alert('Error saving user. Please check the input fields.')
+    if (err.response?.data) {
+      addUserErrors.value = err.response.data // store backend validation errors
+    } else {
+      alert('Error saving user. Please try again later.')
+    }
   }
 }
+
 
 // Delete user from backend and remove from local state
 const deleteUser = async (userId) => {
@@ -303,9 +413,9 @@ const getInitials = (name) => {
 const openEditUserModal = (user) => {
   editUser.value = {
     id: user.id,
-    firstName: user.name.split(' ')[0] || '',
-    middleName: user.name.split(' ')[1] || '',
-    lastName: user.name.split(' ')[2] || '',
+    firstName: user.firstName,
+    middleName: user.middleName,
+    lastName: user.lastName,
     email: user.email,
     password: '', // Password should not be pre-filled
     position: user.role,
@@ -314,9 +424,10 @@ const openEditUserModal = (user) => {
   isEditUserModalOpen.value = true
 }
 
+// Update user in backend and local state
 const updateUser = async () => {
+  editUserErrors.value = {} // reset errors
   try {
-    // Build payload dynamically
     const payload = {
       first_name: editUser.value.firstName,
       middle_name: editUser.value.middleName,
@@ -325,17 +436,9 @@ const updateUser = async () => {
       position: editUser.value.position
     }
 
-    // Only include password if user typed a new one
-    if (editUser.value.password && editUser.value.password.trim() !== '') {
-      payload.password = editUser.value.password
-    }
+    if (editUser.value.password?.trim()) payload.password = editUser.value.password
+    if (editUser.value.birthdate) payload.date_of_birth = editUser.value.birthdate
 
-    // Include birthdate only if it's not empty
-    if (editUser.value.birthdate) {
-      payload.date_of_birth = editUser.value.birthdate
-    }
-
-    // Send PATCH request
     const response = await axios.patch(`http://localhost:8000/api/users/${editUser.value.id}/`, payload)
     const updated = response.data
 
@@ -344,10 +447,13 @@ const updateUser = async () => {
     if (index !== -1) {
       users.value[index] = {
         id: updated.id,
+        firstName: updated.first_name,
+        middleName: updated.middle_name || '',
+        lastName: updated.last_name,
         name: `${updated.first_name} ${updated.middle_name || ''} ${updated.last_name}`.replace(/\s+/g, ' ').trim(),
         email: updated.email,
         role: updated.position,
-        birthdate: updated.date_of_birth // optional
+        birthdate: updated.date_of_birth
       }
     }
 
@@ -355,7 +461,11 @@ const updateUser = async () => {
     editUser.value = {}
   } catch (err) {
     console.error(`Failed to update user #${editUser.value.id}:`, err.response?.data || err.message)
-    alert('Error updating user. Please check the input fields.')
+    if (err.response?.data) {
+      editUserErrors.value = err.response.data
+    } else {
+      alert('Error updating user. Please try again later.')
+    }
   }
 }
 

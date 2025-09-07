@@ -1,5 +1,6 @@
 import base64
 import io
+import os
 from django.utils import timezone
 from django.http import JsonResponse
 from rest_framework import viewsets, status, permissions, throttling, serializers
@@ -17,7 +18,6 @@ from core.ml.ocr.ocr_wrapper import load_ocr, run_ocr
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from PIL import Image as PilImage
-import os
 
 
 class AdminViewSet(viewsets.ModelViewSet):
@@ -25,9 +25,23 @@ class AdminViewSet(viewsets.ModelViewSet):
     serializer_class = AdminSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('id')
+    queryset = User.objects.all()  # required for DRF router basename
     serializer_class = UserSerializer
     pagination_class = None  
+
+    def get_queryset(self):
+        admin_id = self.request.session.get('admin_id')
+        user_id = self.request.session.get('user_id')
+
+        if admin_id and Admin.objects.filter(id=admin_id).exists():
+            print('admin', admin_id)
+            return User.objects.all().order_by('id')
+
+        if user_id and User.objects.filter(id=user_id).exists():
+            print('user', user_id)
+            return User.objects.filter(id=user_id).order_by('id')
+
+        return User.objects.none()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -85,18 +99,24 @@ class ImageViewSet(viewsets.ModelViewSet):
     throttle_classes = [UploadThrottle]
 
     def get_queryset(self):
+        """
+        Restrict queryset based on session:
+        - Admins see all images
+        - Users see only their own images
+        - Unauthenticated users see none
+        """
         admin_id = self.request.session.get('admin_id')
         user_id = self.request.session.get('user_id')
 
-        # If admin is logged in, return all images
+        # If admin logged in, return everything
         if admin_id and Admin.objects.filter(id=admin_id).exists():
             return Image.objects.all().order_by('-created_at')
 
-        #If normal user is logged in, return only their images
+        # If user logged in, return only their images
         if user_id and User.objects.filter(id=user_id).exists():
             return Image.objects.filter(user_id=user_id).order_by('-created_at')
 
-        # If no valid session, return nothing
+        # Default: no access
         return Image.objects.none()
 
     def create(self, request, *args, **kwargs):

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center bg-orange-50 text-[#265d9c]"
+    class="min-h-[calc(100vh-90px)] flex flex-col items-center justify-center bg-orange-50 text-[#265d9c]"
   >
     <!-- Creative Failed Icon -->
     <div class="mb-6 animate-bounce">
@@ -18,13 +18,13 @@
     <!-- Action buttons -->
     <div class="flex gap-6">
       <button
-        class="w-40 bg-[#265d9c] hover:bg-[#1d4a80] text-white text-lg font-semibold py-2.5 px-6 rounded-full transition duration-300 shadow-lg"
+        class="w-40 bg-[#265d9c] hover:bg-[#1d4a80] text-white text-lg font-semibold py-2.5 px-6 rounded-lg transition duration-300 shadow-lg cursor-pointer"
         @click="handleUserChoice(true)"
       >
         Yes
       </button>
       <button
-        class="w-40 bg-white hover:bg-[#f4f4f4] text-[#265d9c] text-lg font-semibold py-2.5 px-6 rounded-full transition duration-300 shadow-lg"
+        class="w-40 bg-white hover:bg-[#f4f4f4] border border-[#265d9c] text-[#265d9c] text-lg font-semibold py-2.5 px-6 rounded-lg transition duration-300 shadow-lg cursor-pointer"
         @click="handleUserChoice(false)"
       >
         No

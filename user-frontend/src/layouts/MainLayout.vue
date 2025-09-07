@@ -9,7 +9,7 @@
       <Navbar :user="displayUser" class="mr-2" />
 
       <!-- Page Content -->
-      <main class="flex-1 overflow-y-auto p-6 mt-2 bg-orange-50 rounded-2xl mx-2">
+      <main class="flex-1 overflow-y-auto p-6 bg-orange-50 rounded-2xl mx-2">
         <router-view />
       </main>
     </div>

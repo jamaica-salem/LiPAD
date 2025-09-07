@@ -47,7 +47,7 @@
       <p class="text-xs text-gray-500 mt-4">Drag the slider to compare input and output.</p>
       <div class="flex flex-col mt-4">
         <button
-          class="bg-[#265d9c] text-white text-sm font-semibold py-1 px-3 rounded-lg mb-2 hover:bg-[#1d3e73] transition cursor-pointer mt-2 h-8"
+          class="bg-white hover:bg-[#f4f4f4] border border-[#265d9c] text-[#265d9c] text-sm font-semibold py-1 px-3 rounded-lg mb-2 transition cursor-pointer mt-2 h-8"
           @click="deblurAnotherImage"
         >
           Deblur Another Image
@@ -69,9 +69,9 @@
             <span class="font-semibold text-sm">Status: </span>
             <span
               :class="{
-                'text-green-600 bg-green-100 font-semibold px-1.5 py-0.5 rounded-md':
+                'text-green-600 bg-green-100 font-semibold px-1.5 py-0.5 rounded-full':
                   status === 'SUCCESSFUL',
-                'text-red-600 bg-red-100 font-semibold px-1.5 py-0.5 rounded-md':
+                'text-red-600 bg-red-100 font-semibold px-1.5 py-0.5 rounded-full':
                   status === 'FAILED',
               }"
             >
@@ -107,14 +107,14 @@
       <!-- Buttons Grouped Together -->
       <div class="flex flex-col mt-4">
         <button
-          class="bg-[#265d9c] text-white font-semibold py-1.5 px-3 rounded-lg mb-2 hover:bg-[#1d3e73] transition cursor-pointer"
+          class="bg-[#265d9c] text-white text-sm font-semibold py-1.5 px-3  rounded-lg mb-2 hover:bg-[#1d3e73] transition cursor-pointer"
           @click="showFullScreen = true"
         >
           Show Result
         </button>
 
         <button
-          class="bg-[#265d9c] text-white font-semibold py-1.5 px-3 rounded-lg hover:bg-[#1d3e73] transition cursor-pointer"
+          class="bg-[#265d9c] text-white text-sm font-semibold py-1.5 px-3 rounded-lg hover:bg-[#1d3e73] transition cursor-pointer"
           @click="downloadResult"
         >
           Download Result
@@ -229,13 +229,39 @@ const dragSlider = (e) => {
 }
 
 // Download handler
-const downloadResult = () => {
+const downloadResult = async () => {
   if (!outputImage.value) return
-  const link = document.createElement('a')
-  link.href = outputImage.value
-  link.download = 'deblurred_result.jpg'
-  link.click()
+
+  try {
+    // Fetch the image as a blob
+    const response = await fetch(outputImage.value, {
+      method: 'GET',
+      headers: {
+        // Include auth token if your API is protected
+        'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
+      }
+    })
+
+    if (!response.ok) throw new Error('Failed to download image')
+
+    const blob = await response.blob()
+
+    // Create a temporary link element
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = 'deblurred_result.jpg' // File name for the download
+    document.body.appendChild(link)
+    link.click()
+
+    // Clean up
+    URL.revokeObjectURL(link.href)
+    link.remove()
+  } catch (err) {
+    console.error('Download failed:', err)
+    alert('Failed to download the result. Please try again.')
+  }
 }
+
 
 // Deblur another image
 const deblurAnotherImage = () => {

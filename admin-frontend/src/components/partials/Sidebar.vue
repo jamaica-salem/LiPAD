@@ -1,9 +1,13 @@
 <template>
   <aside class="w-56 bg-[#265d9c] border-r border-gray-200 p-6 flex flex-col rounded-3xl shadow-lg mx-3 mt-3 h-[calc(100vh-1.5rem)] overflow-hidden">
-    <!-- App Logo and Name -->
-    <div class="flex items-center gap-3 mb-8">
-      <ScanLine :size="26" class="text-white" />
-      <span class="text-xl font-extrabold text-white">{{ appName }}</span>
+    <!-- App Logo -->
+    <div class="flex items-center gap-1 mb-6">
+      <img 
+        src="@/assets/logo.png" 
+        alt="LiPAD Logo" 
+        class="h-8 w-auto object-contain"
+      />
+      <span class="text-xl font-extrabold text-[#eef3f8]">LiPAD Admin</span>
     </div>
 
     <div class="flex-1 flex flex-col justify-between">
