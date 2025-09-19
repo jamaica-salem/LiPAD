@@ -58,12 +58,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ScanLine, ImageDown, Clock4, LogOut } from 'lucide-vue-next'
-import { logout as logoutSession } from '@/composables/useAuth'
+import { ImageDown, Clock4, LogOut } from 'lucide-vue-next'
+import { logout as logoutSession, useAuth } from '@/composables/useAuth'
 
-const props = defineProps({
-  appName: String
-})
+const router = useRouter()
+const state = useAuth()  // reactive auth state
 
 // Sidebar navigation items
 const navItems = [
@@ -71,18 +70,26 @@ const navItems = [
   { to: '/history', label: 'History', icon: Clock4 }
 ]
 
-const router = useRouter()
 const logoutLoading = ref(false)
 
 const handleLogout = async () => {
+  if (logoutLoading.value) return
   logoutLoading.value = true
+
   try {
-    await logoutSession()                // call your logout API/session function
-    router.push('/lipad/login')          // redirect to login page
+    await logoutSession()          // centralized logout
+    localStorage.clear()           // clear frontend storage
+    sessionStorage.clear()
+    state.user = null              // reactive state reset
+    state.isAuthenticated = false
+    state.sessionExpiry = null
+    router.push('/lipad/login')    // redirect to login
   } catch (err) {
     console.error('Logout failed:', err)
+    router.push('/lipad/login')    // fallback redirect
   } finally {
     logoutLoading.value = false
   }
 }
 </script>
+

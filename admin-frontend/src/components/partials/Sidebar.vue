@@ -41,7 +41,7 @@
         <button
           @click="handleLogout"
           :disabled="logoutLoading"
-          class="w-full flex items-center gap-3 text-base font-medium rounded-lg px-2.5 py-1.5 transition-colors text-[#d1d1d5] hover:text-white hover:bg-[#265d9c] cursor-pointer isabled:opacity-50 disabled:cursor-not-allowed "
+          class="w-full flex items-center gap-3 text-base font-medium rounded-lg px-2.5 py-1.5 transition-colors text-[#d1d1d5] hover:text-white hover:bg-[#265d9c] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <LogOut :size="18" />
           <span v-if="!logoutLoading">Log Out</span>
@@ -54,40 +54,47 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ScanLine, FolderClock, User, LogOut } from 'lucide-vue-next';
+import { FolderClock, User, LogOut } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { logout, useAuth } from '@/composables/useAuth';
 
-const props = defineProps({
-  appName: String
-});
-
 const router = useRouter();
+const auth = useAuth();
 
+// Nav items
 const navItems = [
   { to: '/app/users', label: 'Users', icon: User },
   { to: '/app/history', label: 'Overall History', icon: FolderClock },
 ];
 
-const auth = useAuth();
-
-// Loading state to prevent multiple logout clicks
+// Prevent double clicks
 const logoutLoading = ref(false);
 
 const handleLogout = async () => {
-  if (logoutLoading.value) return; // prevent double click
+  if (logoutLoading.value) return;
   logoutLoading.value = true;
 
   try {
-    await logout();           // centralized logout
-    localStorage.clear();     // clear frontend storage
+    // Call centralized composable logout
+    await logout();
+
+    // Clear any frontend storage (optional but good practice)
+    localStorage.clear();
     sessionStorage.clear();
+
+    // Reset reactive auth state (optional, but safer)
+    auth.admin = null;
+    auth.isAuthenticated = false;
+    auth.sessionExpiry = null;
+
+    // Redirect to admin login
     router.push({ path: '/admin-login' });
-  } catch (error) {
-    console.error('Logout failed:', error);
+  } catch (err) {
+    console.error('Logout failed:', err);
     router.push({ path: '/admin-login' }); // fallback redirect
   } finally {
     logoutLoading.value = false;
   }
 };
+
 </script>

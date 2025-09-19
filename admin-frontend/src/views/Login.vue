@@ -74,8 +74,8 @@
 
 <script setup lang="ts">
 /*
-  Session-based login:
-  - Uses useAuth.login(email, password) which calls /api/csrf/ and /api/login/
+  Session-based admin login:
+  - Uses useAuth.login(email, password, 'admin') which calls /api/csrf/ then /api/admin/login/
 */
 import { ref, watchEffect, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -109,9 +109,8 @@ watchEffect(() => {
 
 /**
  * handleLogin: client-side validation -> call composable login -> handle responses
- * - On success: user is redirected to the Users page (inside MainLayout).
+ * - On success: redirect to Users page (inside MainLayout).
  * - On failure: show an appropriate error message.
-
  */
 const handleLogin = async () => {
   errorMessage.value = ''
@@ -130,13 +129,10 @@ const handleLogin = async () => {
 
   loading.value = true
   try {
-    // call composable login() which will:
-    // 1) call /api/csrf/ to set csrftoken cookie
-    // 2) call POST /api/login/ with { email, password }
     const res = await login(email.value.trim(), password.value)
 
     if (res.success) {
-      // success: composable set state.admin & isAuthenticated
+      // success: composable set state.user & isAuthenticated
       // redirect to main section (Users page) — inside MainLayout
       router.push({ name: 'Users' })
     } else {

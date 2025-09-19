@@ -1,5 +1,3 @@
-// src/services/http.ts
-// Centralized axios instance configured for session auth & CSRF.
 import axios from 'axios'
 
 const http = axios.create({

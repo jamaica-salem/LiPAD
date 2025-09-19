@@ -1,26 +1,44 @@
-from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-from .views import AdminViewSet, UserViewSet, ImageViewSet, UserLoginView
-from .views_auth import csrf_view, login_view, logout_view, session_user_view
-from .views_user_auth import csrf_view_user, login_user_view, logout_user_view, session_user_view_user
-from . import views
+from rest_framework.routers import DefaultRouter
+from .views import AdminViewSet, UserViewSet, ImageViewSet, process_image, process_gan_only
+from .views_auth import (
+    csrf_view,
+    admin_login,
+    admin_logout,
+    admin_session_info,
+    user_login,
+    user_logout,
+    user_session_info,
+    change_password,
+)
 
+# DRF Router for ViewSets
 router = DefaultRouter()
-router.register(r'admins', AdminViewSet)
-router.register(r'users', UserViewSet)
-router.register(r'images', ImageViewSet)
+router.register(r"admins", AdminViewSet, basename='admin')
+router.register(r"users", UserViewSet, basename='user') 
+router.register(r"images", ImageViewSet, basename='image')
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path("lipad/login/", UserLoginView.as_view(), name='user-login'),
-    path("csrf/", csrf_view, name="csrf"),
-    path("login/", login_view, name="login"),
-    path("logout/", logout_view, name="logout"),
-    path("user/", session_user_view, name="session-user"),
-    path("user/csrf/", csrf_view_user, name="user-csrf"),
-    path("user/login/", login_user_view, name="user-login"),
-    path("user/logout/", logout_user_view, name="user-logout"),
-    path("user/session/", session_user_view_user, name="use r-session"),
-    path("process/", views.process_image, name="process_image"),
-    path("process-gan/", views.process_gan_only, name="process_gan_only")
+    # DRF ViewSet routes
+    path("", include(router.urls)),
+    
+    # CSRF token endpoint
+    path("csrf/", csrf_view, name="csrf-token"),
+    
+    # Admin authentication endpoints
+    path("admin/login/", admin_login, name="admin-login"),
+    path("admin/logout/", admin_logout, name="admin-logout"),
+    path("admin/session/", admin_session_info, name="admin-session"),
+    
+    # User authentication endpoints  
+    path("user/login/", user_login, name="user-login"),
+    path("user/logout/", user_logout, name="user-logout"),
+    path("user/session/", user_session_info, name="user-session"),
+    
+    # Shared endpoints
+    path("change-password/", change_password, name="change-password"),
+    
+    # Image processing endpoints
+    path("process/", process_image, name="process-image"),
+    path("process-gan/", process_gan_only, name="process-gan"),
 ]
