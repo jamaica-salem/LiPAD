@@ -203,55 +203,65 @@ class EmptySession:
 
 class RoleBasedAccessMiddleware(MiddlewareMixin):
     """
-    Middleware to enforce role-based access control on API endpoints
+    Enforce role-based access using the model-based authentication flags set by
+    TrulySeparateSessionMiddleware, NOT Django's built-in auth system.
+
+    Configure endpoint patterns below. Use startswith checks so subpaths are allowed.
     """
-    
-    ADMIN_ONLY_PATHS = [
-        '/api/users/',  # User management
-        '/api/admins/', # Admin management
+
+    # endpoints that are admin-only (prefix matching)
+    ADMIN_ONLY_PREFIXES = [
+        "/api/admins/",
+        "/api/users/",   # user management UI; admin-only
     ]
-    
-    USER_PATHS = [
-        '/api/images/',
-        '/api/process/',
-        '/api/process-gan/',
+
+    # endpoints that require at least a regular user (or admin)
+    USER_PREFIXES = [
+        "/api/images/",
+        "/api/process/",
+        "/api/process-gan/",
     ]
-    
+
+    # public endpoints that don't require authentication
+    PUBLIC_PREFIXES = [
+        "/api/csrf/",
+        "/api/admin/login/",
+        "/api/admin/logout/",
+        "/api/user/login/",
+        "/api/user/logout/",
+        "/api/admin/session/",
+        "/api/user/session/",
+    ]
+
+    def _is_public(self, path: str) -> bool:
+        for p in self.PUBLIC_PREFIXES:
+            if path.startswith(p):
+                return True
+        return False
+
     def process_view(self, request, view_func, view_args, view_kwargs):
-        """Check permissions before view execution"""
         path = request.path
-        
-        # Skip auth checks for certain endpoints
-        if self._is_public_endpoint(path):
+
+        # Allow public endpoints to pass through
+        if self._is_public(path):
             return None
-        
+
         # Admin-only endpoints
-        if any(path.startswith(admin_path) for admin_path in self.ADMIN_ONLY_PATHS):
-            if not request.is_admin_authenticated:
-                return JsonResponse(
-                    {'detail': 'Admin authentication required'},
-                    status=403
-                )
-        
-        # User endpoints (allow both admin and user)
-        elif any(path.startswith(user_path) for user_path in self.USER_PATHS):
-            if not (request.is_admin_authenticated or request.is_user_authenticated):
-                return JsonResponse(
-                    {'detail': 'Authentication required'},
-                    status=403
-                )
-        
+        for prefix in self.ADMIN_ONLY_PREFIXES:
+            if path.startswith(prefix):
+                if not getattr(request, "is_admin_authenticated", False):
+                    logger.debug("Blocked admin-only path %s for unauthenticated request", path)
+                    return JsonResponse({"detail": "Admin authentication required"}, status=403)
+                # admin is allowed
+                return None
+
+        # User endpoints (allowed for both admins and users)
+        for prefix in self.USER_PREFIXES:
+            if path.startswith(prefix):
+                if not (getattr(request, "is_user_authenticated", False) or getattr(request, "is_admin_authenticated", False)):
+                    logger.debug("Blocked user path %s for unauthenticated request", path)
+                    return JsonResponse({"detail": "Authentication required"}, status=403)
+                return None
+
+        # Default: allow other endpoints (or have views enforce auth)
         return None
-    
-    def _is_public_endpoint(self, path):
-        """Check if endpoint is public (no auth required)"""
-        public_endpoints = [
-            '/api/csrf/',
-            '/api/admin/login/',
-            '/api/admin/logout/', 
-            '/api/user/login/',
-            '/api/user/logout/',
-            '/api/admin/session/',
-            '/api/user/session/',
-        ]
-        return any(path.startswith(endpoint) for endpoint in public_endpoints)

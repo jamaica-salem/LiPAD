@@ -238,10 +238,13 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { ArrowUp, ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
-import http from '@/utils/http'
 import { useRouter } from 'vue-router'
 import Toast from '@/components/Toast.vue'
+import { useAuth } from "@/composables/useAuth"
+import api from '@/api/axios'
+import { makeAuthenticatedRequest } from '@/api/axios'
 
+const { admin, isAuthenticated, loading } = useAuth()
 const router = useRouter()
 
 // Shared reactive state (same as History.vue)
@@ -280,7 +283,7 @@ const fetchAllHistoryForKPI = async () => {
     let results = []
     const MAX_PAGES = 500
     while (page <= MAX_PAGES) {
-      const { data } = await http.get(`/images/?page=${page}`)
+      const { data } = await makeAuthenticatedRequest(() => api.get(`/images/?page=${page}`))
       const mapped = (data.results || []).map(entry => ({
         id: entry.id,
         user: entry.user?.username || 'Unknown',
@@ -305,7 +308,7 @@ const fetchAllHistoryForKPI = async () => {
 const fetchHistory = async (page = 1) => {
   try {
     if (page < 1) page = 1
-    const { data } = await http.get(`/images/?page=${page}`)
+    const { data } = await makeAuthenticatedRequest(() => api.get(`/images/?page=${page}`))
     history.value = (data.results || []).map(entry => ({
       id: entry.id,
       user: entry.user ? `${entry.user.first_name} ${entry.user.last_name}` : '—',
@@ -326,15 +329,20 @@ const fetchHistory = async (page = 1) => {
 }
 
 onMounted(() => {
-  Promise.allSettled([fetchAllHistoryForKPI(), fetchHistory(1)])
-  document.addEventListener('click', handleDocumentClick)
-  document.addEventListener('keydown', handleKeyDown)
+  // set up auth error redirect
+  window.addEventListener("auth-error", () => {
+    router.push({ name: "Login" })
+  })
+
+  // fetch data when page loads
+  fetchAllHistoryForKPI()
+  fetchHistory(1)
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', handleDocumentClick)
-  document.removeEventListener('keydown', handleKeyDown)
+  window.removeEventListener("auth-error", () => {})
 })
+
 
 const handleDocumentClick = (e) => {
   const target = e?.target
@@ -437,7 +445,7 @@ const deleteImage = async (id) => {
   if (deletingIds.value.has(id)) return
   deletingIds.value.add(id)
   try {
-    await http.delete(`/images/${id}/`)
+    await makeAuthenticatedRequest(() => api.delete(`/images/${id}/`))
     history.value = history.value.filter(entry => entry.id !== id)
     allHistory.value = allHistory.value.filter(entry => entry.id !== id)
     totalCount.value--

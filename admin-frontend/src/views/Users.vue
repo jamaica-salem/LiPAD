@@ -280,7 +280,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ArrowUp, UsersRound, SquarePen, Trash2 } from 'lucide-vue-next'
-import axios from 'axios'
+import api from '@/api/axios'
+import { useAuth } from "@/composables/useAuth"
 
 // Reactive state
 const users = ref([])
@@ -314,9 +315,15 @@ onMounted(async () => {
 // Function to fetch all users
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('http://localhost:8000/api/users/')
-    // Map response to desired frontend format
-    users.value = response.data
+    const response = await api.get('users/')
+    let data = response.data
+
+    // If paginated, get results
+    if (!Array.isArray(data) && Array.isArray(data.results)) {
+      data = data.results
+    }
+
+    users.value = data
       .sort((a, b) => a.id - b.id)
       .map(user => ({
         id: user.id,
@@ -347,7 +354,7 @@ const saveUser = async () => {
       date_of_birth: newUser.value.birthdate
     }
 
-    const response = await axios.post('http://localhost:8000/api/users/', payload)
+    const response = await api.post('users/', payload)
     const user = response.data
 
     // Add to local state
@@ -381,7 +388,7 @@ const deleteUser = async (userId) => {
   if (!confirm('Are you sure you want to delete this user?')) return // Safety confirmation
 
   try {
-    await axios.delete(`http://localhost:8000/api/users/${userId}/`)
+    await api.delete(`users/${userId}/`)
     // Remove from local users array
     users.value = users.value.filter(user => user.id !== userId)
   } catch (err) {
@@ -439,7 +446,7 @@ const updateUser = async () => {
     if (editUser.value.password?.trim()) payload.password = editUser.value.password
     if (editUser.value.birthdate) payload.date_of_birth = editUser.value.birthdate
 
-    const response = await axios.patch(`http://localhost:8000/api/users/${editUser.value.id}/`, payload)
+    const response = await api.patch(`users/${editUser.value.id}/`, payload)
     const updated = response.data
 
     // Update frontend list
@@ -468,6 +475,5 @@ const updateUser = async () => {
     }
   }
 }
-
 
 </script>

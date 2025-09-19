@@ -31,9 +31,7 @@ async function ensureCsrfCookie(retries = 2): Promise<boolean> {
   try {
     const res = await api.get("/csrf/");
     const token = res?.data?.csrfToken || null;
-    if (token) {
-      setFallbackCsrf(token);
-    }
+    if (token) setFallbackCsrf(token);
     return true;
   } catch (err) {
     if (retries > 0) {
@@ -52,7 +50,7 @@ export async function initAuth(): Promise<void> {
   try {
     await ensureCsrfCookie();
     const res = await api.get("/admin/session/");
-    
+
     if (res.data?.isAuthenticated) {
       state.admin = res.data.admin;
       state.isAuthenticated = true;
@@ -77,12 +75,9 @@ export async function initAuth(): Promise<void> {
  */
 export async function login(email: string, password: string) {
   try {
-    // Normalize email and validate input
     const normalizedEmail = email.trim().toLowerCase();
-    
-    if (!normalizedEmail || !password) {
+    if (!normalizedEmail || !password)
       return { success: false, message: "Email and password are required" };
-    }
 
     await ensureCsrfCookie();
 
@@ -95,14 +90,13 @@ export async function login(email: string, password: string) {
       state.admin = res.data.admin;
       state.isAuthenticated = true;
       state.sessionExpiry = res.data.sessionExpiry ? new Date(res.data.sessionExpiry) : null;
-      
       return { success: true };
     }
 
     return { success: false, message: "Invalid response from server" };
   } catch (err: any) {
     console.error("Login error:", err);
-    
+
     if (err?.response) {
       const detail = err.response.data?.detail;
       return {
@@ -124,7 +118,6 @@ export async function logout(): Promise<void> {
   } catch (err) {
     console.error("Logout request failed:", err);
   } finally {
-    // Always clear local state
     state.admin = null;
     state.isAuthenticated = false;
     state.sessionExpiry = null;
@@ -145,7 +138,6 @@ export function isSessionExpired(): boolean {
 export async function refreshSession(): Promise<boolean> {
   try {
     const res = await api.get("/admin/session/");
-    
     if (res.data?.isAuthenticated) {
       state.admin = res.data.admin;
       state.isAuthenticated = true;
@@ -164,6 +156,24 @@ export async function refreshSession(): Promise<boolean> {
 }
 
 /**
+ * Handle authentication errors in API requests
+ * This ensures that if the session expired or is invalid, it attempts refresh and logout properly
+ */
+export async function handleAuthError(err: unknown): Promise<void> {
+  console.warn("Handling auth error:", err);
+
+  // If session expired or unauthorized (401)
+  const status = (err as any)?.response?.status;
+  if (status === 401 || isSessionExpired()) {
+    const refreshed = await refreshSession();
+    if (!refreshed) {
+      await logout();
+      alert("Your session has expired. Please log in again.");
+    }
+  }
+}
+
+/**
  * Reactive auth state accessor
  */
 export function useAuth() {
@@ -171,5 +181,6 @@ export function useAuth() {
     ...state,
     isSessionExpired,
     refreshSession,
+    handleAuthError,
   };
 }

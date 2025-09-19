@@ -33,7 +33,7 @@ const router = createRouter({
   routes,
 });
 
-// 🔒 Global Navigation Guards
+// Global Navigation Guards
 router.beforeEach((to, from, next) => {
   const auth = useAuth();
 
