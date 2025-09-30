@@ -315,7 +315,7 @@ onMounted(async () => {
 // Function to fetch all users
 const fetchUsers = async () => {
   try {
-    const response = await api.get('users/')
+    const response = await api.get('/admin/users/')
     let data = response.data
 
     // If paginated, get results
@@ -354,7 +354,7 @@ const saveUser = async () => {
       date_of_birth: newUser.value.birthdate
     }
 
-    const response = await api.post('users/', payload)
+    const response = await api.post('/admin/users/', payload)
     const user = response.data
 
     // Add to local state
@@ -388,7 +388,7 @@ const deleteUser = async (userId) => {
   if (!confirm('Are you sure you want to delete this user?')) return // Safety confirmation
 
   try {
-    await api.delete(`users/${userId}/`)
+    await api.delete(`/admin/users/${userId}/`)
     // Remove from local users array
     users.value = users.value.filter(user => user.id !== userId)
   } catch (err) {
@@ -446,7 +446,7 @@ const updateUser = async () => {
     if (editUser.value.password?.trim()) payload.password = editUser.value.password
     if (editUser.value.birthdate) payload.date_of_birth = editUser.value.birthdate
 
-    const response = await api.patch(`users/${editUser.value.id}/`, payload)
+    const response = await api.patch(`/admin/users/${editUser.value.id}/`, payload)
     const updated = response.data
 
     // Update frontend list

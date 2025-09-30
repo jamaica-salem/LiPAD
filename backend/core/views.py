@@ -8,12 +8,13 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
-from rest_framework import viewsets, status, serializers
+from rest_framework import viewsets, status, serializers, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, action
 from rest_framework.parsers import MultiPartParser, FormParser
 from PIL import Image as PilImage
 from django.core.files.base import ContentFile
+from django.views.decorators.cache import never_cache
 
 from .models import Admin, User, Image
 from .serializers import AdminSerializer, UserSerializer, ImageSerializer
@@ -23,7 +24,37 @@ from core.ml.ocr.ocr_wrapper import load_ocr, run_ocr
 
 logger = logging.getLogger(__name__)
 
-class SecureViewSetMixin:
+# Custom Permission Classes
+class IsAdminAuthenticated(permissions.BasePermission):
+    """Ensure request has valid admin authentication"""
+    message = "Admin authentication required"
+    
+    def has_permission(self, request, view):
+        return getattr(request, 'is_admin_authenticated', False) and request.admin
+
+class IsUserAuthenticated(permissions.BasePermission):
+    """Ensure request has valid user authentication"""
+    message = "User authentication required"
+    
+    def has_permission(self, request, view):
+        return getattr(request, 'is_user_authenticated', False) and request.user_obj
+
+class IsAdminOrOwner(permissions.BasePermission):
+    """Admin can access all, users can only access their own data"""
+    message = "Access denied"
+    
+    def has_permission(self, request, view):
+        return (getattr(request, 'is_admin_authenticated', False) or 
+                getattr(request, 'is_user_authenticated', False))
+    
+    def has_object_permission(self, request, view, obj):
+        if getattr(request, 'is_admin_authenticated', False):
+            return True
+        if getattr(request, 'is_user_authenticated', False):
+            return obj.user == request.user_obj
+        return False
+
+class SecureViewMixin:
     """Mixin providing security utilities for ViewSets"""
     
     def check_admin_permission(self, request):
@@ -48,7 +79,7 @@ class SecureViewSetMixin:
             raise PermissionDenied("Authentication required")
 
 @method_decorator(csrf_protect, name='dispatch')
-class AdminViewSet(SecureViewSetMixin, viewsets.ModelViewSet):
+class AdminViewSet(SecureViewMixin, viewsets.ModelViewSet):
     """Admin management viewset - Admin only"""
     queryset = Admin.objects.filter(is_active=True).order_by('-created_at')
     serializer_class = AdminSerializer
@@ -88,124 +119,180 @@ class AdminViewSet(SecureViewSetMixin, viewsets.ModelViewSet):
         """Delete user - Admin only"""
         self.check_admin_permission(request)
         return super().destroy(request, *args, **kwargs)
-
+    
 @method_decorator(csrf_protect, name='dispatch')
-class ImageViewSet(SecureViewSetMixin, viewsets.ModelViewSet):
-    """Image management with strict role-based access control"""
-    serializer_class = ImageSerializer
-    parser_classes = [MultiPartParser, FormParser]
+class UserViewSet(SecureViewMixin, viewsets.ModelViewSet):
+    """User management viewset - Admin only for management, Users can view their own data"""
+    serializer_class = UserSerializer
     
     def get_queryset(self):
-        """Filter images based on user role"""
+        """Return users based on permissions"""
         if not hasattr(self.request, 'is_admin_authenticated'):
-            return Image.objects.none()
+            return User.objects.none()
         
-        current_user = self.get_current_user_for_filtering(self.request)
-        
-        if current_user is None:  # Admin
-            return Image.objects.all().order_by('-created_at')
-        else:  # Regular user
-            return Image.objects.filter(user=current_user).order_by('-created_at')
+        if self.request.is_admin_authenticated:
+            return User.objects.filter(is_active=True).order_by('-created_at')
+        elif self.request.is_user_authenticated:
+            # Users can only see their own data
+            return User.objects.filter(id=self.request.user_obj.id, is_active=True)
+        else:
+            return User.objects.none()
     
     def list(self, request, *args, **kwargs):
-        """List images based on permissions"""
+        """List users based on role"""
         self.check_user_permission(request)
         return super().list(request, *args, **kwargs)
     
     def retrieve(self, request, *args, **kwargs):
-        """Get specific image with ownership check"""
+        """Get specific user"""
         self.check_user_permission(request)
         
         instance = self.get_object()
         
-        # Ensure users can only access their own images
-        if request.is_user_authenticated and not instance.is_owned_by(request.user_obj):
-            raise PermissionDenied("Access denied to this image")
+        # Users can only access their own data
+        if request.is_user_authenticated and instance.id != request.user_obj.id:
+            raise PermissionDenied("Access denied")
         
         return super().retrieve(request, *args, **kwargs)
+
+# Separate Image ViewSets for different roles
+@method_decorator([csrf_protect, never_cache], name='dispatch')
+class AdminImageViewSet(SecureViewMixin, viewsets.ModelViewSet):
+    """Admin image management - Full access to all images"""
+    serializer_class = ImageSerializer
+    permission_classes = [IsAdminAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def get_queryset(self):
+        """Admin sees all images"""
+        return Image.objects.all().order_by('-created_at')
     
     def create(self, request, *args, **kwargs):
-        """Create new image upload - Users only (admins use different flow)"""
-        if request.is_admin_authenticated:
-            return Response(
-                {"detail": "Admins cannot upload images directly"}, 
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        if not request.is_user_authenticated:
-            raise PermissionDenied("User authentication required for uploads")
-        
-        try:
-            with transaction.atomic():
-                serializer = self.get_serializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
-                
-                # Automatically assign to current user
-                image = serializer.save(user=request.user_obj)
-                
-                logger.info(f"Image uploaded by user {request.user_obj.email}: {image.id}")
-                
-                response_serializer = self.get_serializer(image)
-                return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-        
-        except serializers.ValidationError as e:
-            logger.warning(f"Image upload validation error: {e}")
-            return Response({"errors": e.detail}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            logger.error(f"Image upload error: {str(e)}")
-            return Response(
-                {"detail": "Image upload failed"}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-    
-    def update(self, request, *args, **kwargs):
-        """Update image - Admin or owner only"""
-        self.check_user_permission(request)
-        
-        instance = self.get_object()
-        
-        # Check ownership for non-admin users
-        if request.is_user_authenticated and not instance.is_owned_by(request.user_obj):
-            raise PermissionDenied("Access denied to this image")
-        
-        return super().update(request, *args, **kwargs)
+        """Admins cannot upload directly - use processing endpoints"""
+        return Response(
+            {"detail": "Admins cannot upload images directly"}, 
+            status=status.HTTP_403_FORBIDDEN
+        )
     
     def destroy(self, request, *args, **kwargs):
-        """Delete image with file cleanup - Admin or owner only"""
-        self.check_user_permission(request)
-        
+        """Admin delete with file cleanup"""
         instance = self.get_object()
-        
-        # Check ownership for non-admin users
-        if request.is_user_authenticated and not instance.is_owned_by(request.user_obj):
-            raise PermissionDenied("Access denied to this image")
         
         try:
             with transaction.atomic():
-                # Safely delete associated files
+                # Clean up files
                 if instance.before_image and os.path.isfile(instance.before_image.path):
                     os.remove(instance.before_image.path)
                 if instance.after_image and os.path.isfile(instance.after_image.path):
                     os.remove(instance.after_image.path)
                 
                 user_email = instance.user.email if instance.user else "unknown"
-                logger.info(f"Image deleted: {instance.id} (owner: {user_email})")
+                logger.info(f"Image deleted by admin {request.admin.email}: {instance.id} (owner: {user_email})")
                 
                 instance.delete()
-                
-                return Response(
-                    {"detail": "Image deleted successfully"}, 
-                    status=status.HTTP_204_NO_CONTENT
-                )
+                return Response(status=status.HTTP_204_NO_CONTENT)
         
         except Exception as e:
-            logger.error(f"Image deletion error: {str(e)}")
+            logger.error(f"Admin image deletion error: {str(e)}")
             return Response(
                 {"detail": "Image deletion failed"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-
+@method_decorator([csrf_protect, never_cache], name='dispatch')
+class UserImageViewSet(SecureViewMixin, viewsets.ModelViewSet):
+    """User image management - Users can only access their own images"""
+    serializer_class = ImageSerializer
+    permission_classes = [IsUserAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def get_queryset(self):
+        """Users only see their own images"""
+        if not getattr(self.request, 'is_user_authenticated', False):
+            return Image.objects.none()
+        return Image.objects.filter(
+            user=self.request.user_obj
+        ).order_by('-created_at')
+    
+    def create(self, request, *args, **kwargs):
+        """User image upload"""
+        # Fix: Check authentication and get user properly
+        if not getattr(request, 'is_user_authenticated', False):
+            return Response(
+                {"detail": "Authentication required"}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Fix: Use request.user_obj directly
+        user = request.user_obj
+        if not user:
+            return Response(
+                {"detail": "User not found"}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        try:
+            with transaction.atomic():
+                serializer = self.get_serializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                
+                # Auto-assign to current user
+                image = serializer.save(user=user)
+                
+                logger.info(f"Image uploaded by user {user.email}: {image.id}")
+                
+                # Return full serialized data with URLs
+                response_serializer = self.get_serializer(
+                    image, 
+                    context={'request': request}
+                )
+                
+                return Response(
+                    response_serializer.data, 
+                    status=status.HTTP_201_CREATED
+                )
+        
+        except serializers.ValidationError as e:
+            logger.warning(f"User image upload validation error: {e.detail}")
+            return Response(
+                {"errors": e.detail}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"User image upload error: {str(e)}", exc_info=True)
+            return Response(
+                {"detail": f"Image upload failed: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def destroy(self, request, *args, **kwargs):
+        """User delete own image"""
+        instance = self.get_object()
+        
+        # Double-check ownership
+        if instance.user_id != request.user_obj.id:
+            raise PermissionDenied("Access denied")
+        
+        try:
+            with transaction.atomic():
+                # Clean up files
+                if instance.before_image and os.path.isfile(instance.before_image.path):
+                    os.remove(instance.before_image.path)
+                if instance.after_image and os.path.isfile(instance.after_image.path):
+                    os.remove(instance.after_image.path)
+                
+                logger.info(f"Image deleted by user {request.user_obj.email}: {instance.id}")
+                
+                instance.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        
+        except Exception as e:
+            logger.error(f"User image deletion error: {str(e)}")
+            return Response(
+                {"detail": "Image deletion failed"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
 # Initialize ML models once at startup
 try:
     load_cnn_model()
@@ -407,37 +494,3 @@ def process_gan_only(request):
         
         return super().destroy(request, *args, **kwargs)
 
-@method_decorator(csrf_protect, name='dispatch')
-class UserViewSet(SecureViewSetMixin, viewsets.ModelViewSet):
-    """User management viewset - Admin only for management, Users can view their own data"""
-    serializer_class = UserSerializer
-    
-    def get_queryset(self):
-        """Return users based on permissions"""
-        if not hasattr(self.request, 'is_admin_authenticated'):
-            return User.objects.none()
-        
-        if self.request.is_admin_authenticated:
-            return User.objects.filter(is_active=True).order_by('-created_at')
-        elif self.request.is_user_authenticated:
-            # Users can only see their own data
-            return User.objects.filter(id=self.request.user_obj.id, is_active=True)
-        else:
-            return User.objects.none()
-    
-    def list(self, request, *args, **kwargs):
-        """List users based on role"""
-        self.check_user_permission(request)
-        return super().list(request, *args, **kwargs)
-    
-    def retrieve(self, request, *args, **kwargs):
-        """Get specific user"""
-        self.check_user_permission(request)
-        
-        instance = self.get_object()
-        
-        # Users can only access their own data
-        if request.is_user_authenticated and instance.id != request.user_obj.id:
-            raise PermissionDenied("Access denied")
-        
-        return super().retrieve(request, *args, **kwargs)

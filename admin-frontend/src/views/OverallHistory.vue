@@ -283,7 +283,7 @@ const fetchAllHistoryForKPI = async () => {
     let results = []
     const MAX_PAGES = 500
     while (page <= MAX_PAGES) {
-      const { data } = await makeAuthenticatedRequest(() => api.get(`/images/?page=${page}`))
+      const { data } = await makeAuthenticatedRequest(() => api.get(`/admin/images/?page=${page}`))
       const mapped = (data.results || []).map(entry => ({
         id: entry.id,
         user: entry.user?.username || 'Unknown',
@@ -308,7 +308,7 @@ const fetchAllHistoryForKPI = async () => {
 const fetchHistory = async (page = 1) => {
   try {
     if (page < 1) page = 1
-    const { data } = await makeAuthenticatedRequest(() => api.get(`/images/?page=${page}`))
+    const { data } = await makeAuthenticatedRequest(() => api.get(`/admin/images/?page=${page}`))
     history.value = (data.results || []).map(entry => ({
       id: entry.id,
       user: entry.user ? `${entry.user.first_name} ${entry.user.last_name}` : '—',
@@ -445,7 +445,7 @@ const deleteImage = async (id) => {
   if (deletingIds.value.has(id)) return
   deletingIds.value.add(id)
   try {
-    await makeAuthenticatedRequest(() => api.delete(`/images/${id}/`))
+    await makeAuthenticatedRequest(() => api.delete(`/admin/images/${id}/`))
     history.value = history.value.filter(entry => entry.id !== id)
     allHistory.value = allHistory.value.filter(entry => entry.id !== id)
     totalCount.value--

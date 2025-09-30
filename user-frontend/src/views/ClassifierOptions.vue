@@ -63,10 +63,11 @@
 </template>
 
 <script setup lang="ts">
-import http from '@/services/http'
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { errorMessages } from 'vue/compiler-sfc'
+import api from '@/api/axios'
+import { makeAuthenticatedRequest } from '@/api/axios'
 
 
 const router = useRouter()
@@ -93,7 +94,7 @@ const proceedAuto = async (imageId: number | null) => {
   }
 
   try {
-    await http.post('/process/', { image_id: imageId })
+    await api.post('/process/', { image_id: imageId })
     await router.push({ name: 'LoadingPage', query: { imageId: String(imageId) } })
   } catch (err: any) {
     const msg = err?.response?.data?.errors ||

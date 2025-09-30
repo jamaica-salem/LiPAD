@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import AdminViewSet, UserViewSet, ImageViewSet, process_image, process_gan_only
+from .views import AdminViewSet, UserViewSet, AdminImageViewSet, UserImageViewSet, process_image, process_gan_only
 from .views_auth import (
     csrf_view,
     admin_login,
@@ -12,15 +12,25 @@ from .views_auth import (
     change_password,
 )
 
-# DRF Router for ViewSets
-router = DefaultRouter()
-router.register(r"admins", AdminViewSet, basename='admin')
-router.register(r"users", UserViewSet, basename='user') 
-router.register(r"images", ImageViewSet, basename='image')
+# Separate routers for different roles
+admin_router = DefaultRouter()
+admin_router.register(r"images", AdminImageViewSet, basename="admin-image")
+admin_router.register(r"users", UserViewSet, basename="admin-user")
+
+user_router = DefaultRouter()
+user_router.register(r"images", UserImageViewSet, basename="user-image")
+
+# Main admin management router
+main_router = DefaultRouter()
+main_router.register(r"admins", AdminViewSet, basename='admin')
 
 urlpatterns = [
-    # DRF ViewSet routes
-    path("", include(router.urls)),
+    # Main admin routes
+    path("", include(main_router.urls)),
+    
+    # Role-specific routes
+    path("admin/", include(admin_router.urls)),
+    path("user/", include(user_router.urls)),
     
     # CSRF token endpoint
     path("csrf/", csrf_view, name="csrf-token"),
@@ -38,7 +48,7 @@ urlpatterns = [
     # Shared endpoints
     path("change-password/", change_password, name="change-password"),
     
-    # Image processing endpoints
+    # Image processing endpoints (role-aware)
     path("process/", process_image, name="process-image"),
     path("process-gan/", process_gan_only, name="process-gan"),
 ]

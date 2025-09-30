@@ -1,62 +1,95 @@
 from rest_framework import serializers
 from .models import Admin, User, Image
 from django.core.files.images import get_image_dimensions
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from django.db import transaction
-from django.contrib.auth.hashers import check_password
-from .validators import validate_password_strength
+from django.utils.html import strip_tags
+from .validators import validate_password_strength, validate_image_content
 
 MAX_IMAGE_MB = 100
 
-def validate_image_file(image):
-    if image.size > MAX_IMAGE_MB * 1024 * 1024:
-        raise serializers.ValidationError(f"Image too large (max {MAX_IMAGE_MB} MB).")
-    try:
-        get_image_dimensions(image)
-    except Exception:
-        raise serializers.ValidationError("Invalid image file.")
-    return image
-
-class ImageSerializer(serializers.ModelSerializer):
+class SecureImageSerializer(serializers.ModelSerializer):
+    """Enhanced image serializer with security features"""
     user = serializers.SerializerMethodField(read_only=True)
     before_image_url = serializers.SerializerMethodField(read_only=True)
     after_image_url = serializers.SerializerMethodField(read_only=True)
-
+    file_size = serializers.SerializerMethodField(read_only=True)
+    
     class Meta:
         model = Image
-        fields = ['id','user','before_image','after_image','before_image_url','after_image_url','date_deblurred','plate_no','status','distortion_type','after_distortion_type', 'conf_score', 'created_at']
-        read_only_fields = ['id','created_at','before_image_url','after_image_url','user']
+        fields = [
+            'id', 'user', 'before_image', 'after_image', 
+            'before_image_url', 'after_image_url', 'file_size',
+            'date_deblurred', 'plate_no', 'status', 
+            'distortion_type', 'after_distortion_type', 
+            'conf_score', 'created_at'
+        ]
+        read_only_fields = [
+            'id', 'created_at', 'before_image_url', 
+            'after_image_url', 'user', 'file_size'
+        ]
 
     def get_user(self, obj):
+        """Safe user data exposure"""
         user = obj.user
         if user:
             return {
                 'id': user.id,
-                'email': getattr(user, 'email', None),
-                'first_name': getattr(user, 'first_name', ''),
-                'last_name': getattr(user, 'last_name', ''),
+                'email': user.email[:3] + "***" if user.email else None,  # Partially mask email
+                'first_name': strip_tags(user.first_name or ''),
+                'last_name': strip_tags(user.last_name or ''),
             }
-
+        return None
 
     def get_before_image_url(self, obj):
-        req = self.context.get('request')
-        return req.build_absolute_uri(obj.before_image.url) if obj.before_image and req else None
+        """Secure URL generation"""
+        request = self.context.get('request')
+        if obj.before_image and request:
+            return request.build_absolute_uri(obj.before_image.url)
+        return None
 
     def get_after_image_url(self, obj):
-        req = self.context.get('request')
-        return req.build_absolute_uri(obj.after_image.url) if obj.after_image and req else None
+        """Secure URL generation"""
+        request = self.context.get('request')
+        if obj.after_image and request:
+            return request.build_absolute_uri(obj.after_image.url)
+        return None
+    
+    def get_file_size(self, obj):
+        """Get file size in bytes"""
+        if obj.before_image:
+            try:
+                return obj.before_image.size
+            except:
+                return None
+        return None
 
     def validate_before_image(self, image):
-        return validate_image_file(image)
+        """Enhanced image validation"""
+        return validate_image_content(image)
+
+    def validate_plate_no(self, value):
+        """Sanitize plate number input"""
+        if value:
+            # Remove HTML tags and limit length
+            cleaned = strip_tags(str(value))[:50]
+            # Basic sanitization - only allow alphanumeric, spaces, hyphens
+            import re
+            cleaned = re.sub(r'[^A-Za-z0-9\s\-]', '', cleaned).strip()
+            return cleaned
+        return value
 
     def validate(self, data):
+        """Cross-field validation"""
         # Ensure before_image is present on create
         if self.instance is None and 'before_image' not in data:
-            raise serializers.ValidationError({'before_image': 'This field is required.'})
+            raise serializers.ValidationError({
+                'before_image': 'This field is required for new uploads.'
+            })
         return data
 
-# serializers.py (add import)
-from .validators import validate_password_strength
+# Use the secure serializer
+ImageSerializer = SecureImageSerializer
 
 # --- AdminSerializer ---
 class AdminSerializer(serializers.ModelSerializer):
