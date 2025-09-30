@@ -15,12 +15,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from PIL import Image as PilImage
 from django.core.files.base import ContentFile
 from django.views.decorators.cache import never_cache
-
 from .models import Admin, User, Image
 from .serializers import AdminSerializer, UserSerializer, ImageSerializer
 from core.ml.classifier.utils import load_cnn_model, predict_image
 from core.ml.gans.gan_selector import load_gans, run_gan
 from core.ml.ocr.ocr_wrapper import load_ocr, run_ocr
+from django.shortcuts import get_object_or_404
 
 logger = logging.getLogger(__name__)
 
@@ -406,91 +406,73 @@ def process_image(request):
 @api_view(["POST"])
 @csrf_protect 
 def process_gan_only(request):
-    """Process image with manual distortion type selection"""
-    # Check authentication
-    if not (request.is_admin_authenticated or request.is_user_authenticated):
-        return JsonResponse({"detail": "Authentication required"}, status=403)
-    
     image_id = request.data.get("image_id")
     distortion_key = request.data.get("distortion_type")
-    
     if not image_id or not distortion_key:
         return JsonResponse({"error": "image_id and distortion_type are required"}, status=400)
-    
-    try:
-        with transaction.atomic():
-            # Get image with permission check
-            try:
-                image_obj = Image.objects.get(pk=image_id)
-                
-                # Check ownership for non-admin users
-                if request.is_user_authenticated and not image_obj.is_owned_by(request.user_obj):
-                    return JsonResponse({"error": "Access denied"}, status=403)
-                    
-            except Image.DoesNotExist:
-                return JsonResponse({"error": "Image not found"}, status=404)
-            
-            # Process with manual distortion type (same logic as above but skip initial classification)
-            # [Rest of processing logic similar to process_image but using provided distortion_key]
-            
-            return JsonResponse({
-                "message": "Manual processing completed successfully"
-            })
-    
-    except Exception as e:
-        logger.error(f"Manual image processing error: {str(e)}")
-        return JsonResponse({"error": "Processing failed"}, status=500)
-    
-    def create(self, request, *args, **kwargs):
-        """Create new admin - Admin only"""
-        current_admin = self.check_admin_permission(request)
-        
-        try:
-            with transaction.atomic():
-                serializer = self.get_serializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
-                new_admin = serializer.save()
-                
-                logger.info(f"New admin created by {current_admin.email}: {new_admin.email}")
-                
-                # Remove password from response
-                response_data = AdminSerializer(new_admin).data
-                response_data.pop('password', None)
-                
-                return Response(response_data, status=status.HTTP_201_CREATED)
-        
-        except ValidationError as e:
-            logger.warning(f"Admin creation validation error: {e}")
-            return Response({"errors": e.message_dict}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            logger.error(f"Admin creation error: {str(e)}")
-            return Response({"detail": "Admin creation failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-    def update(self, request, *args, **kwargs):
-        """Update admin - Admin only"""
-        current_admin = self.check_admin_permission(request)
-        
-        # Prevent self-deactivation
-        instance = self.get_object()
-        if instance.id == current_admin.id and request.data.get('is_active') is False:
-            return Response(
-                {"detail": "Cannot deactivate your own account"}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        return super().update(request, *args, **kwargs)
-    
-    def destroy(self, request, *args, **kwargs):
-        """Delete admin - Admin only"""
-        current_admin = self.check_admin_permission(request)
-        instance = self.get_object()
-        
-        # Prevent self-deletion
-        if instance.id == current_admin.id:
-            return Response(
-                {"detail": "Cannot delete your own account"}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        return super().destroy(request, *args, **kwargs)
 
+    print('INNNNNN')
+    DISTORTION_MAP = {
+        "h_blur": "Horizontal Blur",
+        "v_blur": "Vertical Blur",
+        "low_qual": "Low Quality",
+        "low_light": "Low Light",
+        "normal": "Normal",   
+    }
+
+    # 1. Get the image from DB
+    image_obj = get_object_or_404(Image, pk=image_id)
+    image_path = image_obj.before_image.path
+
+    # 2. Run GAN directly (skip initial classification)
+    if distortion_key == "normal":
+        enhanced_img = PilImage.open(image_path).convert("RGB")
+    else:
+        enhanced_img = run_gan(image_path, distortion_key)
+
+    # 3. Classify on AFTER image
+    buffer = io.BytesIO()
+    enhanced_img.save(buffer, format="JPEG")
+    buffer.seek(0)
+    after_pred = predict_image(buffer)   # classify GAN output
+    after_class_name = after_pred["class_name"]
+
+    # Map for human-readable names
+    before_class_name = DISTORTION_MAP.get(distortion_key, distortion_key)
+    after_class_name = DISTORTION_MAP.get(after_class_name, after_class_name)
+
+    # 4. OCR on AFTER image
+    result = run_ocr(enhanced_img)
+    if result and result[0]:
+        text = result[0][0][1][0]
+        conf_score = f"{result[0][0][1][1] * 100:.2f}"
+    else:
+        text = ""
+        conf_score = "0"
+
+    # 5. Save AFTER image
+    buffer.seek(0)
+    image_obj.after_image.save(
+        f"enhanced_{image_obj.id}.jpg", 
+        ContentFile(buffer.getvalue()),
+        save=False
+    )
+
+    # 6. Save results to DB
+    image_obj.plate_no = text
+    image_obj.date_deblurred = timezone.now()
+    image_obj.distortion_type = before_class_name
+    image_obj.after_distortion_type = after_class_name
+    image_obj.conf_score = conf_score
+    image_obj.status = "Successful" if after_class_name == "Normal" and text != '' else "Failed"
+    image_obj.save()
+
+    print(f'OCR: {text}, Before distortion: {before_class_name}, After distortion: {after_class_name}, Status: {image_obj.status}')
+
+    return JsonResponse({
+        "before_distortion": before_class_name,
+        "after_distortion": after_class_name,
+        "ocr": text,
+        "conf_score": conf_score,
+        "status": image_obj.status
+    })
