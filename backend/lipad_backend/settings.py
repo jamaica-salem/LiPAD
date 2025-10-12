@@ -8,11 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 # SECURITY
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "red")
 if not SECRET_KEY:
     raise RuntimeError("DJANGO_SECRET_KEY must be set in environment")
 
-DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+DEBUG = os.getenv("DEBUG", "true").lower() == "true"
 
 # Allowed hosts should be a comma-separated env var, e.g. "example.com,api.example.com"
 ALLOWED_HOSTS = ['*'] if DEBUG else os.getenv("ALLOWED_HOSTS", "").split(",")
@@ -80,7 +80,7 @@ DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.mysql"),
         "NAME": os.getenv("MYSQL_DB", "dblipad"),
-        "USER": os.getenv("MYSQL_USER", ""),
+        "USER": os.getenv("MYSQL_USER", "root"),
         "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
         "HOST": os.getenv("MYSQL_HOST", "127.0.0.1"),
         "PORT": os.getenv("MYSQL_PORT", "3306"),
