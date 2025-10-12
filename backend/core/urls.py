@@ -1,6 +1,15 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import AdminViewSet, UserViewSet, AdminImageViewSet, UserImageViewSet, process_image, process_gan_only
+# 👇 1. Import the new view here
+from .views import (
+    AdminViewSet, 
+    UserViewSet, 
+    AdminImageViewSet, 
+    UserImageViewSet, 
+    process_image, 
+    process_gan_only, 
+    reprocess_image
+)
 from .views_auth import (
     csrf_view,
     admin_login,
@@ -51,4 +60,6 @@ urlpatterns = [
     # Image processing endpoints (role-aware)
     path("process/", process_image, name="process-image"),
     path("process-gan/", process_gan_only, name="process-gan"),
+    # 👇 2. Add the new URL path here
+    path("reprocess/", reprocess_image, name="reprocess-image"), 
 ]
