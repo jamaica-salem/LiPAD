@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.db import transaction
 from django.utils.html import strip_tags
 from .validators import validate_password_strength, validate_image_content
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 MAX_IMAGE_MB = 100
 
@@ -35,7 +36,7 @@ class SecureImageSerializer(serializers.ModelSerializer):
         if user:
             return {
                 'id': user.id,
-                'email': user.email[:3] + "***" if user.email else None,  # Partially mask email
+                'email': user.email[:3] + "***" if user.email else None,
                 'first_name': strip_tags(user.first_name or ''),
                 'last_name': strip_tags(user.last_name or ''),
             }
@@ -65,15 +66,21 @@ class SecureImageSerializer(serializers.ModelSerializer):
         return None
 
     def validate_before_image(self, image):
-        """Enhanced image validation"""
-        return validate_image_content(image)
+        """Enhanced image validation with plain text error messages"""
+        try:
+            return validate_image_content(image)
+        except DjangoValidationError as e:
+            # Extract the plain text message and raise as DRF ValidationError
+            # This prevents the JSON wrapper format
+            error_message = str(e.message) if hasattr(e, 'message') else str(e)
+            # Remove any list brackets if present
+            error_message = error_message.strip("[]'\"")
+            raise serializers.ValidationError(error_message)
 
     def validate_plate_no(self, value):
         """Sanitize plate number input"""
         if value:
-            # Remove HTML tags and limit length
             cleaned = strip_tags(str(value))[:50]
-            # Basic sanitization - only allow alphanumeric, spaces, hyphens
             import re
             cleaned = re.sub(r'[^A-Za-z0-9\s\-]', '', cleaned).strip()
             return cleaned
@@ -81,11 +88,10 @@ class SecureImageSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Cross-field validation"""
-        # Ensure before_image is present on create
         if self.instance is None and 'before_image' not in data:
-            raise serializers.ValidationError({
-                'before_image': 'This field is required for new uploads.'
-            })
+            raise serializers.ValidationError(
+                'Before image is required for new uploads.'
+            )
         return data
 
 # Use the secure serializer

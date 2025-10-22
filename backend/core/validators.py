@@ -17,10 +17,10 @@ def validate_image_content(image):
         raise ValidationError(f'Image size must be under {MAX_IMAGE_MB}MB')
     
     # Check file extension
-    allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp']
+    allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.JPG', '.JPEG', '.PNG', '.WEBP']
     file_ext = image.name.lower().split('.')[-1] if '.' in image.name else ''
     if f'.{file_ext}' not in allowed_extensions:
-        raise ValidationError('Only JPG, PNG, and WEBP images are allowed')
+        raise ValidationError('Only jpg, png, and webp images are allowed')
     
     try:
         # Try to open and verify it's a valid image using PIL
@@ -34,8 +34,8 @@ def validate_image_content(image):
         img = Image.open(image)
         
         # Check image format
-        if img.format not in ['JPEG', 'PNG', 'WEBP']:
-            raise ValidationError('Invalid image format. Only JPG, PNG, and WEBP are supported')
+        if img.format not in ['.jpg', '.jpeg', '.png', '.webp', '.JPG', '.JPEG', '.PNG', '.WEBP']:
+            raise ValidationError('Invalid image format. Only jpg, png, and webp are supported')
         
         # Optional: Check dimensions (prevent extremely large images)
         width, height = img.size

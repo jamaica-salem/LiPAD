@@ -71,7 +71,7 @@ const triggerFileInput = (): void => {
 }
 
 const isValidImage = (file: File): boolean => {
-  const validTypes = ['image/jpeg', 'image/png', 'image/webp']
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/JPG', 'image/PNG', 'image/WEBP', 'image/JPEG']
   const maxSizeMB = 5
   return validTypes.includes(file.type) && file.size <= maxSizeMB * 1024 * 1024
 }
