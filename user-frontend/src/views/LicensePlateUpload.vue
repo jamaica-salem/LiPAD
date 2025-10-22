@@ -70,12 +70,6 @@ const triggerFileInput = (): void => {
   fileInput.value?.click()
 }
 
-const isValidImage = (file: File): boolean => {
-  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/JPG', 'image/PNG', 'image/WEBP', 'image/JPEG']
-  const maxSizeMB = 5
-  return validTypes.includes(file.type) && file.size <= maxSizeMB * 1024 * 1024
-}
-
 const handleFileChange = (event: Event): void => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0] || null
@@ -102,24 +96,16 @@ const processFile = async (file: File | null): Promise<void> => {
     return
   }
   
-  if (!isValidImage(file)) {
-    errorMessage.value = 'Invalid file. Please upload a JPG, PNG, or WEBP under 5MB.'
-    selectedFile.value = null
-    return
-  }
-
   selectedFile.value = file
   isUploading.value = true
 
   try {
-    // Create FormData with correct field name
     const formData = new FormData()
     formData.append('before_image', file)
 
     console.log('Uploading to:', '/user/images/')
     console.log('File:', file.name, file.type, file.size)
 
-    // Make the request - api instance should handle auth headers
     const response = await api.post('/user/images/', formData, {
       headers: { 
         'Content-Type': 'multipart/form-data'
@@ -128,7 +114,6 @@ const processFile = async (file: File | null): Promise<void> => {
 
     console.log('Upload successful:', response.data)
 
-    // Navigate to next page with image ID
     if (response.data.id) {
       router.push({ 
         name: 'ClassifierOptions', 
@@ -141,22 +126,18 @@ const processFile = async (file: File | null): Promise<void> => {
   } catch (err: any) {
     console.error('Upload error:', err)
     
-    // Better error handling
     let msg = 'Upload failed.'
     
     if (err.response) {
-      // Server responded with error
       console.error('Response error:', err.response.status, err.response.data)
       
       if (err.response.data?.errors) {
-        // DRF validation errors
         msg = typeof err.response.data.errors === 'string' 
           ? err.response.data.errors
           : JSON.stringify(err.response.data.errors)
       } else if (err.response.data?.detail) {
         msg = err.response.data.detail
       } else if (err.response.data?.before_image) {
-        // Field-specific error
         msg = Array.isArray(err.response.data.before_image)
           ? err.response.data.before_image.join(', ')
           : err.response.data.before_image
@@ -164,10 +145,8 @@ const processFile = async (file: File | null): Promise<void> => {
         msg = `Server error: ${err.response.status}`
       }
     } else if (err.request) {
-      // Request made but no response
       msg = 'No response from server. Please check your connection.'
     } else {
-      // Other errors
       msg = err.message || 'Upload failed.'
     }
     
