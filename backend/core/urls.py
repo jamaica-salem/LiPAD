@@ -1,26 +1,54 @@
-from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-from .views import AdminViewSet, UserViewSet, ImageViewSet, UserLoginView
-from .views_auth import csrf_view, login_view, logout_view, session_user_view
-from .views_user_auth import csrf_view_user, login_user_view, logout_user_view, session_user_view_user
-from . import views
+from rest_framework.routers import DefaultRouter
+from .views import AdminViewSet, UserViewSet, AdminImageViewSet, UserImageViewSet, process_image, process_gan_only
+from .views_auth import (
+    csrf_view,
+    admin_login,
+    admin_logout,
+    admin_session_info,
+    user_login,
+    user_logout,
+    user_session_info,
+    change_password,
+)
 
-router = DefaultRouter()
-router.register(r'admins', AdminViewSet)
-router.register(r'users', UserViewSet)
-router.register(r'images', ImageViewSet)
+# Separate routers for different roles
+admin_router = DefaultRouter()
+admin_router.register(r"images", AdminImageViewSet, basename="admin-image")
+admin_router.register(r"users", UserViewSet, basename="admin-user")
+
+user_router = DefaultRouter()
+user_router.register(r"images", UserImageViewSet, basename="user-image")
+
+# Main admin management router
+main_router = DefaultRouter()
+main_router.register(r"admins", AdminViewSet, basename='admin')
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path("lipad/login/", UserLoginView.as_view(), name='user-login'),
-    path("csrf/", csrf_view, name="csrf"),
-    path("login/", login_view, name="login"),
-    path("logout/", logout_view, name="logout"),
-    path("user/", session_user_view, name="session-user"),
-    path("user/csrf/", csrf_view_user, name="user-csrf"),
-    path("user/login/", login_user_view, name="user-login"),
-    path("user/logout/", logout_user_view, name="user-logout"),
-    path("user/session/", session_user_view_user, name="use r-session"),
-    path("process/", views.process_image, name="process_image"),
-    path("process-gan/", views.process_gan_only, name="process_gan_only")
+    # Main admin routes
+    path("", include(main_router.urls)),
+    
+    # Role-specific routes
+    path("admin/", include(admin_router.urls)),
+    path("user/", include(user_router.urls)),
+    
+    # CSRF token endpoint
+    path("csrf/", csrf_view, name="csrf-token"),
+    
+    # Admin authentication endpoints
+    path("admin/login/", admin_login, name="admin-login"),
+    path("admin/logout/", admin_logout, name="admin-logout"),
+    path("admin/session/", admin_session_info, name="admin-session"),
+    
+    # User authentication endpoints  
+    path("user/login/", user_login, name="user-login"),
+    path("user/logout/", user_logout, name="user-logout"),
+    path("user/session/", user_session_info, name="user-session"),
+    
+    # Shared endpoints
+    path("change-password/", change_password, name="change-password"),
+    
+    # Image processing endpoints (role-aware)
+    path("process/", process_image, name="process-image"),
+    path("process-gan/", process_gan_only, name="process-gan"),
 ]

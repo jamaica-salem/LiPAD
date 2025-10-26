@@ -19,7 +19,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ScanLine as ScanLineIcon } from 'lucide-vue-next'
-import http from '@/services/http'
+import api from '@/api/axios'
 
 const route = useRoute()
 const router = useRouter()
@@ -56,7 +56,7 @@ onMounted(() => {
 const startPolling = () => {
   pollerId = setInterval(async () => {
     try {
-      const { data } = await http.get(`/images/${imageId}/`)
+      const { data } = await api.get(`/user/images/${imageId}/`)
       if (data.after_image) {
         clearInterval(pollerId)
         clearInterval(intervalId)

@@ -55,11 +55,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { Upload } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import http from '@/services/http'
-import { ensureCsrfCookie } from '@/services/csrf'
+import api from '@/api/axios'
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const selectedFile = ref<File | null>(null)
@@ -67,47 +66,42 @@ const errorMessage = ref<string>('')
 const isUploading = ref<boolean>(false)
 const router = useRouter()
 
-// Ensure Django sets the csrftoken cookie before first POST
-onMounted(() => {
-  ensureCsrfCookie()
-})
-
-// Trigger file picker
 const triggerFileInput = (): void => {
   fileInput.value?.click()
 }
 
-// Strict validation against allowed types + size
 const isValidImage = (file: File): boolean => {
   const validTypes = ['image/jpeg', 'image/png', 'image/webp']
   const maxSizeMB = 5
   return validTypes.includes(file.type) && file.size <= maxSizeMB * 1024 * 1024
 }
 
-// Handle file selection
 const handleFileChange = (event: Event): void => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0] || null
   processFile(file)
 }
 
-// Drag/drop helpers
 const handleDragOver = (event: DragEvent): void => {
+  event.preventDefault()
   event.dataTransfer!.dropEffect = 'copy'
 }
+
 const handleDrop = (event: DragEvent): void => {
+  event.preventDefault()
   const file = event.dataTransfer?.files?.[0] || null
   processFile(file)
 }
 
-// Validate + upload to Django
 const processFile = async (file: File | null): Promise<void> => {
   errorMessage.value = ''
+  
   if (!file) {
     errorMessage.value = 'No file was selected.'
     selectedFile.value = null
     return
   }
+  
   if (!isValidImage(file)) {
     errorMessage.value = 'Invalid file. Please upload a JPG, PNG, or WEBP under 5MB.'
     selectedFile.value = null
@@ -118,32 +112,75 @@ const processFile = async (file: File | null): Promise<void> => {
   isUploading.value = true
 
   try {
-    // IMPORTANT: the field name must be "before_image" to match the DRF serializer
+    // Create FormData with correct field name
     const formData = new FormData()
     formData.append('before_image', file)
 
-    // POST to /api/images/ 
-    const { data } = await http.post('/images/', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    console.log('Uploading to:', '/user/images/')
+    console.log('File:', file.name, file.type, file.size)
+
+    // Make the request - api instance should handle auth headers
+    const response = await api.post('/user/images/', formData, {
+      headers: { 
+        'Content-Type': 'multipart/form-data'
+      },
     })
 
-    // data.id is the new Image row; pass to next page
-    router.push({ name: 'ClassifierOptions', query: { imageId: String(data.id) } })
+    console.log('Upload successful:', response.data)
+
+    // Navigate to next page with image ID
+    if (response.data.id) {
+      router.push({ 
+        name: 'ClassifierOptions', 
+        query: { imageId: String(response.data.id) } 
+      })
+    } else {
+      throw new Error('No image ID returned from server')
+    }
+
   } catch (err: any) {
-    // Avoid leaking backend internals; show safe message
-    const msg =
-      err?.response?.data?.errors ||
-      err?.response?.data?.detail ||
-      err?.message ||
-      'Upload failed.'
-    errorMessage.value = Array.isArray(msg) ? msg.join(', ') : String(msg)
+    console.error('Upload error:', err)
+    
+    // Better error handling
+    let msg = 'Upload failed.'
+    
+    if (err.response) {
+      // Server responded with error
+      console.error('Response error:', err.response.status, err.response.data)
+      
+      if (err.response.data?.errors) {
+        // DRF validation errors
+        msg = typeof err.response.data.errors === 'string' 
+          ? err.response.data.errors
+          : JSON.stringify(err.response.data.errors)
+      } else if (err.response.data?.detail) {
+        msg = err.response.data.detail
+      } else if (err.response.data?.before_image) {
+        // Field-specific error
+        msg = Array.isArray(err.response.data.before_image)
+          ? err.response.data.before_image.join(', ')
+          : err.response.data.before_image
+      } else {
+        msg = `Server error: ${err.response.status}`
+      }
+    } else if (err.request) {
+      // Request made but no response
+      msg = 'No response from server. Please check your connection.'
+    } else {
+      // Other errors
+      msg = err.message || 'Upload failed.'
+    }
+    
+    errorMessage.value = msg
+    
   } finally {
     isUploading.value = false
-    if (fileInput.value) fileInput.value.value = ''
+    if (fileInput.value) {
+      fileInput.value.value = ''
+    }
   }
 }
 </script>
-
 
 <style scoped>
 .dropzone-hover {

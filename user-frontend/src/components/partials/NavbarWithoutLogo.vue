@@ -27,7 +27,7 @@ import { useRouter } from 'vue-router'
 import { logout as logoutSession, useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
-const state = useAuth()  // reactive auth state
+const state = useAuth()
 const user = computed(() => state.user)
 
 const showProfileMenu = ref(false)
@@ -50,16 +50,24 @@ const goTo = (path: string) => {
 }
 
 const handleLogout = async () => {
+  if (!state.isAuthenticated) return
+  showProfileMenu.value = false
+
   try {
-    await logoutSession()
-    router.push('/lipad/login')
+    await logoutSession()          // centralized logout
+    localStorage.clear()           // clear frontend storage
+    sessionStorage.clear()
+    state.user = null              // reactive state reset
+    state.isAuthenticated = false
+    state.sessionExpiry = null
+    router.push('/lipad/login')    // redirect to login
   } catch (err) {
     console.error('Logout failed:', err)
-  } finally {
-    showProfileMenu.value = false
+    router.push('/lipad/login')
   }
 }
 
+// Close profile menu when clicking outside
 const handleClickOutside = (e: MouseEvent) => {
   if (profileRef.value && !profileRef.value.contains(e.target as Node)) {
     showProfileMenu.value = false

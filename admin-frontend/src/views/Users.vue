@@ -282,9 +282,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { ArrowUp, ArrowDown, UsersRound, SquarePen, Trash2 } from 'lucide-vue-next'
-import axios from 'axios'
-import http from '@/utils/http'
+import { ArrowUp, UsersRound, SquarePen, Trash2 } from 'lucide-vue-next'
+import api from '@/api/axios'
+import { useAuth } from "@/composables/useAuth"
 
 // Reactive state
 const users = ref([])
@@ -354,9 +354,15 @@ const isGrowthPositive = computed(() => userGrowth.value >= 0)
 // Function to fetch all users
 const fetchUsers = async () => {
   try {
-    const response = await http.get('/users/')
-    // Map response to desired frontend format
-    users.value = response.data
+    const response = await api.get('/admin/users/')
+    let data = response.data
+
+    // If paginated, get results
+    if (!Array.isArray(data) && Array.isArray(data.results)) {
+      data = data.results
+    }
+
+    users.value = data
       .sort((a, b) => a.id - b.id)
       .map(user => ({
         id: user.id,
@@ -388,7 +394,7 @@ const saveUser = async () => {
       date_of_birth: newUser.value.birthdate
     }
 
-    const response = await axios.post('http://localhost:8000/api/users/', payload)
+    const response = await api.post('/admin/users/', payload)
     const user = response.data
 
     // Add to local state
@@ -422,7 +428,7 @@ const deleteUser = async (userId) => {
   if (!confirm('Are you sure you want to delete this user?')) return // Safety confirmation
 
   try {
-    await axios.delete(`http://localhost:8000/api/users/${userId}/`)
+    await api.delete(`/admin/users/${userId}/`)
     // Remove from local users array
     users.value = users.value.filter(user => user.id !== userId)
   } catch (err) {
@@ -480,7 +486,7 @@ const updateUser = async () => {
     if (editUser.value.password?.trim()) payload.password = editUser.value.password
     if (editUser.value.birthdate) payload.date_of_birth = editUser.value.birthdate
 
-    const response = await axios.patch(`http://localhost:8000/api/users/${editUser.value.id}/`, payload)
+    const response = await api.patch(`/admin/users/${editUser.value.id}/`, payload)
     const updated = response.data
 
     // Update frontend list
@@ -509,6 +515,5 @@ const updateUser = async () => {
     }
   }
 }
-
 
 </script>

@@ -154,7 +154,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import http from '@/services/http'
+import api from '@/api/axios'
+import { makeAuthenticatedRequest } from '@/api/axios'
 import { MoveHorizontal } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -182,7 +183,7 @@ onMounted(async () => {
   try {
     startTime = performance.now()
 
-    const { data } = await http.get(`/images/${imageId}/`)
+    const { data } = await api.get(`/user/images/${imageId}/`)
 
     inputImage.value = data.before_image
     outputImage.value = data.after_image

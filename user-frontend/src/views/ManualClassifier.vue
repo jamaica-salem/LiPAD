@@ -66,7 +66,7 @@ import horizontalBlur from '@/assets/horizontal-blur.jpg'
 import verticalBlur from '@/assets/vertical-blur.jpg'
 
 import { useRoute, useRouter } from 'vue-router'
-import http from '@/services/http'
+import api from '@/api/axios'
 
 const route = useRoute()
 const router = useRouter()
@@ -74,7 +74,7 @@ const imageId = route.query.imageId
 
 const submitDistortion = async (distortionType) => {
   try {
-    const { data } = await http.post('/process-gan/', {
+    const { data } = await api.post('/process-gan/', {
       image_id: imageId,
       distortion_type: distortionType,
     })

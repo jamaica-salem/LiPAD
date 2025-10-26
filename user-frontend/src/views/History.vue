@@ -238,7 +238,8 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { ArrowUp, ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
-import http from '@/services/http' // axios instance (assumed preconfigured)
+import api from '@/api/axios'
+import { makeAuthenticatedRequest } from '@/api/axios'
 import { useRouter } from 'vue-router'
 import Toast from '@/components/Toast.vue'
 
@@ -285,7 +286,7 @@ const fetchAllHistoryForKPI = async () => {
     // Limit safety: don't fetch more than 500 pages to avoid infinite loops in bad APIs
     const MAX_PAGES = 500
     while (page <= MAX_PAGES) {
-      const { data } = await http.get(`/images/?page=${page}`)
+      const { data } = await api.get(`/user/images/?page=${page}`)
       const mapped = (data.results || []).map(entry => ({
         id: entry.id,
         image: entry.after_image_url || entry.before_image_url,
@@ -318,7 +319,7 @@ const deletingIds = ref(new Set()) // track ongoing deletions to prevent double-
 const fetchHistory = async (page = 1) => {
   try {
     if (page < 1) page = 1
-    const { data } = await http.get(`/images/?page=${page}`)
+    const { data } = await api.get(`/user/images/?page=${page}`)
     history.value = (data.results || []).map(entry => ({
       id: entry.id,
       image: entry.after_image_url || entry.before_image_url,
@@ -511,7 +512,7 @@ const deleteImage = async (id) => {
   deletingIds.value.add(id)
 
   try {
-    await http.delete(`/images/${id}/`)
+    await api.delete(`/user/images/${id}/`)
 
     // locally update the UI to reflect deletion immediately (optimistic)
     history.value = history.value.filter(entry => entry.id !== id)

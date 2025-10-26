@@ -87,25 +87,17 @@ const loading = ref(false)
 
 const handleLogin = async () => {
   errorMessage.value = ''
-  if (!email.value.trim() && !password.value) {
-    errorMessage.value = 'Email and password are required.'
-    return
-  }
-  if (!email.value.trim()) {
-    errorMessage.value = 'Email is required.'
-    return
-  }
-  if (!password.value) {
-    errorMessage.value = 'Password is required.'
-    return
-  }
+
+  if (!email.value.trim()) { errorMessage.value = 'Email is required.'; return; }
+  if (!password.value) { errorMessage.value = 'Password is required.'; return; }
 
   loading.value = true
   try {
     const res = await login(email.value.trim(), password.value)
     if (res.success) {
-      // Session-based login successful. Redirect to upload page.
-      router.push({ name: 'LicensePlateUpload' })
+      // success -> redirect
+      await router.push({ name: 'LicensePlateUpload' })
+      return
     } else {
       errorMessage.value = res.message || 'Login failed. Please try again.'
     }
@@ -115,8 +107,5 @@ const handleLogin = async () => {
   } finally {
     loading.value = false
   }
-
-  router.replace({ name: 'LicensePlateUpload' });
-  
 }
 </script>
