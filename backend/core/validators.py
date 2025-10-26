@@ -1,5 +1,3 @@
-# core/validators.py
-
 from django.core.exceptions import ValidationError
 from PIL import Image
 import io
@@ -15,13 +13,13 @@ def validate_image_content(image):
     max_size = MAX_IMAGE_MB * 1024 * 1024
     if image.size > max_size:
         raise ValidationError(f'Image size must be under {MAX_IMAGE_MB}MB')
-    
+
     # Check file extension
     allowed_extensions = ['.jpg', '.jpeg', '.png', '.webp']
     file_ext = image.name.lower().split('.')[-1] if '.' in image.name else ''
     if f'.{file_ext}' not in allowed_extensions:
-        raise ValidationError('Only JPG, PNG, and WEBP images are allowed')
-    
+        raise ValidationError('Only jpg, png, and webp images are allowed')
+
     try:
         # Try to open and verify it's a valid image using PIL
         img = Image.open(image)
@@ -29,28 +27,27 @@ def validate_image_content(image):
         
         # Reset file pointer after verify
         image.seek(0)
-        
+
         # Re-open to check format (verify() closes the file)
         img = Image.open(image)
-        
+
         # Check image format
-        if img.format not in ['JPEG', 'PNG', 'WEBP']:
-            raise ValidationError('Invalid image format. Only JPG, PNG, and WEBP are supported')
-        
-        # Optional: Check dimensions (prevent extremely large images)
+        if img.format.upper() not in ['JPEG', 'PNG', 'WEBP']:
+            raise ValidationError('Invalid image format. Only jpg, png, and webp are supported')
+
+        # Optional: Check dimensions
         width, height = img.size
-        max_dimension = 10000  # 10k pixels max per side
+        max_dimension = 10000
         if width > max_dimension or height > max_dimension:
             raise ValidationError(f'Image dimensions too large. Max {max_dimension}x{max_dimension} pixels')
-        
-        # Reset file pointer for Django to read
+
         image.seek(0)
-        
+
     except Exception as e:
         if isinstance(e, ValidationError):
             raise
         raise ValidationError(f'Invalid or corrupted image file: {str(e)}')
-    
+
     return image
 
 

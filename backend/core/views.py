@@ -292,7 +292,7 @@ class UserImageViewSet(SecureViewMixin, viewsets.ModelViewSet):
                 {"detail": "Image deletion failed"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        
+            
 # Initialize ML models once at startup
 try:
     load_cnn_model()
@@ -386,7 +386,7 @@ def process_image(request):
             image_obj.distortion_type = before_display
             image_obj.after_distortion_type = after_display
             image_obj.conf_score = confidence
-            image_obj.status = "Successful" if after_display == "Normal" and plate_text else "Failed"
+            image_obj.status = "Successful" if after_display == "Normal" and plate_text and len(plate_text) >= 6 and float(confidence) >= 85 else "Failed"
             image_obj.save()
             
             logger.info(f"Image processed successfully: {image_obj.id} by user {request.user_obj.email if request.is_user_authenticated else request.admin.email}")
@@ -402,6 +402,65 @@ def process_image(request):
     except Exception as e:
         logger.error(f"Image processing error: {str(e)}")
         return JsonResponse({"error": "Processing failed"}, status=500)
+
+@api_view(["POST"])
+@csrf_protect
+def reprocess_image(request):
+    """
+    Creates a new image record for reprocessing. It uses the 'after_image' 
+    of an existing record as the 'before_image' for the new one.
+    """
+    # 1. Check for authenticated user
+    if not (request.is_admin_authenticated or request.is_user_authenticated):
+        return JsonResponse({"detail": "Authentication required"}, status=403)
+    
+    original_image_id = request.data.get("image_id")
+    if not original_image_id:
+        return JsonResponse({"error": "image_id is required"}, status=400)
+
+    try:
+        with transaction.atomic():
+            # 2. Get the original image, ensuring it exists
+            original_image = get_object_or_404(Image, pk=original_image_id)
+            
+            user = request.user_obj if request.is_user_authenticated else request.admin
+            
+            # 3. Check ownership for security
+            if request.is_user_authenticated and not original_image.is_owned_by(user):
+                return JsonResponse({"error": "Access denied"}, status=403)
+
+            # 4. Verify there is a result image to reprocess
+            if not original_image.after_image or not hasattr(original_image.after_image, 'path'):
+                return JsonResponse({"error": "No processed image available to deblur again."}, status=400)
+            
+            # 5. Create a new Image instance for the reprocessing task
+            new_image = Image(user=original_image.user, status='Processing')
+            
+            # 6. Read the file content from the original 'after_image'
+            original_after_image_file = original_image.after_image
+            original_after_image_file.open(mode='rb')
+            file_content = original_after_image_file.read()
+            original_after_image_file.close()
+
+            new_before_image_name = f"reprocessed_{os.path.basename(original_after_image_file.name)}"
+            
+            # 7. Save this content to the 'before_image' of the new record
+            new_image.before_image.save(
+                new_before_image_name,
+                ContentFile(file_content),
+                save=True  # This saves the new_image instance to the DB
+            )
+
+            logger.info(f"Image {original_image_id} queued for reprocessing by {user.email}. New image ID: {new_image.id}")
+
+            # 8. Return the ID of the newly created image record
+            return JsonResponse({"new_image_id": new_image.id}, status=201)
+
+    except Image.DoesNotExist:
+        return JsonResponse({"error": "Original image not found"}, status=404)
+    except Exception as e:
+        logger.error(f"Reprocessing setup error for image {original_image_id}: {str(e)}")
+        return JsonResponse({"error": "Failed to set up reprocessing."}, status=500)
 
 @api_view(["POST"])
 @csrf_protect 
@@ -464,7 +523,7 @@ def process_gan_only(request):
     image_obj.distortion_type = before_class_name
     image_obj.after_distortion_type = after_class_name
     image_obj.conf_score = conf_score
-    image_obj.status = "Successful" if after_class_name == "Normal" and text != '' else "Failed"
+    image_obj.status = "Successful" if after_class_name == "Normal" and text != '' and len(text) >= 6 and float(conf_score) >= 85 else "Failed"
     image_obj.save()
 
     print(f'OCR: {text}, Before distortion: {before_class_name}, After distortion: {after_class_name}, Status: {image_obj.status}')

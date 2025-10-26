@@ -1,17 +1,14 @@
 <template>
   <div class="flex gap-4 bg-orange-50 p-4 h-full">
-    <!-- Left: Image Slider (75%) -->
     <div
       class="w-3/4 bg-white rounded-xl shadow-md p-3 flex flex-col justify-center items-center relative overflow-hidden"
     >
       <h2 class="text-xl font-bold text-[#265d9c] mb-3">Before & After</h2>
 
-      <!-- Image Comparison Slider -->
       <div
         ref="sliderContainer"
         class="relative w-full max-w-2xl aspect-[4/2] overflow-hidden rounded-lg border border-gray-300"
       >
-        <!-- Output Image -->
         <img
           :src="outputImage"
           alt="Output Image"
@@ -19,7 +16,6 @@
           draggable="false"
         />
 
-        <!-- Input Image -->
         <img
           :src="inputImage"
           alt="Input Image"
@@ -30,7 +26,6 @@
           draggable="false"
         />
 
-        <!-- Slider Handle -->
         <div
           class="absolute top-0 bottom-0 z-10 flex items-center justify-center w-5 h-full -ml-2.5 cursor-col-resize"
           :style="{ left: sliderPosition + '%' }"
@@ -47,22 +42,28 @@
       <p class="text-xs text-gray-500 mt-4">Drag the slider to compare input and output.</p>
       <div class="flex flex-col mt-4">
         <button
+          v-if="status === 'FAILED'"
+          class="bg-[#265d9c] hover:bg-[#1d4b81] text-white text-sm font-semibold py-1.5 px-3 rounded-lg mb-2 transition cursor-pointer disabled:opacity-60"
+          @click="deblurAgain"
+          :disabled="isDeblurringAgain"
+        >
+          {{ isDeblurringAgain ? 'Processing...' : 'Deblur Again' }}
+        </button>
+        
+        <button
           class="bg-white hover:bg-[#f4f4f4] border border-[#265d9c] text-[#265d9c] text-sm font-semibold py-1 px-3 rounded-lg mb-2 transition cursor-pointer mt-2 h-8"
           @click="deblurAnotherImage"
         >
           Deblur Another Image
         </button>
-
       </div>
       
     </div>
 
-    <!-- Right: Image Details (25%) -->
     <div
       class="w-1/4 bg-white rounded-xl shadow-md p-4 text-xs text-[#0e2247] flex flex-col"
     >
       <div class="flex-1">
-        <!-- Results -->
         <div class="mb-4">
           <h3 class="text-lg font-bold text-[#265d9c] mb-1">Results</h3>
           <p>
@@ -86,7 +87,6 @@
           </p>
         </div>
 
-        <!-- Input Image Info -->
         <div class="mb-4">
           <h3 class="text-lg font-bold text-[#265d9c] mb-1">Input Image</h3>
           <p>
@@ -94,7 +94,6 @@
           </p>
         </div>
 
-        <!-- Output Image Info -->
         <div>
           <h3 class="text-lg font-bold text-[#265d9c] mb-1">Output Image</h3>
           <p>
@@ -104,7 +103,6 @@
         </div>
       </div>
 
-      <!-- Buttons Grouped Together -->
       <div class="flex flex-col mt-4">
         <button
           class="bg-[#265d9c] text-white text-sm font-semibold py-1.5 px-3  rounded-lg mb-2 hover:bg-[#1d3e73] transition cursor-pointer"
@@ -122,25 +120,21 @@
       </div>
     </div>
 
-    <!-- Full-Screen Modal for Output Image -->
     <div
       v-if="showFullScreen"
       class="fixed inset-0 z-50 flex justify-center items-center p-3.5 bg-black/20"
     >
-      <!-- Card Container -->
       <div
         class="relative bg-white rounded-3xl shadow-2xl max-w-6xl w-[60%] max-h-[100vh] flex flex-col items-center p-4"
       >
-        <!-- Close Button -->
         <button
           @click="showFullScreen = false"
           class="absolute top-3 right-3 text-white cursor-pointer bg-red-600 hover:bg-red-800 rounded-2xl w-8 h-8 flex items-center justify-center shadow-sm transition"
           aria-label="Close"
         >
-          ✕
+          &#x2715;
         </button>
 
-        <!-- Enlarged Output Image -->
         <img
           :src="outputImage"
           alt="Full Output"
@@ -155,13 +149,12 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api/axios'
-import { makeAuthenticatedRequest } from '@/api/axios'
 import { MoveHorizontal } from 'lucide-vue-next'
 
 const route = useRoute()
-const router = useRouter() 
+const router = useRouter()
 
-// Mocked Data
+// Component State
 const inputImage = ref('')
 const outputImage = ref('')
 const status = ref('PENDING')
@@ -170,19 +163,19 @@ const confidenceLevel = ref(null)
 const inputDistortion = ref('')
 const outputDistortion = ref('')
 const plateNumber = ref('')
+const showFullScreen = ref(false)
+const isDeblurringAgain = ref(false) // State for the new button
 
 // Slider logic
+const sliderContainer = ref(null)
 const sliderPosition = ref(50)
-let startTime
-let isDragging = false
+const isDragging = ref(false)
 
 onMounted(async () => {
   const imageId = route.query.imageId || localStorage.getItem('lastImageId')
   if (!imageId) return
 
   try {
-    startTime = performance.now()
-
     const { data } = await api.get(`/user/images/${imageId}/`)
 
     inputImage.value = data.before_image
@@ -210,21 +203,20 @@ onMounted(async () => {
   }
 })
 
-const showFullScreen = ref(false)
-
-// Slider logic
+// Slider logic methods
 const startDragging = () => {
+  isDragging.value = true
   window.addEventListener('mousemove', dragSlider)
   window.addEventListener('mouseup', stopDragging)
 }
 const stopDragging = () => {
+  isDragging.value = false
   window.removeEventListener('mousemove', dragSlider)
   window.removeEventListener('mouseup', stopDragging)
 }
 const dragSlider = (e) => {
-  const container = document.querySelector('.aspect-\\[4\\/2\\]')
-  if (!container) return
-  const rect = container.getBoundingClientRect()
+  if (!isDragging.value || !sliderContainer.value) return
+  const rect = sliderContainer.value.getBoundingClientRect()
   const offsetX = e.clientX - rect.left
   sliderPosition.value = Math.max(0, Math.min(100, (offsetX / rect.width) * 100))
 }
@@ -234,11 +226,9 @@ const downloadResult = async () => {
   if (!outputImage.value) return
 
   try {
-    // Fetch the image as a blob
     const response = await fetch(outputImage.value, {
       method: 'GET',
       headers: {
-        // Include auth token if your API is protected
         'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}`
       }
     })
@@ -246,15 +236,12 @@ const downloadResult = async () => {
     if (!response.ok) throw new Error('Failed to download image')
 
     const blob = await response.blob()
-
-    // Create a temporary link element
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = 'deblurred_result.jpg' // File name for the download
+    link.download = 'deblurred_result.jpg'
     document.body.appendChild(link)
     link.click()
 
-    // Clean up
     URL.revokeObjectURL(link.href)
     link.remove()
   } catch (err) {
@@ -263,30 +250,51 @@ const downloadResult = async () => {
   }
 }
 
-
 // Deblur another image
 const deblurAnotherImage = () => {
-  try {
-    // Clear last image data from localStorage
-    localStorage.removeItem('lastImageId')
-
-    // Clear reactive refs
-    inputImage.value = ''
-    outputImage.value = ''
-    inputDistortion.value = ''
-    outputDistortion.value = ''
-    plateNumber.value = ''
-    status.value = 'PENDING'
-    confidenceLevel.value = null
-    timeElapsed.value = ''
-
-    // Navigate back to the upload page
-    router.push({ name: 'LicensePlateUpload' }) // ← use router, not route
-  } catch (err) {
-    console.error('Failed to reset for new upload:', err)
-  }
+  localStorage.removeItem('lastImageId')
+  router.push({ name: 'LicensePlateUpload' })
 }
 
+// ✨ NEW FUNCTION: Deblur the result image again
+const deblurAgain = async () => {
+  if (isDeblurringAgain.value) return // Prevent multiple clicks
+
+  isDeblurringAgain.value = true
+  const currentImageId = route.query.imageId || localStorage.getItem('lastImageId')
+
+  if (!currentImageId) {
+    alert('Could not find the current image ID. Please refresh the page.')
+    isDeblurringAgain.value = false
+    return
+  }
+
+  try {
+    // Step 1: Tell the backend to create a new job from the current result.
+    const reprocessResponse = await api.post('/reprocess/', { image_id: parseInt(currentImageId) })
+    const newImageId = reprocessResponse.data.new_image_id
+
+    if (!newImageId) {
+      throw new Error('Backend did not return a new image ID for reprocessing.')
+    }
+
+    // Step 2: Kick off the actual processing for the *new* image record.
+    await api.post('/process/', { image_id: newImageId })
+
+    // Step 3: Redirect to the loading page to await the new result.
+    await router.push({ name: 'LoadingPage', query: { imageId: String(newImageId) } })
+
+  } catch (err) {
+    const msg = err?.response?.data?.error ||
+                err?.response?.data?.detail ||
+                err?.message ||
+                'An unexpected error occurred.'
+    
+    console.error('Deblur Again failed:', err)
+    alert(`Failed to start the process: ${msg}`) // Show error to the user
+    isDeblurringAgain.value = false // Reset button on failure
+  }
+}
 </script>
 
 <style scoped>
