@@ -371,6 +371,11 @@ def process_image(request):
             else:
                 plate_text = ""
                 confidence = "0"
+
+            try:
+                confidence_float = float(confidence)
+            except ValueError:
+                confidence_float = 0.0
             
             # Step 5: Save enhanced image
             buffer.seek(0)
@@ -386,7 +391,7 @@ def process_image(request):
             image_obj.distortion_type = before_display
             image_obj.after_distortion_type = after_display
             image_obj.conf_score = confidence
-            image_obj.status = "Successful" if after_display == "Normal" and plate_text else "Failed"
+            image_obj.status = "Successful" if after_display == "Normal" and plate_text and len(plate_text) >= 6 and confidence_float >= 70 else "Failed"
             image_obj.save()
             
             logger.info(f"Image processed successfully: {image_obj.id} by user {request.user_obj.email if request.is_user_authenticated else request.admin.email}")
