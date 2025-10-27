@@ -452,6 +452,7 @@ const thisWeekCount = computed(() => {
   const now = new Date()
   const startOfWeek = new Date(now)
   startOfWeek.setDate(now.getDate() - now.getDay())
+  startOfWeek.setHours(0, 0, 0, 0) // normalize to midnight
   return allHistory.value.filter(entry => {
     const d = new Date(entry.date)
     return d >= startOfWeek && d <= now
@@ -462,6 +463,7 @@ const lastWeekCount = computed(() => {
   const now = new Date()
   const startOfThisWeek = new Date(now)
   startOfThisWeek.setDate(now.getDate() - now.getDay())
+  startOfThisWeek.setHours(0, 0, 0, 0) // normalize
   const startOfLastWeek = new Date(startOfThisWeek)
   startOfLastWeek.setDate(startOfThisWeek.getDate() - 7)
   return allHistory.value.filter(entry => {
@@ -471,23 +473,30 @@ const lastWeekCount = computed(() => {
 })
 
 const percentageChange = computed(() => {
-  if (lastWeekCount.value === 0) return '+0%'
+  if (lastWeekCount.value === 0) {
+    // No baseline — handle edge case separately
+    return thisWeekCount.value > 0 ? '+100% (new activity)' : '0%'
+  }
+
   const diff = ((thisWeekCount.value - lastWeekCount.value) / lastWeekCount.value) * 100
-  const rounded = diff.toFixed(1)
-  return (diff >= 0 ? '+' : '') + rounded + '% from last week'
+  const rounded = Number(diff.toFixed(1))
+  return (rounded >= 0 ? '+' : '') + rounded + '% from last week'
 })
 
 const percentageIcon = computed(() => {
-  if (percentageChange.value.startsWith('+')) return ArrowUp
-  if (percentageChange.value.startsWith('-')) return ArrowDown
+  const val = percentageChange.value
+  if (val.startsWith('+')) return ArrowUp
+  if (val.startsWith('-')) return ArrowDown
   return Minus
 })
 
 const percentageColor = computed(() => {
-  if (percentageChange.value.startsWith('+')) return 'text-green-500'
-  if (percentageChange.value.startsWith('-')) return 'text-red-500'
+  const val = percentageChange.value
+  if (val.startsWith('+')) return 'text-green-500'
+  if (val.startsWith('-')) return 'text-red-500'
   return 'text-gray-500'
 })
+
 
 // --- Navigation ---
 const goToResult = (imageId) => router.push({ path: '/result', query: { imageId } })

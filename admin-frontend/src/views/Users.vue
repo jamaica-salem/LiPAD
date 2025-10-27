@@ -9,8 +9,11 @@
         </div>
         <p class="text-3xl font-extrabold mb-1.5">{{ users.length }}</p>
         <div class="flex items-center text-xs">
-          <ArrowUp class="text-green-500 mr-1 w-3.5 h-3.5" />
-          <span>+12% from last week</span>
+          <ArrowUp v-if="isGrowthPositive" class="text-green-500 mr-1 w-3.5 h-3.5" />
+          <ArrowDown v-else class="text-red-500 mr-1 w-3.5 h-3.5" />
+          <span class="text-white">
+            {{ isGrowthPositive ? '+' : ''}}{{ userGrowth }}% from last week
+          </span>
         </div>
       </div>
     </div>
@@ -312,6 +315,42 @@ onMounted(async () => {
   await fetchUsers()
 })
 
+// User growth calculation
+const thisWeekUsers = computed(() => {
+  const now = new Date()
+
+  const startOfWeek = new Date(now)
+  startOfWeek.setDate(now.getDate() - now.getDay()) // go back to Sunday
+  startOfWeek.setHours(0, 0, 0, 0) //  reset to midnight
+  console.log(users.value.filter(user => {
+    const d = new Date(user.createdAt)
+    return d >= startOfWeek && d <= now
+  }).length)
+  return users.value.filter(user => {
+    const d = new Date(user.createdAt)
+    return d >= startOfWeek && d <= now
+  }).length
+})
+
+const lastWeekUsers = computed(() => {
+  const now = new Date()
+  const startOfThisWeek = new Date(now)
+  startOfThisWeek.setDate(now.getDate() - now.getDay())
+  const startOfLastWeek = new Date(startOfThisWeek)
+  startOfLastWeek.setDate(startOfThisWeek.getDate() - 7)
+  return users.value.filter(user => {
+    const d = new Date(user.createdAt) // ✅ use createdAt
+    return d >= startOfLastWeek && d < startOfThisWeek
+  }).length
+})
+
+const userGrowth = computed(() => {
+  if (lastWeekUsers.value === 0) return 0
+  return (((thisWeekUsers.value - lastWeekUsers.value) / lastWeekUsers.value) * 100).toFixed(1)
+})
+
+const isGrowthPositive = computed(() => userGrowth.value >= 0)
+
 // Function to fetch all users
 const fetchUsers = async () => {
   try {
@@ -333,6 +372,7 @@ const fetchUsers = async () => {
         email: user.email,
         role: user.position,
         birthdate: user.date_of_birth || '',
+        createdAt: user.created_at,
         name: `${user.first_name} ${user.middle_name || ''} ${user.last_name}`.replace(/\s+/g, ' ').trim()
       }))
   } catch (err) {
