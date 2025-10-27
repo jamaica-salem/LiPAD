@@ -393,13 +393,40 @@ const filteredDeblurs = computed(() => {
   return allHistory.value.filter(h => h.status === kpiDeblurFilter.value)
 })
 
+// --- Percentage change calculation ---
+const thisWeekCount = computed(() => {
+  const now = new Date()
+  const startOfWeek = new Date(now)
+  startOfWeek.setDate(now.getDate() - now.getDay())
+  startOfWeek.setHours(0, 0, 0, 0) // normalize to midnight
+  return allHistory.value.filter(entry => {
+    const d = new Date(entry.date)
+    return d >= startOfWeek && d <= now
+  }).length
+})
+
+const lastWeekCount = computed(() => {
+  const now = new Date()
+  const startOfThisWeek = new Date(now)
+  startOfThisWeek.setDate(now.getDate() - now.getDay())
+  startOfThisWeek.setHours(0, 0, 0, 0) // normalize
+  const startOfLastWeek = new Date(startOfThisWeek)
+  startOfLastWeek.setDate(startOfThisWeek.getDate() - 7)
+  return allHistory.value.filter(entry => {
+    const d = new Date(entry.date)
+    return d >= startOfLastWeek && d < startOfThisWeek
+  }).length
+})
+
 const percentageChange = computed(() => {
-  if (!allHistory.value.length) return '0%'
-  const recent = allHistory.value.slice(0, 10).length
-  const previous = allHistory.value.slice(10, 20).length
-  if (previous === 0) return '0%'
-  const change = ((recent - previous) / previous) * 100
-  return `${change.toFixed(1)}%`
+  if (lastWeekCount.value === 0) {
+    // No baseline — handle edge case separately
+    return thisWeekCount.value > 0 ? '+100% (new activity)' : '0%'
+  }
+
+  const diff = ((thisWeekCount.value - lastWeekCount.value) / lastWeekCount.value) * 100
+  const rounded = Number(diff.toFixed(1))
+  return (rounded >= 0 ? '+' : '') + rounded + '% from last week'
 })
 
 const percentageIcon = computed(() => {

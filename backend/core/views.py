@@ -371,6 +371,11 @@ def process_image(request):
             else:
                 plate_text = ""
                 confidence = "0"
+
+            try:
+                confidence_float = float(confidence)
+            except ValueError:
+                confidence_float = 0.0
             
             # Step 5: Save enhanced image
             buffer.seek(0)
@@ -386,7 +391,7 @@ def process_image(request):
             image_obj.distortion_type = before_display
             image_obj.after_distortion_type = after_display
             image_obj.conf_score = confidence
-            image_obj.status = "Successful" if after_display == "Normal" and plate_text else "Failed"
+            image_obj.status = "Successful" if after_display == "Normal" and plate_text and len(plate_text) >= 6 and confidence_float >= 70 else "Failed"
             image_obj.save()
             
             logger.info(f"Image processed successfully: {image_obj.id} by user {request.user_obj.email if request.is_user_authenticated else request.admin.email}")
@@ -509,6 +514,11 @@ def process_gan_only(request):
         text = ""
         conf_score = "0"
 
+    try:
+        confidence_float = float(conf_score)
+    except ValueError:
+        confidence_float = 0.0
+
     # 5. Save AFTER image
     buffer.seek(0)
     image_obj.after_image.save(
@@ -523,7 +533,7 @@ def process_gan_only(request):
     image_obj.distortion_type = before_class_name
     image_obj.after_distortion_type = after_class_name
     image_obj.conf_score = conf_score
-    image_obj.status = "Successful" if after_class_name == "Normal" and text != '' else "Failed"
+    image_obj.status = "Successful" if after_class_name == "Normal" and text != '' and len(text) >= 6 and confidence_float >= 70 else "Failed"
     image_obj.save()
 
     print(f'OCR: {text}, Before distortion: {before_class_name}, After distortion: {after_class_name}, Status: {image_obj.status}')
