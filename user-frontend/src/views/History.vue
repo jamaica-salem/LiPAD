@@ -148,65 +148,11 @@
         </div>
 
         <!-- Right group: date range + filter icon -->
-        <div ref="rightControlsRef" class="flex items-center gap-1.5 text-xs md:ml-auto">
-          <label class="text-gray-600 hidden md:block">From:</label>
+        <div ref="rightControlsRef" class="flex items-center gap-1.5 text-xs md:ml-auto cursor-pointer">
+          <label class="text-gray-600 hidden md:block cursor-pointer">From:</label>
           <input v-model="startDate" type="date" class="date-input" />
-          <label class="text-gray-600 hidden md:block">To:</label>
+          <label class="text-gray-600 hidden md:block cursor-pointer">To:</label>
           <input v-model="endDate" type="date" class="date-input" />
-
-          <div class="relative" ref="tableFilterRef">
-            <button
-              class="cursor-pointer border border-gray-300 rounded-lg px-2 py-1.5 flex items-center justify-center transition-colors duration-200 hover:bg-gray-100"
-              @click="toggleTableDistortionDropdown"
-              :aria-expanded="showTableDistortionDropdown"
-              aria-haspopup="true"
-              aria-label="Filter by distortion"
-              title="Filter by distortion"
-            >
-              <Filter class="w-4 h-4" />
-            </button>
-
-            <transition name="fade-slide">
-              <div
-                v-if="showTableDistortionDropdown"
-                class="absolute right-0 mt-1.5 w-44 bg-white border border-gray-200 rounded shadow z-10 text-xs"
-              >
-                <ul>
-                  <li>
-                    <button @click="setTableDistortionFilter('All')" class="dropdown-item">
-                      All
-                    </button>
-                  </li>
-                  <li>
-                    <button @click="setTableDistortionFilter('Low Quality')" class="dropdown-item">
-                      Low Quality
-                    </button>
-                  </li>
-                  <li>
-                    <button @click="setTableDistortionFilter('Low Light')" class="dropdown-item">
-                      Low Light
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      @click="setTableDistortionFilter('Horizontal Blur')"
-                      class="dropdown-item"
-                    >
-                      Horizontal Blur
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      @click="setTableDistortionFilter('Vertical Blur')"
-                      class="dropdown-item"
-                    >
-                      Vertical Blur
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </transition>
-          </div>
         </div>
       </div>
 
@@ -317,7 +263,6 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { ArrowUp, ArrowDown, Minus, Trash2, Eye, ScanLine, Search, Filter } from 'lucide-vue-next'
 import api from '@/api/axios'
-import { makeAuthenticatedRequest } from '@/api/axios'
 import { useRouter } from 'vue-router'
 import Toast from '@/components/Toast.vue'
 
