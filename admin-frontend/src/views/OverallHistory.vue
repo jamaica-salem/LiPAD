@@ -188,7 +188,7 @@
                   <button
                     class="icon-btn text-[#1d3557] hover:text-[#2a486e] cursor-pointer"
                     title="View"
-                    @click="goToResult(entry.id)"
+                    @click="showFullScreen = true; outputImage = entry.image"
                     :aria-label="`View result for ${entry.id}`"
                   >
                     <Eye class="w-4 h-4" />
@@ -230,6 +230,28 @@
             Next
           </button>
         </div>
+      </div>
+    </div>
+    <div
+      v-if="showFullScreen"
+      class="fixed inset-0 z-50 flex justify-center items-center p-3.5 bg-black/20"
+    >
+      <div
+        class="relative bg-white rounded-3xl shadow-2xl max-w-6xl w-[60%] max-h-[100vh] flex flex-col items-center p-4"
+      >
+        <button
+          @click="showFullScreen = false"
+          class="absolute top-3 right-3 text-white cursor-pointer bg-red-600 hover:bg-red-800 rounded-2xl w-8 h-8 flex items-center justify-center shadow-sm transition"
+          aria-label="Close"
+        >
+          &#x2715;
+        </button>
+
+        <img
+          :src="outputImage"
+          alt="Full Output"
+          class="rounded-4xl max-h-[70vh] object-contain w-full border border-gray-200 shadow"
+        />
       </div>
     </div>
   </div>
@@ -275,6 +297,8 @@ const pageSize = ref(10)
 const nextPage = ref(null)
 const prevPage = ref(null)
 const deletingIds = ref(new Set())
+const showFullScreen = ref(false)
+const outputImage = ref('')
 
 // --- Fetch All for KPI ---
 const fetchAllHistoryForKPI = async () => {
