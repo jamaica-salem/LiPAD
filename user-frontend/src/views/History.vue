@@ -1,7 +1,12 @@
 <template>
   <div class="p-4 bg-orange-50">
     <!-- Toast Notifications -->
-    <Toast v-if="toast.visible" :type="toast.type" :message="toast.message" @close="toast.visible = false" />
+    <Toast
+      v-if="toast.visible"
+      :type="toast.type"
+      :message="toast.message"
+      @close="toast.visible = false"
+    />
 
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
@@ -15,10 +20,7 @@
         </div>
         <p class="text-3xl font-extrabold mb-1.5">{{ totalCount }}</p>
         <div class="flex items-center text-xs">
-          <component
-            :is="percentageIcon"
-            :class="['mr-1 w-3.5 h-3.5', percentageColor]"
-          />
+          <component :is="percentageIcon" :class="['mr-1 w-3.5 h-3.5', percentageColor]" />
           <span>{{ percentageChange }}</span>
         </div>
       </div>
@@ -44,11 +46,34 @@
                 class="absolute right-0 mt-1.5 w-40 bg-white border border-gray-200 rounded shadow z-10"
               >
                 <ul class="text-xs">
-                  <li><button @click="setKpiDistortionFilter('All')" class="dropdown-item">All</button></li>
-                  <li><button @click="setKpiDistortionFilter('Low Quality')" class="dropdown-item">Low Quality</button></li>
-                  <li><button @click="setKpiDistortionFilter('Low Light')" class="dropdown-item">Low Light</button></li>
-                  <li><button @click="setKpiDistortionFilter('Horizontal Blur')" class="dropdown-item">Horizontal Blur</button></li>
-                  <li><button @click="setKpiDistortionFilter('Vertical Blur')" class="dropdown-item">Vertical Blur</button></li>
+                  <li>
+                    <button @click="setKpiDistortionFilter('All')" class="dropdown-item">
+                      All
+                    </button>
+                  </li>
+                  <li>
+                    <button @click="setKpiDistortionFilter('Low Quality')" class="dropdown-item">
+                      Low Quality
+                    </button>
+                  </li>
+                  <li>
+                    <button @click="setKpiDistortionFilter('Low Light')" class="dropdown-item">
+                      Low Light
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      @click="setKpiDistortionFilter('Horizontal Blur')"
+                      class="dropdown-item"
+                    >
+                      Horizontal Blur
+                    </button>
+                  </li>
+                  <li>
+                    <button @click="setKpiDistortionFilter('Vertical Blur')" class="dropdown-item">
+                      Vertical Blur
+                    </button>
+                  </li>
                 </ul>
               </div>
             </transition>
@@ -79,9 +104,19 @@
                 class="absolute right-0 mt-1.5 w-36 bg-white border border-gray-200 rounded shadow z-10"
               >
                 <ul class="text-xs">
-                  <li><button @click="setKpiDeblurFilter('All')" class="dropdown-item">All</button></li>
-                  <li><button @click="setKpiDeblurFilter('Successful')" class="dropdown-item">Successful</button></li>
-                  <li><button @click="setKpiDeblurFilter('Failed')" class="dropdown-item">Failed</button></li>
+                  <li>
+                    <button @click="setKpiDeblurFilter('All')" class="dropdown-item">All</button>
+                  </li>
+                  <li>
+                    <button @click="setKpiDeblurFilter('Successful')" class="dropdown-item">
+                      Successful
+                    </button>
+                  </li>
+                  <li>
+                    <button @click="setKpiDeblurFilter('Failed')" class="dropdown-item">
+                      Failed
+                    </button>
+                  </li>
                 </ul>
               </div>
             </transition>
@@ -107,7 +142,9 @@
             class="border border-gray-300 rounded-lg pl-3 pr-8 py-1.5 w-full text-xs focus:outline-none focus:ring-1 focus:ring-[#265d9c] transition-shadow duration-200 focus:shadow-md"
             aria-label="Search plate history"
           />
-          <Search class="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-3.5 h-3.5" />
+          <Search
+            class="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-3.5 h-3.5"
+          />
         </div>
 
         <!-- Right group: date range + filter icon -->
@@ -135,11 +172,37 @@
                 class="absolute right-0 mt-1.5 w-44 bg-white border border-gray-200 rounded shadow z-10 text-xs"
               >
                 <ul>
-                  <li><button @click="setTableDistortionFilter('All')" class="dropdown-item">All</button></li>
-                  <li><button @click="setTableDistortionFilter('Low Quality')" class="dropdown-item">Low Quality</button></li>
-                  <li><button @click="setTableDistortionFilter('Low Light')" class="dropdown-item">Low Light</button></li>
-                  <li><button @click="setTableDistortionFilter('Horizontal Blur')" class="dropdown-item">Horizontal Blur</button></li>
-                  <li><button @click="setTableDistortionFilter('Vertical Blur')" class="dropdown-item">Vertical Blur</button></li>
+                  <li>
+                    <button @click="setTableDistortionFilter('All')" class="dropdown-item">
+                      All
+                    </button>
+                  </li>
+                  <li>
+                    <button @click="setTableDistortionFilter('Low Quality')" class="dropdown-item">
+                      Low Quality
+                    </button>
+                  </li>
+                  <li>
+                    <button @click="setTableDistortionFilter('Low Light')" class="dropdown-item">
+                      Low Light
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      @click="setTableDistortionFilter('Horizontal Blur')"
+                      class="dropdown-item"
+                    >
+                      Horizontal Blur
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      @click="setTableDistortionFilter('Vertical Blur')"
+                      class="dropdown-item"
+                    >
+                      Vertical Blur
+                    </button>
+                  </li>
                 </ul>
               </div>
             </transition>
@@ -167,15 +230,26 @@
               :key="entry.id"
               class="border-t rounded-lg border-gray-200 hover:bg-[#edf5ff] transition duration-200 hover:scale-[1.01]"
             >
-              <td class="px-3 py-1.5 font-semibold text-[#383f49]">#{{ totalCount - ((currentPage - 1) * pageSize + index) }}</td>
+              <td class="px-3 py-1.5 font-semibold text-[#383f49]">
+                #{{ totalCount - ((currentPage - 1) * pageSize + index) }}
+              </td>
               <td class="px-3 py-1.5">
-                <img :src="entry.image" alt="plate" class="w-8 h-8 object-cover rounded-full border transition-transform duration-200 hover:scale-110" />
+                <img
+                  :src="entry.image"
+                  alt="plate"
+                  class="w-8 h-8 object-cover rounded-full border transition-transform duration-200 hover:scale-110"
+                />
               </td>
               <td class="px-3 py-1.5 text-gray-600">{{ entry.date }}</td>
               <td class="px-3 py-1.5 font-mono text-blue-600">{{ entry.plate }}</td>
               <td class="px-3 py-1.5">
                 <span
-                  :class="[ 'text-[0.65rem] font-semibold px-2 py-0.5 rounded-full transition-colors duration-200', entry.status === 'Successful' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200' ]"
+                  :class="[
+                    'text-[0.65rem] font-semibold px-2 py-0.5 rounded-full transition-colors duration-200',
+                    entry.status === 'Successful'
+                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                      : 'bg-red-100 text-red-700 hover:bg-red-200',
+                  ]"
                 >
                   {{ entry.status.toUpperCase() }}
                 </span>
@@ -205,7 +279,9 @@
               </td>
             </tr>
             <tr v-if="filteredTableHistory.length === 0">
-              <td colspan="7" class="px-3 py-4 text-center text-gray-500">No records found for the selected filters.</td>
+              <td colspan="7" class="px-3 py-4 text-center text-gray-500">
+                No records found for the selected filters.
+              </td>
             </tr>
           </tbody>
         </table>
@@ -213,18 +289,20 @@
         <!-- Pagination Controls -->
         <div class="flex justify-between items-center mt-4 text-sm">
           <button
-            :disabled="!prevPage"
-            @click="fetchHistory(currentPage - 1)"
+            :disabled="currentPage <= 1"
+            @click="currentPage--"
             class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer active:scale-95 transition-transform duration-150"
           >
             Previous
           </button>
 
-          <span>Page {{ currentPage }} of {{ Math.max(1, Math.ceil(totalCount / pageSize)) }}</span>
-
+          <span
+            >Page {{ currentPage }} of
+            {{ Math.max(1, Math.ceil(totalFilteredCount / pageSize)) }}</span
+          >
           <button
-            :disabled="!nextPage"
-            @click="fetchHistory(currentPage + 1)"
+            :disabled="currentPage >= Math.ceil(totalFilteredCount / pageSize)"
+            @click="currentPage++"
             class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 cursor-pointer active:scale-95 transition-transform duration-150"
           >
             Next
@@ -287,7 +365,7 @@ const fetchAllHistoryForKPI = async () => {
     const MAX_PAGES = 500
     while (page <= MAX_PAGES) {
       const { data } = await api.get(`/user/images/?page=${page}`)
-      const mapped = (data.results || []).map(entry => ({
+      const mapped = (data.results || []).map((entry) => ({
         id: entry.id,
         image: entry.after_image_url || entry.before_image_url,
         date: entry.date_deblurred ? entry.date_deblurred.split('T')[0] : 'N/A',
@@ -320,7 +398,7 @@ const fetchHistory = async (page = 1) => {
   try {
     if (page < 1) page = 1
     const { data } = await api.get(`/user/images/?page=${page}`)
-    history.value = (data.results || []).map(entry => ({
+    history.value = (data.results || []).map((entry) => ({
       id: entry.id,
       image: entry.after_image_url || entry.before_image_url,
       date: entry.date_deblurred ? entry.date_deblurred.split('T')[0] : 'N/A',
@@ -341,10 +419,9 @@ const fetchHistory = async (page = 1) => {
 // --- Mounted ---
 onMounted(() => {
   // Fetch KPI & first page concurrently. Use Promise.allSettled so one failing doesn't block other.
-  Promise.allSettled([fetchAllHistoryForKPI(), fetchHistory(1)])
-    .then(results => {
-      // If both fail, user already sees toasts above
-    })
+  Promise.allSettled([fetchAllHistoryForKPI(), fetchHistory(1)]).then((results) => {
+    // If both fail, user already sees toasts above
+  })
   // click-outside handler: close table dropdown if clicking outside it
   document.addEventListener('click', handleDocumentClick)
   document.addEventListener('keydown', handleKeyDown)
@@ -359,14 +436,24 @@ onBeforeUnmount(() => {
 const handleDocumentClick = (e) => {
   const target = e?.target
   try {
-    if (tableFilterRef.value && tableFilterRef.value.contains && !tableFilterRef.value.contains(target)) {
+    if (
+      tableFilterRef.value &&
+      tableFilterRef.value.contains &&
+      !tableFilterRef.value.contains(target)
+    ) {
       showTableDistortionDropdown.value = false
     }
     // For KPI dropdowns: close if click outside any element with aria-haspopup attribute
-    if (showDistortionDropdown.value && !(target && target.closest && target.closest('[aria-haspopup="true"]'))) {
+    if (
+      showDistortionDropdown.value &&
+      !(target && target.closest && target.closest('[aria-haspopup="true"]'))
+    ) {
       showDistortionDropdown.value = false
     }
-    if (showDeblurDropdown.value && !(target && target.closest && target.closest('[aria-haspopup="true"]'))) {
+    if (
+      showDeblurDropdown.value &&
+      !(target && target.closest && target.closest('[aria-haspopup="true"]'))
+    ) {
       showDeblurDropdown.value = false
     }
   } catch (e) {
@@ -386,66 +473,83 @@ const handleKeyDown = (e) => {
 const setKpiDistortionFilter = (filter) => {
   kpiDistortionFilter.value = filter
   showDistortionDropdown.value = false
+
+  // Reset table filter when KPI filter is applied
+  if (filter !== 'All') {
+    tableDistortionFilter.value = 'All'
+  }
 }
 
 const setKpiDeblurFilter = (filter) => {
   kpiDeblurFilter.value = filter
   showDeblurDropdown.value = false
+
+  // Reset table filter when KPI filter is applied
+  if (filter !== 'All') {
+    tableDistortionFilter.value = 'All'
+  }
 }
 
-// Toggle helper for icon-only filter button
-const toggleTableDistortionDropdown = (e) => {
-  // stop propagation to avoid immediate document click handler closing it
-  if (e && typeof e.stopPropagation === 'function') e.stopPropagation()
+// --- Table Filters ---
+const toggleTableDistortionDropdown = () => {
   showTableDistortionDropdown.value = !showTableDistortionDropdown.value
 }
 
-// --- Table filter ---
 const setTableDistortionFilter = (filter) => {
   tableDistortionFilter.value = filter
   showTableDistortionDropdown.value = false
+
+  // Reset KPI filters when table filter is applied
+  if (filter !== 'All') {
+    kpiDistortionFilter.value = 'All'
+    kpiDeblurFilter.value = 'All'
+  }
 }
 
-// --- Computed KPI values ---
+// --- Computed KPIs ---
 const filteredDistortions = computed(() => {
-  return allHistory.value.filter(
-    e => kpiDistortionFilter.value === 'All' || e.distortion === kpiDistortionFilter.value
-  )
+  if (!allHistory.value.length) return []
+  if (kpiDistortionFilter.value === 'All') return allHistory.value
+  return allHistory.value.filter((h) => h.distortion === kpiDistortionFilter.value)
 })
 
 const filteredDeblurs = computed(() => {
-  return allHistory.value.filter(
-    e => kpiDeblurFilter.value === 'All' || e.status === kpiDeblurFilter.value
-  )
+  if (!allHistory.value.length) return []
+  if (kpiDeblurFilter.value === 'All') return allHistory.value
+  return allHistory.value.filter((h) => h.status === kpiDeblurFilter.value)
 })
 
-// --- Table filtered ---
-const filteredTableHistory = computed(() => {
-  return history.value.filter(entry => {
-    const plateLower = (entry.plate || '').toString().toLowerCase()
-    const matchesSearch = plateLower.includes(searchQuery.value.toLowerCase())
+// 1️⃣ Filter across allHistory (not just current page)
+const filteredAllHistory = computed(() => {
+  return allHistory.value.filter((entry) => {
+    const matchesSearch =
+      searchQuery.value === '' ||
+      entry.plate.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      entry.user.toLowerCase().includes(searchQuery.value.toLowerCase())
 
-    // parse dates; N/A entries are treated as null
-    const entryDate = entry.date !== 'N/A' ? new Date(entry.date) : null
-    let start = startDate.value ? new Date(startDate.value) : null
-    let end = endDate.value ? new Date(endDate.value) : null
+    const matchesDistortion =
+      (tableDistortionFilter.value === 'All' || entry.distortion === tableDistortionFilter.value) &&
+      (kpiDistortionFilter.value === 'All' || entry.distortion === kpiDistortionFilter.value)
 
-    // If both provided and start > end, swap them (user-friendly)
-    if (start && end && start > end) {
-      const tmp = start
-      start = end
-      end = tmp
-    }
+    const matchesDate =
+      (!startDate.value || entry.date >= startDate.value) &&
+      (!endDate.value || entry.date <= endDate.value)
 
-    // If dates exist, ensure entry has date; entries without date are excluded when a date filter exists
-    const withinDateRange = (!start && !end) ||
-      ((start ? (entryDate && entryDate >= start) : true) && (end ? (entryDate && entryDate <= end) : true))
+    const matchesDeblur = kpiDeblurFilter.value === 'All' || entry.status === kpiDeblurFilter.value
 
-    const matchesDistortion = tableDistortionFilter.value === 'All' || (entry.distortion === tableDistortionFilter.value)
-
-    return matchesSearch && withinDateRange && matchesDistortion
+    return matchesSearch && matchesDistortion && matchesDate && matchesDeblur
   })
 })
+
+// 2️⃣ Apply pagination *after filtering*
+const filteredTableHistory = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return filteredAllHistory.value.slice(start, end)
+})
+
+// 3️⃣ Update pagination controls dynamically
+const totalFilteredCount = computed(() => filteredAllHistory.value.length)
 
 // --- Percentage change calculation ---
 const thisWeekCount = computed(() => {
@@ -453,7 +557,7 @@ const thisWeekCount = computed(() => {
   const startOfWeek = new Date(now)
   startOfWeek.setDate(now.getDate() - now.getDay())
   startOfWeek.setHours(0, 0, 0, 0) // normalize to midnight
-  return allHistory.value.filter(entry => {
+  return allHistory.value.filter((entry) => {
     const d = new Date(entry.date)
     return d >= startOfWeek && d <= now
   }).length
@@ -466,7 +570,7 @@ const lastWeekCount = computed(() => {
   startOfThisWeek.setHours(0, 0, 0, 0) // normalize
   const startOfLastWeek = new Date(startOfThisWeek)
   startOfLastWeek.setDate(startOfThisWeek.getDate() - 7)
-  return allHistory.value.filter(entry => {
+  return allHistory.value.filter((entry) => {
     const d = new Date(entry.date)
     return d >= startOfLastWeek && d < startOfThisWeek
   }).length
@@ -497,7 +601,6 @@ const percentageColor = computed(() => {
   return 'text-gray-500'
 })
 
-
 // --- Navigation ---
 const goToResult = (imageId) => router.push({ path: '/result', query: { imageId } })
 
@@ -515,8 +618,8 @@ const deleteImage = async (id) => {
     await api.delete(`/user/images/${id}/`)
 
     // locally update the UI to reflect deletion immediately (optimistic)
-    history.value = history.value.filter(entry => entry.id !== id)
-    allHistory.value = allHistory.value.filter(entry => entry.id !== id)
+    history.value = history.value.filter((entry) => entry.id !== id)
+    allHistory.value = allHistory.value.filter((entry) => entry.id !== id)
     totalCount.value = Math.max(0, totalCount.value - 1)
 
     // If the current page becomes empty (and not on first page), load previous page
