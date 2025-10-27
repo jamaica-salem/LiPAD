@@ -504,10 +504,10 @@ def process_gan_only(request):
     result = run_ocr(enhanced_img)
     if result and result[0]:
         text = result[0][0][1][0]
-        conf_score = f"{result[0][0][1][1] * 100:.2f}"
+        conf_score = result[0][0][1][1] * 100  # Keep as float, don't convert to string yet
     else:
         text = ""
-        conf_score = "0"
+        conf_score = 0  # Keep as number
 
     # 5. Save AFTER image
     buffer.seek(0)
@@ -522,16 +522,18 @@ def process_gan_only(request):
     image_obj.date_deblurred = timezone.now()
     image_obj.distortion_type = before_class_name
     image_obj.after_distortion_type = after_class_name
-    image_obj.conf_score = conf_score
-    image_obj.status = "Successful" if after_class_name == "Normal" and text != '' else "Failed"
+    image_obj.conf_score = f"{conf_score:.2f}"  # Convert to string only when saving
+    image_obj.status = "Successful" if (after_class_name == "Normal" and 
+                                    len(text) >= 6 and 
+                                    conf_score >= 85) else "Failed"  # Compare as number
     image_obj.save()
 
-    print(f'OCR: {text}, Before distortion: {before_class_name}, After distortion: {after_class_name}, Status: {image_obj.status}')
+    print(f'OCR: {text}, Before distortion: {before_class_name}, After distortion: {after_class_name}, Conf: {conf_score:.2f}%, Status: {image_obj.status}')
 
     return JsonResponse({
         "before_distortion": before_class_name,
         "after_distortion": after_class_name,
         "ocr": text,
-        "conf_score": conf_score,
+        "conf_score": f"{conf_score:.2f}",  # Convert to string for response
         "status": image_obj.status
     })
