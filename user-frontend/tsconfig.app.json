@@ -1,13 +1,30 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/shims-vue.d.ts"],
-  "exclude": ["src/**/__tests__/*"],
+  "exclude": ["src/**/__tests__/*", "node_modules", "dist"],
   "compilerOptions": {
+    /* Output and project structure */
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "noEmit": true,                   
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 
+    /* Modern module setup for Vite */
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",        
+    "jsx": "preserve",
+    "isolatedModules": true,
+
+    /* Type safety and quality */
+    "strict": true,
+    "skipLibCheck": true,
+    "allowJs": false,
+    "resolveJsonModule": true,
+
+    /* Aliases */
     "paths": {
       "@/*": ["./src/*"]
     }
   }
 }
-
