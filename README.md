@@ -3,7 +3,6 @@
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.12-orange)](https://www.tensorflow.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1-red)](https://pytorch.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 **LiPAD** is an **AI-powered web application** for real-time **deblurring and analysis of vehicle license plate images**. It leverages a **CNN, GAN, and CRNN** pipeline to deliver **high-fidelity restoration** and **fast OCR recognition**, reducing manual correction time by up to 80%.  
 
@@ -93,6 +92,3 @@ This project tackles the challenge of reading blurred license plate images cause
 
 
 **LiPAD Team** | AI-Powered License Plate Restoration 🚗🤖
-
-## 📈 Workflow Diagram
-
